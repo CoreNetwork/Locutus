@@ -1,0 +1,21 @@
+- name: Default
+  alias: d
+  color: '&f'
+  modes:
+  - PERSIST
+  write_permission: ''
+  read_permission: ''
+- name: Server
+  alias: lbc
+  color: '&a'
+  modes:
+  - PERSIST
+  write_permission: 'broadcast'
+  read_permission: ''
+- name: Network
+  alias: nbc
+  color: '&a'
+  modes:
+  - PERSIST
+  write_permission: 'broadcast'
+  read_permission: ''

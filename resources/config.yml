@@ -1,0 +1,26 @@
+ShortCode: 'S'
+ServerName: 'Survival'
+defaultChannel: 'S'
+defaultListen: [S, Server, Global]
+
+multiServer: false
+chatServer: ''
+chatServerPassword: ''
+
+consoleLogChat: true
+consoleLogServers: true
+
+hideJoinPlayerList: false
+
+strings:
+  player-welcome: '&aWelcome &e%player% &ato the server!'
+  player-join: '%prefix%%player% &ehas joined %server%!'
+  player-quit: '%prefix%%player% &ehas left %server%!'
+  message: '&f<&3%server%&7%channel%&f>%prefix% %player%: &7%message%'
+  action: '&f<&3%server%&7%channel%&f> * %prefix%%player% &f%message%'
+  pm_send: '&7(to %to%) %message%' # you can also use %from%
+  pm_receive: '&7(from %from%) %message%' # you can also use %to%
+  timeout-mod: '%prefix%%player% %fHas been put in timeout for %time% seconds'
+  timeout-player: 'You have been placed in timeout for %time% seconds'
+  timeout-players: '%prefix%%player% &fHas been put in timeout for %time% seconds'
+  timeout-reason: 'For %reason%'
