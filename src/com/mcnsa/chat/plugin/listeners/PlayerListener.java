@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
+import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerListener implements Listener{
@@ -22,7 +23,7 @@ public class PlayerListener implements Listener{
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	//Handles login events
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerLogin(PlayerLoginEvent event) {
 		//Get the player
 		Player player = event.getPlayer();
@@ -31,35 +32,34 @@ public class PlayerListener implements Listener{
 		//Add to playerManager
 		PlayerManager.PlayerLogin(playerName);
 		
-		//Check if new.
+		//Start the join notification
+		String message = plugin.getConfig().getString("strings.player-join");
+		message = message.replaceAll("%player%", playerName);
+		
+		//Check if new player.
 		if (PlayerManager.getPlayer(playerName, plugin.shortCode).isNew) {
 			//Check if the welcome is to be displayed
 			if (plugin.getConfig().getBoolean("displayWelcome")) {
 				//Display the welcome message
-				String message = plugin.getConfig().getString("strings.player-welcome");
-				message.replace("%player%", "playerName");
-			}
-			else {
-				String message = plugin.getConfig().getString("strings.player-join");
-				message.replace("%player%", "playerName");
+				message = plugin.getConfig().getString("strings.player-welcome");
+				message = message.replaceAll("%player%", playerName);
 			}
 		}
-		else {
-			String message = plugin.getConfig().getString("strings.player-join");
-			message.replace("%player%", "playerName");
-		}
 		
-		
+		MessageSender.joinQuitMessage(message);
 	}
 	//Handles logouts
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void playerQuit (PlayerQuitEvent event) {
 		PlayerManager.PlayerLogout(event.getPlayer().getName());
+		String message = plugin.getConfig().getString("strings.player-quit");
+		message = message.replaceAll("%player%", event.getPlayer().getName());
+		MessageSender.joinQuitMessage(message);
 	}
 	//Handles chat events
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void playerChat(AsyncPlayerChatEvent event){
-		Player player = event.getPlayer();
-		String message = event.getMessage();
+		MessageSender.sendChannel(event.getPlayer().getName(), event.getMessage());
+		event.setCancelled(true);
 	}
 }

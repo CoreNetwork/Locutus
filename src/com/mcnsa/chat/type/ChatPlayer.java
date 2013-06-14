@@ -63,6 +63,7 @@ public class ChatPlayer {
 		this.playersFile.get().set("modes.SEEALL", this.modes.get("SEEALL"));
 		this.playersFile.get().set("modes.MUTE", this.modes.get("MUTE"));
 		this.playersFile.get().set("modes.POOF", this.modes.get("POOF"));
+		this.playersFile.get().set("muted", this.muted);
 		this.playersFile.save();
 	}
 	public void changeChannel(String channel) {
