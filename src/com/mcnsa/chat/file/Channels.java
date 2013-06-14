@@ -19,7 +19,7 @@ public class Channels {
 
 	  public void reload() {
 	    if (this.customConfigFile == null)
-	      this.customConfigFile = new File(this.plugin.getDataFolder(), "persistence.yml");
+	      this.customConfigFile = new File(this.plugin.getDataFolder(), "channels.yml");
 	    this.customConfig = YamlConfiguration.loadConfiguration(this.customConfigFile);
 	  }
 
@@ -44,7 +44,7 @@ public class Channels {
 	  }
 
 	  public void saveDefault() {
-	    if (!new File(this.plugin.getDataFolder(), "persistence.yml").exists())
-	      this.plugin.saveResource("persistence.yml", false);
+	    if (!new File(this.plugin.getDataFolder(), "channels.yml").exists())
+	      this.plugin.saveResource("channels.yml", false);
 	  }
 }

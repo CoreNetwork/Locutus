@@ -6,7 +6,7 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.type.ChatChannel;
 
 public class ChannelManager {
-	public static ArrayList<ChatChannel> channels;
+	public static ArrayList<ChatChannel> channels = new ArrayList<ChatChannel>();
 	private MCNSAChat plugin;
 	
 	public ChannelManager(){

@@ -21,7 +21,7 @@ public class Players {
 
 	  public void reload() {
 	    if (this.customConfigFile == null)
-	      this.customConfigFile = new File(this.plugin.getDataFolder()+"Players/", this.player+".yml");
+	      this.customConfigFile = new File("plugins/MCNSAChat/Players/"+this.player+".yml");
 	    this.customConfig = YamlConfiguration.loadConfiguration(this.customConfigFile);
 	  }
 
