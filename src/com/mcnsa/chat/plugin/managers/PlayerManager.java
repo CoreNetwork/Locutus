@@ -8,10 +8,8 @@ import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerManager {
 	public static ArrayList<ChatPlayer> players;
-	private MCNSAChat plugin;
 	
 	public PlayerManager() {
-		this.plugin = MCNSAChat.plugin;
 		players = new ArrayList<ChatPlayer>();
 	}
 	
@@ -52,5 +50,15 @@ public class PlayerManager {
 		}
 		
 		return serverPlayers;
+	}
+
+	public static ArrayList<ChatPlayer> playerSearch(String string) {
+		ArrayList<ChatPlayer> results = new ArrayList<ChatPlayer>();
+		for (int i = 0; i < players.size(); i++){
+			if (players.get(i).name.startsWith(string) && !results.contains(players.get(i))) {
+				results.add(players.get(i));
+			}
+		}
+		return results;
 	}
 }

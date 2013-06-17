@@ -11,11 +11,9 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 public class Players {
 	private FileConfiguration customConfig = null;
 	  private File customConfigFile = null;
-	  private MCNSAChat plugin = null;
 	  private String player;
 
 	  public Players(String player) {
-	    this.plugin = MCNSAChat.plugin;
 	    this.player = player;
 	  }
 

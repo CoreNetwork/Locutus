@@ -1,7 +1,6 @@
 package com.mcnsa.chat.plugin.listeners;
 
-import java.io.File;
-
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,7 +12,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.MessageSender;
-import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerListener implements Listener{
 	private MCNSAChat plugin;
@@ -43,18 +41,23 @@ public class PlayerListener implements Listener{
 				//Display the welcome message
 				message = plugin.getConfig().getString("strings.player-welcome");
 				message = message.replaceAll("%player%", playerName);
+				for (Player otherPlayer : Bukkit.getOnlinePlayers())
+					if (!otherPlayer.getName().equals(event.getPlayer().getName()))
+						MessageSender.send(message, player.getName());
 			}
 		}
 		
-		MessageSender.joinQuitMessage(message);
+		//Notify other players
+		MessageSender.joinMessage(playerName, MCNSAChat.plugin.serverName);
 	}
 	//Handles logouts
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void playerQuit (PlayerQuitEvent event) {
+		//Save the player
 		PlayerManager.PlayerLogout(event.getPlayer().getName());
-		String message = plugin.getConfig().getString("strings.player-quit");
-		message = message.replaceAll("%player%", event.getPlayer().getName());
-		MessageSender.joinQuitMessage(message);
+
+		//Notify others
+		MessageSender.quitMessage(event.getPlayer().getName(), MCNSAChat.plugin.serverName);
 	}
 	//Handles chat events
 	@EventHandler(priority = EventPriority.LOWEST)

@@ -13,29 +13,29 @@ import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
+import com.mcnsa.chat.plugin.utils.FileLog;
 import com.mcnsa.chat.type.ChatChannel;
 
 public class MCNSAChat extends JavaPlugin{
 	public String serverName;
 	public String shortCode;
 	public Boolean multiServer;
-	@SuppressWarnings("unused")
 	public PlayerManager playerManager;
-	@SuppressWarnings("unused")
 	public ChannelManager channelManager;
 	public Channels channels;
+	public FileLog logs;
 	public static MCNSAChat plugin;
 	public static ConsoleLogging console;
 	public void onEnable() {
 		plugin = this;
 		console = new ConsoleLogging();
 		
-		console.info("Enabled");
+		this.logs = new FileLog();
 		
 		//Check to see if the directory for players exists
 		File playerFolder = new File("plugins/MCNSAChat/Players");
-		
-		playerFolder.mkdir();
+		if (!playerFolder.exists())
+			playerFolder.mkdir();
 				
 		//Load the configs
 		console.info("Loading config");
@@ -50,9 +50,11 @@ public class MCNSAChat extends JavaPlugin{
 
 		//Notify if the multiServer is set to true or false
 		if (this.multiServer) {
+			//Config for multiserver mode
 			console.info("Server is running in Multi Server mode.");
 		}
 		else {
+			//Config for single server mode
 			console.info("Server is running in single server mode.");
 		}
 		
@@ -77,6 +79,7 @@ public class MCNSAChat extends JavaPlugin{
 		
 		console.info("Disabled");
 	}
+	@SuppressWarnings("unchecked")
 	public void loadChannels() {
 		
 		List<Map<String,?>> channelData = (List<Map<String, ?>>) channels.get().getList("channels");

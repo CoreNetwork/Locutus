@@ -1,5 +1,6 @@
 package com.mcnsa.chat.plugin.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 
 import ru.tehkode.permissions.PermissionUser;
@@ -10,7 +11,7 @@ public class Colours {
 	public static String PlayerPrefix(String playerName) {
 		PermissionUser user = Permissions.pex.getUser(playerName);
 		String prefix = user.getPrefix();
-		return prefix;
+		return color(prefix);
 	}
 	public static String processConsoleColours(String str) {
 		str = str.replaceAll("&0", ChatColor.BLACK.toString());
@@ -36,5 +37,16 @@ public class Colours {
 		str = str.replaceAll("&o", ChatColor.ITALIC.toString());
 		str = str.replaceAll("&r", ChatColor.RESET.toString());
 		return str;
+	}
+	public static String stripColor(String str) {
+		int count = StringUtils.countMatches(str, "&");
+		for (int i=0; i < count; i++) {
+			str = ChatColor.stripColor(color(str));
+		}
+		return str;
+		
+	}
+	public static String color(String str) {
+		return ChatColor.translateAlternateColorCodes('&', str);
 	}
 }
