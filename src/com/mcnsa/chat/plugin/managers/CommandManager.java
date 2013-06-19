@@ -18,11 +18,12 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 
+import ru.tehkode.utils.StringUtils;
+
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
-import com.mcnsa.chat.plugin.components.ComponentManager;
-import com.mcnsa.chat.plugin.components.ComponentManager.Component;
 import com.mcnsa.chat.plugin.exceptions.ChatCommandException;
+import com.mcnsa.chat.plugin.managers.ComponentManager.Component;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
@@ -213,6 +214,7 @@ public class CommandManager implements TabExecutor {
 	// go through a given class and register all the commands in it
 	private void registerComponentCommands(CommandMap commandMap, Component component) {
 		// get our class
+		MCNSAChat.console.info("Loading commands");
 		Class<?> cls = component.clazz;
 
 		// loop through all our methods in the given class
@@ -362,7 +364,7 @@ public class CommandManager implements TabExecutor {
 					label = aliasMapping.get(label);
 				}
 
-				//Logger.debug("%s ran command %s with args: %s", sender.getName(), command.getName(), StringUtils.implode(", ", args));			
+				MCNSAChat.console.info(sender.getName()+" ran command "+command.getName()+" with args: "+args[0]);			
 				
 				// find all our possibilities
 				String lastFailMessage = "";

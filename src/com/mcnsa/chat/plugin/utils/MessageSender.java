@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
@@ -13,9 +15,37 @@ import com.mcnsa.chat.type.ChatPlayer;
 
 public class MessageSender {
 	public static void send(String message, String playerSender, String player) {
-		//Function sends from one player to another
-		Player playerRecieving = Bukkit.getPlayer(player);
-		playerRecieving.sendMessage(message);
+		//Get the player
+		ChatPlayer cPlayer = PlayerManager.getPlayer(player, MCNSAChat.plugin.shortCode);
+		
+		//Check if player has muted playersender
+		if (!cPlayer.muted.contains(playerSender)) {
+			//Player is not muted
+			Bukkit.getPlayer(player).sendMessage(Colours.stripColor(message));
+		}
+	}
+	public static void joinMessage(String playerName, String server, PlayerJoinEvent event) {
+		//Build the message
+		String message = MCNSAChat.plugin.getConfig().getString("strings.player-join");
+		message = message.replaceAll("%server%", server);
+		message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerName));
+		message = message.replaceAll("%player%", playerName);
+		//Notify console
+		MCNSAChat.console.info(Colours.processConsoleColours(message));
+		//Set the join message
+		event.setJoinMessage(Colours.processConsoleColours(message));
+	}
+	public static void quitMessage(String playerName, String server, PlayerQuitEvent event) {
+		//Build the message
+		String message = MCNSAChat.plugin.getConfig().getString("strings.player-quit");
+		message = message.replaceAll("%server%", server);
+		message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerName));
+		message = message.replaceAll("%player%", playerName);
+		
+		//Notify console
+		MCNSAChat.console.info(Colours.processConsoleColours(message));
+		//Set quit message
+		event.setQuitMessage(Colours.processConsoleColours(message));
 	}
 	public static void joinMessage(String playerName, String server) {
 		//Build the message
@@ -23,6 +53,7 @@ public class MessageSender {
 		message = message.replaceAll("%server%", server);
 		message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerName));
 		message = message.replaceAll("%player%", playerName);
+		//Notify everyone
 		Bukkit.broadcastMessage(Colours.processConsoleColours(message));
 	}
 	public static void quitMessage(String playerName, String server) {
@@ -31,6 +62,8 @@ public class MessageSender {
 		message = message.replaceAll("%server%", server);
 		message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerName));
 		message = message.replaceAll("%player%", playerName);
+		
+		//Notify everyone
 		Bukkit.broadcastMessage(Colours.processConsoleColours(message));
 	}
 	public static void sendChannel(String playerName, String chatMessage){

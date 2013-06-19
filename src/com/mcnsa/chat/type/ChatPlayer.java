@@ -30,7 +30,7 @@ public class ChatPlayer {
 		this.server = this.plugin.shortCode;
 		
 		//check to see if there is actually a player file there
-		File playerFile = new File(this.plugin.getDataFolder()+"Players/", username+".yml");
+		File playerFile = new File("plugins/MCNSAChat/Players/", username+".yml");
 		playersFile = new Players(this.name);
 		if (!playerFile.exists()) {
 			//Player is new to the server. Set the defaults

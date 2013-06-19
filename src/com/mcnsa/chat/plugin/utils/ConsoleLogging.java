@@ -6,13 +6,13 @@ import org.bukkit.ChatColor;
 public class ConsoleLogging {
 	
 	public void info (String message) {
-		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&a[INFO]&f"+message));
+		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[INFO] "+message));
 	}
 	public void warning (String message) {
-		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&a[WARNING]&f"+message));
+		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[&6WARNING&f] "+message));
 	}
 	public void severe (String message) {
-		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&a[SEVERE]&f"+message));
+		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[&4SEVERE&f] "+message));
 	}
 	
 	public static String processColours(String str) {

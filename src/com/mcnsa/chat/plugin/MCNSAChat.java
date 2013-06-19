@@ -9,8 +9,10 @@ import java.util.Map;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mcnsa.chat.file.Channels;
+import com.mcnsa.chat.plugin.managers.ComponentManager;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
+import com.mcnsa.chat.plugin.managers.CommandManager;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.FileLog;
@@ -24,6 +26,8 @@ public class MCNSAChat extends JavaPlugin{
 	public ChannelManager channelManager;
 	public Channels channels;
 	public FileLog logs;
+	public CommandManager commandManager;
+	public ComponentManager componentManager;
 	public static MCNSAChat plugin;
 	public static ConsoleLogging console;
 	public void onEnable() {
@@ -62,6 +66,14 @@ public class MCNSAChat extends JavaPlugin{
 		this.playerManager = new PlayerManager();
 		//Load up the ChannelManager
 		this.channelManager = new ChannelManager();
+		//Load up command manager
+		this.commandManager = new CommandManager();
+		// ok, start loading our components
+		componentManager = new ComponentManager();
+		//Load components
+		componentManager.initializeComponents();
+		//Load our commands
+		commandManager.loadCommands(componentManager);
 		
 		//load up the saved channels
 		this.channels = new Channels();

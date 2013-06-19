@@ -24,7 +24,7 @@ public class ChannelManager {
 	public static ArrayList<ChatPlayer> getPlayersListening(String channel){
 		ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 		for (ChatPlayer player: PlayerManager.players) {
-			if (player.channel.equalsIgnoreCase(channel)| player.listening.contains(channel)) {
+			if (player.channel.equalsIgnoreCase(channel)|| player.listening.contains(channel)|| player.modes.get("SEEALL")) {
 				players.add(player);
 			}
 		}
@@ -34,5 +34,65 @@ public class ChannelManager {
 		
 		return players;
 		
+	}
+	public static ArrayList<ChatPlayer> getPlayersInChannel(String channel) {
+		ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
+		for (ChatPlayer player: PlayerManager.players) {
+			if (player.channel.equalsIgnoreCase(channel)) {
+				players.add(player);
+			}
+		}
+		
+		return players;
+	}
+	public static ArrayList<String> getChannelList() {
+		ArrayList<String> persistChannelList = getPersistChannelList();
+		ArrayList<String> playerChannelList = getPlayerChannelList();
+		ArrayList<String> channelList = new ArrayList<String>();
+		//Get the channels in the channel list
+		for (int i = 0; i< persistChannelList.size(); i++) {
+			String chan = persistChannelList.get(i);
+			if (!channelList.contains(chan))
+				channelList.add(chan);
+		}
+		
+		//Now get the channels the players are in
+		for (int i = 0; i< playerChannelList.size(); i++) {
+			String playerChan = playerChannelList.get(i);
+			if (!channelList.contains(playerChan))
+				channelList.add(playerChan);
+		}
+		return channelList;
+	}
+	public static ArrayList<String> getPersistChannelList() {
+		ArrayList<String> channelList = new ArrayList<String>();
+		//Get the channels in the channel list
+		for (int i = 0; i< channels.size(); i++) {
+			ChatChannel chan = channels.get(i);
+			if (!channelList.contains(chan.name))
+				channelList.add(chan.name);
+		}
+		return channelList;
+	}
+	public static ArrayList<String> getPlayerChannelList() {
+		ArrayList<String> channelList = new ArrayList<String>();
+		
+		for (int i = 0; i< PlayerManager.players.size(); i++) {
+			ChatPlayer player = PlayerManager.players.get(i);
+			if (!channelList.contains(player.channel))
+				channelList.add(player.channel);
+		}
+		return channelList;
+	}
+	public static String playersInChannel(String channel) {
+		StringBuffer playerList = new StringBuffer();
+		if (!getPlayersInChannel(channel).isEmpty()) {
+			for(ChatPlayer player: getPlayersInChannel(channel)){
+			playerList.append(Permissions.getPrefix(player.name)+player.name);
+			}
+		}
+		if (playerList.length() == 0)
+			return "No-one";
+		return playerList.toString();
 	}
 }

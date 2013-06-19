@@ -1,4 +1,4 @@
-package com.mcnsa.chat.plugin.components;
+package com.mcnsa.chat.plugin.managers;
 
 import java.io.File;
 import java.net.URL;
@@ -11,7 +11,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
-import com.mcnsa.chat.plugin.managers.CommandManager;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
 
 public class ComponentManager {

@@ -6,7 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
@@ -21,8 +21,8 @@ public class PlayerListener implements Listener{
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	//Handles login events
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onPlayerLogin(PlayerLoginEvent event) {
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onPlayerLogin(PlayerJoinEvent event) {
 		//Get the player
 		Player player = event.getPlayer();
 		String playerName = player.getName();
@@ -45,10 +45,13 @@ public class PlayerListener implements Listener{
 					if (!otherPlayer.getName().equals(event.getPlayer().getName()))
 						MessageSender.send(message, player.getName());
 			}
+			//Debug
+			MCNSAChat.console.info(playerName+" is new to the server");
 		}
 		
 		//Notify other players
-		MessageSender.joinMessage(playerName, MCNSAChat.plugin.serverName);
+		MessageSender.joinMessage(playerName, MCNSAChat.plugin.serverName, event);
+		
 	}
 	//Handles logouts
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -57,7 +60,7 @@ public class PlayerListener implements Listener{
 		PlayerManager.PlayerLogout(event.getPlayer().getName());
 
 		//Notify others
-		MessageSender.quitMessage(event.getPlayer().getName(), MCNSAChat.plugin.serverName);
+		MessageSender.quitMessage(event.getPlayer().getName(), MCNSAChat.plugin.serverName, event);
 	}
 	//Handles chat events
 	@EventHandler(priority = EventPriority.LOWEST)
