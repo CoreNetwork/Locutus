@@ -16,9 +16,9 @@ public class ChatPlayer {
 	public Map<String, Boolean> modes = new HashMap<String, Boolean>();
 	public ArrayList<String> listening;
 	public ArrayList<String> muted = new ArrayList<String>();
+	public ArrayList<String> serversVisited = new ArrayList<String>();
 	public Players playersFile;
 	private MCNSAChat plugin;
-	public boolean isNew;
 	
 	@SuppressWarnings("unchecked")
 	public ChatPlayer(String username){
@@ -40,23 +40,32 @@ public class ChatPlayer {
 			this.modes.put("MUTE", false);
 			this.modes.put("POOF", false);
 			this.lastPm = null;
-			this.isNew = true;
 		}
 		else {
 			
 			//Get the details from the player's config file 
-			this.channel = this.playersFile.get().getString("channel");
+			if (this.playersFile.get().contains(MCNSAChat.plugin.serverName+"-Channel")) {
+				this.channel = this.playersFile.get().getString(MCNSAChat.plugin.serverName+"-Channel");
+			}
+			else {
+				this.channel = this.plugin.getConfig().getString("defaultChannel");
+			}
 			this.listening = (ArrayList<String>) this.playersFile.get().getList("listening");
+			for (String defaultListen: (ArrayList<String>) this.plugin.getConfig().getList("defaultListen")) {
+				if (!this.listening.contains(defaultListen))
+					this.listening.add(defaultListen);
+			}
 			this.lastPm = this.playersFile.get().getString("lastPm");
 			this.modes.put("SEEALL", this.playersFile.get().getBoolean("modes.SEELALL"));
 			this.modes.put("MUTE", this.playersFile.get().getBoolean("modes.MUTE"));
 			this.modes.put("POOF", this.playersFile.get().getBoolean("modes.POOF"));
 			this.muted = (ArrayList<String>) this.playersFile.get().getList("muted");
-			this.isNew = false;
+			this.serversVisited = (ArrayList<String>) this.playersFile.get().getList("serversVisited");
 		}
 		playersFile.save();
 	}
 	public void savePlayer() {
+		this.playersFile.get().set(MCNSAChat.plugin.serverName+"-Channel", this.channel);
 		this.playersFile.get().set("channel", this.channel);
 		this.playersFile.get().set("listening", this.listening);
 		this.playersFile.get().set("lastPm", this.lastPm);
@@ -64,6 +73,7 @@ public class ChatPlayer {
 		this.playersFile.get().set("modes.MUTE", this.modes.get("MUTE"));
 		this.playersFile.get().set("modes.POOF", this.modes.get("POOF"));
 		this.playersFile.get().set("muted", this.muted);
+		this.playersFile.get().set("serversVisited", this.serversVisited);
 		this.playersFile.save();
 	}
 	public void changeChannel(String channel) {

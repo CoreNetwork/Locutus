@@ -1,5 +1,7 @@
 package com.mcnsa.chat.plugin.components;
 
+import java.util.ArrayList;
+
 import org.bukkit.command.CommandSender;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
@@ -42,8 +44,60 @@ public class PlayerCommands {
 		//We can say this player has the permissions. Lets welcome them
 		player.changeChannel(channel);
 		MessageSender.send(Colours.color("&6Welcome to the "+channel+" channel. Players here: " + playersInChannel), player.name);
+		//TODO: Networking: UPDATE player
 		return true;
 		
 	}
 	
+	@Command(command = "cmute",
+			aliases = {"ignore", "mute"},
+			arguments = {"Player"},
+			description = "Mute a player",
+			permissions = {})
+	public static boolean mutePlayer(CommandSender sender, String mutedPlayer) {
+		//Get the player sending command
+		ChatPlayer playerSending = PlayerManager.getPlayer(sender.getName(), MCNSAChat.plugin.shortCode);
+		
+		//Try and find the player they are trying to mute
+		ArrayList<ChatPlayer> playerResults = PlayerManager.playerSearch(mutedPlayer);
+		if (!playerResults.isEmpty()) {
+			//Get the first result
+			mutedPlayer = playerResults.get(0).name;
+		}
+		//See if the player they are trying to mute is already muted
+		if (playerSending.muted.contains(mutedPlayer)) {
+			//Player is already muted, Un mute them
+			playerSending.muted.remove(mutedPlayer);
+			//Let the player know
+			MessageSender.send("&6"+mutedPlayer+" has been unmuted", playerSending.name);
+		}
+		else {
+			playerSending.muted.add(mutedPlayer);
+			//Let the player know
+			MessageSender.send("&6"+mutedPlayer+" has been muted", playerSending.name);
+		}
+		//TODO: Networking: UPDATE Player
+		return true;
+	}
+	
+	@Command(command = "clist",
+			aliases = {"Channels", "c"},
+			description = "Get a list of channels",
+			permissions = {})
+	public static boolean channelList(CommandSender sender) {
+		//Get the player
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.plugin.shortCode);
+		//Get the channel list
+		ArrayList<String> channels = ChannelManager.getChannelList(player);
+		
+		StringBuffer message = new StringBuffer();
+		for (String channel: channels) {
+			if (message.length() < 1)
+				message.append(channel);
+			else
+				message.append(", "+channel);
+		}
+		MessageSender.send("Channels: "+message.toString(), player.name);
+		return true;
+	}
 }

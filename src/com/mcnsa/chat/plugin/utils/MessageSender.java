@@ -76,19 +76,30 @@ public class MessageSender {
 		else {
 			chatMessage = Colours.color(chatMessage);
 		}
+		//Build the message
+		String message = MCNSAChat.plugin.getConfig().getString("strings.message");
+		message = message.replaceAll("%server%", MCNSAChat.plugin.shortCode);
+		message = message.replaceAll("%channel%", channel);
+		message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerName));
+		message = message.replaceAll("%player%", playerName);
+		message = message.replaceAll("%message%", chatMessage);
+		
 		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(channel);
 		for (ChatPlayer sendPlayer: players) {
 			//Check if the sending player is muted by the player recieving the message
 			if (!sendPlayer.muted.contains(playerName)) {
-				//Build the message
-				String message = MCNSAChat.plugin.getConfig().getString("strings.message");
-				message = message.replaceAll("%server%", MCNSAChat.plugin.shortCode);
-				message = message.replaceAll("%channel%", channel);
-				message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerName));
-				message = message.replaceAll("%player%", playerName);
-				message = message.replaceAll("%message%", chatMessage);
 				Bukkit.getPlayer(sendPlayer.name).sendMessage(Colours.processConsoleColours(message));
 			}
+		}
+		
+		//Log to file
+		FileLog.writeChat(Colours.stripColor(message));
+		
+		//Check if logging to console
+		if (MCNSAChat.plugin.getConfig().getBoolean("consoleLogChat")) {
+			//Check for network message logging
+			if (MCNSAChat.plugin.getConfig().getBoolean("consoleLogServers") && !player.server.equals(MCNSAChat.plugin.shortCode) || player.server.equals(MCNSAChat.plugin.shortCode))
+				Bukkit.getConsoleSender().sendMessage((Colours.processConsoleColours(message)));
 		}
 	}
 	public static void send(String message, String player) {

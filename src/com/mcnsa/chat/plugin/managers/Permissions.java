@@ -1,5 +1,7 @@
 package com.mcnsa.chat.plugin.managers;
 
+import com.mcnsa.chat.plugin.MCNSAChat;
+
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -23,14 +25,22 @@ public class Permissions {
 	}
 	public static boolean checkReadPerm(String permission, String playerName) {
 		PermissionUser user = pex.getUser(playerName);
+		if (permission.length() < 1 && user.has(corePermission+"read")) {
+			return true;
+		}
 		if (user.has(corePermission+"read."+permission)) 
 			return true;
 		return false;
 	}
 	public static boolean checkWritePerm(String permission, String playerName) {
 		PermissionUser user = pex.getUser(playerName);
-		if (user.has(corePermission+"write."+permission)) 
+		if (permission.length() < 1 && user.has(corePermission+"write")) {
 			return true;
+		}
+		if (user.has(corePermission+"write."+permission)) {
+			MCNSAChat.console.info("Checking permission "+corePermission+"write."+permission);
+			return true;
+		}
 		return false;
 	}
 	public static boolean checkPermission (String permission, String playerName) {

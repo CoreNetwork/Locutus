@@ -83,6 +83,7 @@ public class MCNSAChat extends JavaPlugin{
 		
 		//Start up the player listener
 		new PlayerListener();
+
 	}
 	public void onDisable() {
 		

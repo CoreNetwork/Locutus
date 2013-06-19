@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
 
@@ -46,6 +48,8 @@ public class FileLog {
 	
 	public static void writeChat(String message) {
 		try {
+			String time = new SimpleDateFormat("yy-MM-dd HH:mm:ss").format(new Date());
+			message = time + "|"+ message;
 			chatLog.write(message);
 			chatLog.newLine();
 			chatLog.flush();

@@ -364,7 +364,7 @@ public class CommandManager implements TabExecutor {
 					label = aliasMapping.get(label);
 				}
 
-				MCNSAChat.console.info(sender.getName()+" ran command "+command.getName()+" with args: "+args[0]);			
+				//MCNSAChat.console.info(sender.getName()+" ran command "+command.getName()+" with args: "+args[0]);			
 				
 				// find all our possibilities
 				String lastFailMessage = "";

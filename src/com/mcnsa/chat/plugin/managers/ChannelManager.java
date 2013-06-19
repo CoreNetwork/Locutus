@@ -2,6 +2,7 @@ package com.mcnsa.chat.plugin.managers;
 
 import java.util.ArrayList;
 
+import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
@@ -54,6 +55,26 @@ public class ChannelManager {
 			String chan = persistChannelList.get(i);
 			if (!channelList.contains(chan))
 				channelList.add(chan);
+		}
+		
+		//Now get the channels the players are in
+		for (int i = 0; i< playerChannelList.size(); i++) {
+			String playerChan = playerChannelList.get(i);
+			if (!channelList.contains(playerChan))
+				channelList.add(playerChan);
+		}
+		return channelList;
+	}
+	public static ArrayList<String> getChannelList(ChatPlayer player) {
+		ArrayList<String> playerChannelList = getPlayerChannelList();
+		ArrayList<String> channelList = new ArrayList<String>();
+		//Get the channels in the channel list
+		for (int i = 0; i< channels.size(); i++) {
+			ChatChannel chan = channels.get(i);
+			if (Permissions.checkReadPerm(chan.read_permission, player.name) && Permissions.checkWritePerm(chan.write_permission, player.name)) {
+				if (!channelList.contains(chan.color+chan.name+"&f"))	
+					channelList.add(chan.color+chan.name+"&f");
+			}
 		}
 		
 		//Now get the channels the players are in
