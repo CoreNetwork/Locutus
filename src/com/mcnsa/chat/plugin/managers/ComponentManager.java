@@ -70,12 +70,12 @@ public class ComponentManager {
 				}
 			}
 			else {
-				MCNSAChat.console.warning("code source was null!");
+				MCNSAChat.plugin.console.warning("code source was null!");
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			MCNSAChat.console.warning("Failed to load component classes!");
+			MCNSAChat.plugin.console.warning("Failed to load component classes!");
 		}
 	}
 	
@@ -87,7 +87,7 @@ public class ComponentManager {
 					registeredComponents.get(component).instance = registeredComponents.get(component).clazz.newInstance();
 				}
 				catch(Exception e) {
-					MCNSAChat.console.warning("Failed to instantiate component "+component+" : "+e.getMessage());
+					MCNSAChat.plugin.console.warning("Failed to instantiate component "+component+" : "+e.getMessage());
 				}
 			}
 		}

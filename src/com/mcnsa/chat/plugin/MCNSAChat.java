@@ -20,23 +20,26 @@ import com.mcnsa.chat.plugin.utils.FileLog;
 import com.mcnsa.chat.type.ChatChannel;
 
 public class MCNSAChat extends JavaPlugin{
-	public String serverName;
-	public String shortCode;
-	public Boolean multiServer;
-	public PlayerManager playerManager;
-	public ChannelManager channelManager;
+	public static String serverName;
+	public static String shortCode;
+	public static Boolean multiServer;
+	public static PlayerManager playerManager;
+	public static ChannelManager channelManager;
 	public Channels channels;
-	public FileLog logs;
+	public static FileLog logs;
 	public CommandManager commandManager;
 	public ComponentManager componentManager;
 	public static MCNSAChat plugin;
 	public static ConsoleLogging console;
 	public static ClientThread network;
+	public static int chatserverPort;
+	public static String chatserverPasscode;
+	public static String chatserver;
 	public void onEnable() {
 		plugin = this;
 		console = new ConsoleLogging();
 		
-		this.logs = new FileLog();
+		MCNSAChat.logs = new FileLog();
 		
 		//Check to see if the directory for players exists
 		File playerFolder = new File("plugins/MCNSAChat/Players");
@@ -46,13 +49,16 @@ public class MCNSAChat extends JavaPlugin{
 		//Load the configs
 		console.info("Loading config");
 		this.saveDefaultConfig();
-		this.serverName = this.getConfig().getString("ServerName");
-		this.shortCode = this.getConfig().getString("ShortCode");
-		this.multiServer = this.getConfig().getBoolean("multiServer");
+		MCNSAChat.serverName = this.getConfig().getString("ServerName");
+		MCNSAChat.shortCode = this.getConfig().getString("ShortCode");
+		MCNSAChat.chatserver = this.getConfig().getString("chatServer");
+		MCNSAChat.chatserverPort = this.getConfig().getInt("chatServerPort");
+		MCNSAChat.chatserverPasscode = this.getConfig().getString("chatServerPasscode");
+		MCNSAChat.multiServer = this.getConfig().getBoolean("multiServer");
 		
 		console.info("Config Loaded");
-		console.info("Server name is: "+this.serverName);
-		console.info("Server shortcode is: "+this.shortCode);
+		console.info("Server name is: "+MCNSAChat.serverName);
+		console.info("Server shortcode is: "+MCNSAChat.shortCode);
 
 		//Notify if the multiServer is set to true or false
 		if (this.multiServer) {
@@ -65,9 +71,9 @@ public class MCNSAChat extends JavaPlugin{
 		}
 		
 		//Load up the playermanager
-		this.playerManager = new PlayerManager();
+		MCNSAChat.playerManager = new PlayerManager();
 		//Load up the ChannelManager
-		this.channelManager = new ChannelManager();
+		MCNSAChat.channelManager = new ChannelManager();
 		//Load up command manager
 		this.commandManager = new CommandManager();
 		// ok, start loading our components
@@ -85,7 +91,19 @@ public class MCNSAChat extends JavaPlugin{
 		
 		//Start up the player listener
 		new PlayerListener();
-
+		
+		//See if multiserver is enabled
+		if (this.multiServer) {
+			final MCNSAChat finalthis = this;
+			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+				public void run() {
+					if (network == null && MCNSAChat.multiServer) {
+						network = new ClientThread(finalthis);
+						network.start();
+					}
+				}
+			}, 0L, 600L);
+		}
 	}
 	public void onDisable() {
 		
@@ -143,16 +161,5 @@ public class MCNSAChat extends JavaPlugin{
 		}
 		this.channels.get().set("channels", savedChannels);
 		this.channels.save();
-	}
-	public static void Channelsinfo(){
-		for (int i = 0; i < ChannelManager.channels.size(); i++) {
-			ChatChannel c = ChannelManager.channels.get(i);
-			console.info(c.name);
-			console.info(c.alias);
-			console.info(c.color);
-			console.info(c.read_permission);
-			console.info(c.write_permission);
-			console.info(c.modes.toString());
-		}
 	}
 }

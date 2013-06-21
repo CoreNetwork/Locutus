@@ -38,7 +38,7 @@ public class Permissions {
 			return true;
 		}
 		if (user.has(corePermission+"write."+permission)) {
-			MCNSAChat.console.info("Checking permission "+corePermission+"write."+permission);
+			MCNSAChat.plugin.console.info("Checking permission "+corePermission+"write."+permission);
 			return true;
 		}
 		return false;

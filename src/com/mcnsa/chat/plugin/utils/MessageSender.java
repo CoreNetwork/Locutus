@@ -36,7 +36,7 @@ public class MessageSender {
 		message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerName));
 		message = message.replaceAll("%player%", playerName);
 		//Notify console
-		MCNSAChat.console.info(Colours.processConsoleColours(message));
+		MCNSAChat.plugin.console.info(Colours.processConsoleColours(message));
 		//Set the join message
 		event.setJoinMessage(Colours.processConsoleColours(message));
 	}
@@ -48,7 +48,7 @@ public class MessageSender {
 		message = message.replaceAll("%player%", playerName);
 		
 		//Notify console
-		MCNSAChat.console.info(Colours.processConsoleColours(message));
+		MCNSAChat.plugin.console.info(Colours.processConsoleColours(message));
 		//Set quit message
 		event.setQuitMessage(Colours.processConsoleColours(message));
 	}

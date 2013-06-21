@@ -19,7 +19,7 @@ public class FileLog {
 			errorLog = new BufferedWriter(new FileWriter(new File("plugins/MCNSAChat/errorLog.txt"), true));
 		}
 		catch (Exception e) {
-			MCNSAChat.console.severe("Error creating log file: "+e.getMessage());
+			MCNSAChat.plugin.console.severe("Error creating log file: "+e.getMessage());
 		}
 		
 		//Check if the files already exist
@@ -32,7 +32,7 @@ public class FileLog {
 				chatLog.newLine();
 				chatLog.flush();
 			} catch (IOException e) {
-				MCNSAChat.console.severe("Could not write to chatLog: "+e.getMessage());
+				MCNSAChat.plugin.console.severe("Could not write to chatLog: "+e.getMessage());
 			}
 		}
 		if (!errorLogExists) {
@@ -41,7 +41,7 @@ public class FileLog {
 				errorLog.newLine();
 				errorLog.flush();
 			} catch (IOException e) {
-				MCNSAChat.console.severe("Could not write to errorLog: "+e.getMessage());
+				MCNSAChat.plugin.console.severe("Could not write to errorLog: "+e.getMessage());
 			}
 		}
 	}
@@ -54,7 +54,7 @@ public class FileLog {
 			chatLog.newLine();
 			chatLog.flush();
 		} catch (IOException e) {
-			MCNSAChat.console.severe("Could not write to chatLog: "+e.getMessage());
+			MCNSAChat.plugin.console.severe("Could not write to chatLog: "+e.getMessage());
 		}
 	}
 	public static void writeError(String message) {
@@ -63,7 +63,7 @@ public class FileLog {
 			errorLog.newLine();
 			errorLog.flush();
 		} catch (IOException e) {
-			MCNSAChat.console.severe("Could not write to errorLog: "+e.getMessage());
+			MCNSAChat.plugin.console.severe("Could not write to errorLog: "+e.getMessage());
 		}
 	}
 	public static void closeFiles() {
@@ -71,7 +71,7 @@ public class FileLog {
 			chatLog.close();
 			errorLog.close();
 		} catch (IOException e) {
-			MCNSAChat.console.severe("Could not close log files: "+e.getMessage());
+			MCNSAChat.plugin.console.severe("Could not close log files: "+e.getMessage());
 		}
 	}
 }

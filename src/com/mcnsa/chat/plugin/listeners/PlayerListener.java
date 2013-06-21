@@ -48,7 +48,7 @@ public class PlayerListener implements Listener{
 						MessageSender.send(message, player.getName());
 			}
 			//Debug
-			MCNSAChat.console.info(playerName+" is new to the server");
+			MCNSAChat.plugin.console.info(playerName+" is new to the server");
 		}
 		
 		//Notify other players

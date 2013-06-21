@@ -16,7 +16,7 @@ public class PlayerManager {
 	public static void PlayerLogin(String player){
 		ChatPlayer newPlayer= new ChatPlayer(player);
 		players.add(newPlayer);
-		MCNSAChat.console.info("Added "+player);
+		MCNSAChat.plugin.console.info("Added "+player);
 	}
 	public static void PlayerLogout(String player){
 		ChatPlayer cplayer = getPlayer(player);

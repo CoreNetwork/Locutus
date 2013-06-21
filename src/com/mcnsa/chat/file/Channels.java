@@ -39,7 +39,7 @@ public class Channels {
 	    try {
 	      get().save(this.customConfigFile);
 	    } catch (IOException ex) {
-	      MCNSAChat.console.warning("Could not save config to " + this.customConfigFile);
+	      MCNSAChat.plugin.console.warning("Could not save config to " + this.customConfigFile);
 	    }
 	  }
 

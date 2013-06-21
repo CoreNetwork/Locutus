@@ -112,7 +112,7 @@ public class CommandManager implements TabExecutor {
 			for(String knownAlias: knownAliases) {
 				// if it's already a bukkit command, overwrite it
 				if(commandMap.getCommand(knownAlias) != null) {
-					MCNSAChat.console.info("Overwriting command "+knownAlias);
+					MCNSAChat.plugin.console.info("Overwriting command "+knownAlias);
 					commandMap.getCommand(knownAlias).unregister(commandMap);
 				}
 
@@ -133,7 +133,7 @@ public class CommandManager implements TabExecutor {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			MCNSAChat.console.warning("Failed to load components / commands!");
+			MCNSAChat.plugin.console.warning("Failed to load components / commands!");
 		}
 	}
 
@@ -212,7 +212,7 @@ public class CommandManager implements TabExecutor {
 	// go through a given class and register all the commands in it
 	private void registerComponentCommands(CommandMap commandMap, Component component) {
 		// get our class
-		MCNSAChat.console.info("Loading commands");
+		MCNSAChat.plugin.console.info("Loading commands");
 		Class<?> cls = component.clazz;
 
 		// loop through all our methods in the given class
@@ -224,7 +224,7 @@ public class CommandManager implements TabExecutor {
 
 			// ok, now make sure the command is static
 			if(!Modifier.isStatic(method.getModifiers())) {
-				MCNSAChat.console.warning("failed to register command: " + method.getName() + " (not static)");
+				MCNSAChat.plugin.console.warning("failed to register command: " + method.getName() + " (not static)");
 				continue;
 			}
 
@@ -238,7 +238,7 @@ public class CommandManager implements TabExecutor {
 
 			// make sure it has an appropriate return value
 			if(method.getReturnType() != boolean.class){
-				MCNSAChat.console.warning("failed to register command: " + method.getName() + " (doesn't return boolean)");
+				MCNSAChat.plugin.console.warning("failed to register command: " + method.getName() + " (doesn't return boolean)");
 				continue;
 			}
 
@@ -247,7 +247,7 @@ public class CommandManager implements TabExecutor {
 
 			// make sure there is at least argument and it is a command sender
 			if(parameterTypes.length < 1) {
-				MCNSAChat.console.warning("failed to register command: " + method.getName() + " (doesn't have a CommandSender argument as arg0)");
+				MCNSAChat.plugin.console.warning("failed to register command: " + method.getName() + " (doesn't have a CommandSender argument as arg0)");
 				continue;
 			}
 
@@ -257,7 +257,7 @@ public class CommandManager implements TabExecutor {
 			for(int i = 1; i < parameterTypes.length && valid; i++) {
 				if(!validParameterType(parameterTypes[i])) {
 					// we don't know what this is!
-					MCNSAChat.console.warning("failed to register command method: " + method.getName() + " (unhandle-able parameter type: " + parameterTypes[i].getName() + ")");
+					MCNSAChat.plugin.console.warning("failed to register command method: " + method.getName() + " (unhandle-able parameter type: " + parameterTypes[i].getName() + ")");
 					valid = false;
 				}
 			}
@@ -282,13 +282,13 @@ public class CommandManager implements TabExecutor {
 			// check to see if we have a player / console only annotation
 			if(command.playerOnly() && command.consoleOnly()) {
 				// we can't have both!
-				MCNSAChat.console.warning("failed to register command method: " + method.getName() + " (can't have BOTH ConsoleOnly and PlayerOnly attributes!)");
+				MCNSAChat.plugin.console.warning("failed to register command method: " + method.getName() + " (can't have BOTH ConsoleOnly and PlayerOnly attributes!)");
 				continue;
 			}
 
 			// make sure we're not repeating a command here
 			if(registeredCommands.containsKey(ci.command.command())) {
-				MCNSAChat.console.warning("failed to register command: " + ci.command.command() + " (command exists in another component)");
+				MCNSAChat.plugin.console.warning("failed to register command: " + ci.command.command() + " (command exists in another component)");
 				continue;
 			}
 
@@ -519,7 +519,7 @@ public class CommandManager implements TabExecutor {
 							}
 							else {
 								MessageSender.send("&cSomething went wrong! Alert an administrator!", sender.getName());
-								MCNSAChat.console.warning("failed to execute command: " + label + " (" + e.getMessage() + ")");
+								MCNSAChat.plugin.console.warning("failed to execute command: " + label + " (" + e.getMessage() + ")");
 								e.printStackTrace();
 								return false;
 							}
