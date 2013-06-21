@@ -19,7 +19,7 @@ public class PlayerManager {
 		MCNSAChat.console.info("Added "+player);
 	}
 	public static void PlayerLogout(String player){
-		ChatPlayer cplayer = getPlayer(player, MCNSAChat.plugin.shortCode);
+		ChatPlayer cplayer = getPlayer(player);
 		cplayer.savePlayer();
 		removePlayer(player, MCNSAChat.plugin.shortCode);
 	}
@@ -32,7 +32,7 @@ public class PlayerManager {
 	      }
 	    }
 	}
-	public static ChatPlayer getPlayer(String name, String server) {
+	public static ChatPlayer getPlayer(String name) {
 		for (ChatPlayer player: players) {
 			if (player.name.equalsIgnoreCase(name)){
 				return player;

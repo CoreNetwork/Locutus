@@ -2,7 +2,6 @@ package com.mcnsa.chat.plugin.managers;
 
 import java.util.ArrayList;
 
-import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mcnsa.chat.file.Channels;
+import com.mcnsa.chat.networking.ClientThread;
 import com.mcnsa.chat.plugin.managers.ComponentManager;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
@@ -30,6 +31,7 @@ public class MCNSAChat extends JavaPlugin{
 	public ComponentManager componentManager;
 	public static MCNSAChat plugin;
 	public static ConsoleLogging console;
+	public static ClientThread network;
 	public void onEnable() {
 		plugin = this;
 		console = new ConsoleLogging();

@@ -77,14 +77,16 @@ public class ChatPlayer {
 		this.playersFile.save();
 	}
 	public void changeChannel(String channel) {
-		this.channel = channel;
+		this.channel = channel.substring(0, 1).toUpperCase() + channel.substring(1);
 	}
-	public void channelListen(String channel){
+	public boolean channelListen(String channel){
 		if (this.listening.contains(channel)){
 			this.listening.remove(channel);
+			return false;
 		}
 		else {
 			this.listening.add(channel);
+			return true;
 		}
 	}
 }

@@ -14,13 +14,18 @@ import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class MessageSender {
-	public static void send(String message, String playerSender, String player) {
+	public static void sendmsg(String rawmessage, String playerSender, String player) {
 		//Get the player
-		ChatPlayer cPlayer = PlayerManager.getPlayer(player, MCNSAChat.plugin.shortCode);
+		ChatPlayer cPlayer = PlayerManager.getPlayer(player);
 		
 		//Check if player has muted playersender
 		if (!cPlayer.muted.contains(playerSender)) {
-			//Player is not muted
+			//Player is not muted 
+			String message = MCNSAChat.plugin.getConfig().getString("strings.pm_receive");	
+			message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerSender));
+			message = message.replaceAll("%from%", playerSender);
+			message = message.replaceAll("%to%", player);
+			
 			Bukkit.getPlayer(player).sendMessage(Colours.stripColor(message));
 		}
 	}
@@ -67,7 +72,7 @@ public class MessageSender {
 		Bukkit.broadcastMessage(Colours.processConsoleColours(message));
 	}
 	public static void sendChannel(String playerName, String chatMessage){
-		ChatPlayer player = PlayerManager.getPlayer(playerName, MCNSAChat.plugin.shortCode);
+		ChatPlayer player = PlayerManager.getPlayer(playerName);
 		String channel = player.channel;
 		
 		if (!Permissions.useColours(player.name)) {
@@ -104,6 +109,6 @@ public class MessageSender {
 	}
 	public static void send(String message, String player) {
 		Player playerRecieving = Bukkit.getPlayer(player);
-		playerRecieving.sendMessage(Colours.color(message));
+		playerRecieving.sendMessage(Colours.processConsoleColours(message));
 	}
 }

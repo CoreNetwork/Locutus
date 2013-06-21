@@ -3,7 +3,6 @@ package com.mcnsa.chat.plugin.components;
 import java.util.ArrayList;
 
 import org.bukkit.command.CommandSender;
-
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
@@ -26,7 +25,7 @@ public class PlayerCommands {
 			permissions = {"move"})
 	public static boolean channelChange(CommandSender sender, String channel) throws ChatCommandException{
 		//Get the player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.plugin.shortCode);
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName());
 		
 		//see if its a persist channel
 		if (ChannelManager.getChannel(channel) != null) {
@@ -56,7 +55,7 @@ public class PlayerCommands {
 			permissions = {})
 	public static boolean mutePlayer(CommandSender sender, String mutedPlayer) {
 		//Get the player sending command
-		ChatPlayer playerSending = PlayerManager.getPlayer(sender.getName(), MCNSAChat.plugin.shortCode);
+		ChatPlayer playerSending = PlayerManager.getPlayer(sender.getName());
 		
 		//Try and find the player they are trying to mute
 		ArrayList<ChatPlayer> playerResults = PlayerManager.playerSearch(mutedPlayer);
@@ -86,7 +85,7 @@ public class PlayerCommands {
 			permissions = {})
 	public static boolean channelList(CommandSender sender) {
 		//Get the player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.plugin.shortCode);
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName());
 		//Get the channel list
 		ArrayList<String> channels = ChannelManager.getChannelList(player);
 		
@@ -100,4 +99,62 @@ public class PlayerCommands {
 		MessageSender.send("Channels: "+message.toString(), player.name);
 		return true;
 	}
+	
+	@Command(command = "listen",
+			description = "Listen to a channel",
+			permissions = {})
+	public static boolean channelListen(CommandSender sender, String Channel) {
+		Channel = Channel.substring(0, 1).toUpperCase() + Channel.substring(1);
+		
+		//Get the player
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName());
+		
+		//Try and get the channel
+		ChatChannel targetChannel = ChannelManager.getChannel(Channel);
+		if (targetChannel != null) {
+			//Channel is persistent. Check perms
+			if (!Permissions.checkReadPerm(targetChannel.read_permission, player.name)) {
+				//Player does not have read permission
+				MessageSender.send("&4You do not have permission to listen to: "+targetChannel.color+targetChannel.name, player.name);
+				return true;
+			}
+			Channel = targetChannel.color+targetChannel.name;
+		}
+		//Change the channel
+		if (player.channelListen(Channel)) {
+			MessageSender.send("&6You are now listening to "+Channel, player.name);
+		}
+		else {
+			MessageSender.send("&6You have stopped listening to "+Channel, player.name);
+		}
+		//TODO: NETWORK Player update
+		return true;
+	}
+	@Command(command = "message",
+			aliases= {"msg", "whisper", "tell", "w"},
+			description = "Message a player",
+			permissions = {"msg"})
+	public static boolean message(CommandSender sender, String player, String... Message) {
+		//Get targetPlayer
+		ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
+		if (targetPlayers.isEmpty()) {
+			MessageSender.send("Could not find player: "+player, sender.getName());
+			return true;
+		}
+		ChatPlayer targetPlayer = targetPlayers.get(0);
+		
+		StringBuffer messageString = new StringBuffer();
+		for (String message: Message) {
+			messageString.append(message+" ");
+		}
+		
+		MessageSender.sendmsg(messageString.toString(), sender.getName(), targetPlayer.name);
+		
+		//Log the last pm for both users
+		targetPlayer.lastPm = player;
+		PlayerManager.getPlayer(sender.getName()).lastPm = targetPlayer.name;
+		//TODO: NETWORK Message to player
+		return true;
+	}
+	
 }

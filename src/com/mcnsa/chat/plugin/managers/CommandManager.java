@@ -18,8 +18,6 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 
-import ru.tehkode.utils.StringUtils;
-
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.exceptions.ChatCommandException;
