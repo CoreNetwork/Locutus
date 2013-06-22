@@ -3,6 +3,8 @@ package com.mcnsa.chat.plugin.components;
 import java.util.ArrayList;
 
 import org.bukkit.command.CommandSender;
+
+import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
@@ -43,7 +45,10 @@ public class PlayerCommands {
 		//We can say this player has the permissions. Lets welcome them
 		player.changeChannel(channel);
 		MessageSender.send(Colours.color("&6Welcome to the "+channel+" channel. Players here: " + playersInChannel), player.name);
-		//TODO: Networking: UPDATE player
+
+		//Update player on other servers
+		Network.updatePlayer(player);
+		
 		return true;
 		
 	}
@@ -75,7 +80,9 @@ public class PlayerCommands {
 			//Let the player know
 			MessageSender.send("&6"+mutedPlayer+" has been muted", playerSending.name);
 		}
-		//TODO: Networking: UPDATE Player
+		//Update player on other servers
+		Network.updatePlayer(playerSending);
+		
 		return true;
 	}
 	
@@ -127,7 +134,9 @@ public class PlayerCommands {
 		else {
 			MessageSender.send("&6You have stopped listening to "+Channel, player.name);
 		}
-		//TODO: NETWORK Player update
+		
+		//Update player on other servers
+		Network.updatePlayer(player);
 		return true;
 	}
 	@Command(command = "message",
@@ -148,12 +157,15 @@ public class PlayerCommands {
 			messageString.append(message+" ");
 		}
 		
-		MessageSender.sendmsg(messageString.toString(), sender.getName(), targetPlayer.name);
+		//Send the pm back to the sender
+		MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
 		
-		//Log the last pm for both users
-		targetPlayer.lastPm = player;
-		PlayerManager.getPlayer(sender.getName()).lastPm = targetPlayer.name;
-		//TODO: NETWORK Message to player
+		//Try sending the pm to the target
+		MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+		
+		//Send it to network
+		Network.PmSend(sender.getName(), targetPlayer.name, messageString.toString());
+		
 		return true;
 	}
 	

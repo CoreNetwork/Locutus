@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mcnsa.chat.file.Channels;
 import com.mcnsa.chat.networking.ClientThread;
+import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.managers.ComponentManager;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
@@ -61,7 +62,7 @@ public class MCNSAChat extends JavaPlugin{
 		console.info("Server shortcode is: "+MCNSAChat.shortCode);
 
 		//Notify if the multiServer is set to true or false
-		if (this.multiServer) {
+		if (MCNSAChat.multiServer) {
 			//Config for multiserver mode
 			console.info("Server is running in Multi Server mode.");
 		}
@@ -93,7 +94,7 @@ public class MCNSAChat extends JavaPlugin{
 		new PlayerListener();
 		
 		//See if multiserver is enabled
-		if (this.multiServer) {
+		if (MCNSAChat.multiServer) {
 			final MCNSAChat finalthis = this;
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 				public void run() {
@@ -106,7 +107,12 @@ public class MCNSAChat extends JavaPlugin{
 		}
 	}
 	public void onDisable() {
-		
+		if (multiServer) {
+			console.info("Closing network threads");
+			Network.serverLeft();
+			MCNSAChat.network = null;
+				
+		}
 		console.info("Saving Channels");
 		saveChannels();
 		

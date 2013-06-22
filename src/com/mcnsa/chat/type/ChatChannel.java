@@ -1,9 +1,12 @@
 package com.mcnsa.chat.type;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChatChannel {
+public class ChatChannel  implements Serializable{
+
+	private static final long serialVersionUID = -7949153652183232773L;
 	public String name;
 	public String write_permission;
 	public String read_permission;

@@ -16,12 +16,12 @@ public class PlayerManager {
 	public static void PlayerLogin(String player){
 		ChatPlayer newPlayer= new ChatPlayer(player);
 		players.add(newPlayer);
-		MCNSAChat.plugin.console.info("Added "+player);
+		MCNSAChat.console.info("Added "+player);
 	}
 	public static void PlayerLogout(String player){
 		ChatPlayer cplayer = getPlayer(player);
 		cplayer.savePlayer();
-		removePlayer(player, MCNSAChat.plugin.shortCode);
+		removePlayer(player, MCNSAChat.shortCode);
 	}
 	public static void removePlayer(String name, String server) {
 	    for (int i = 0; i < players.size(); i++) {

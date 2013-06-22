@@ -9,6 +9,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.MessageSender;
@@ -35,9 +36,9 @@ public class PlayerListener implements Listener{
 		message = message.replaceAll("%player%", playerName);
 		
 		//Check if new player.
-		if (!PlayerManager.getPlayer(playerName).serversVisited.contains(MCNSAChat.plugin.serverName)) {
+		if (!PlayerManager.getPlayer(playerName).serversVisited.contains(MCNSAChat.serverName)) {
 			//Record that the player has been on the server
-			PlayerManager.getPlayer(playerName).serversVisited.add(MCNSAChat.plugin.serverName);
+			PlayerManager.getPlayer(playerName).serversVisited.add(MCNSAChat.serverName);
 			//Check if the welcome is to be displayed
 			if (plugin.getConfig().getBoolean("displayWelcome")) {
 				//Display the welcome message
@@ -48,11 +49,13 @@ public class PlayerListener implements Listener{
 						MessageSender.send(message, player.getName());
 			}
 			//Debug
-			MCNSAChat.plugin.console.info(playerName+" is new to the server");
+			MCNSAChat.console.info(playerName+" is new to the server");
 		}
 		
 		//Notify other players
-		MessageSender.joinMessage(playerName, MCNSAChat.plugin.serverName, event);
+		MessageSender.joinMessage(playerName, MCNSAChat.serverName, event);
+		
+		Network.playerJoined(PlayerManager.getPlayer(playerName));
 		
 	}
 	//Handles logouts
@@ -62,7 +65,7 @@ public class PlayerListener implements Listener{
 		PlayerManager.PlayerLogout(event.getPlayer().getName());
 
 		//Notify others
-		MessageSender.quitMessage(event.getPlayer().getName(), MCNSAChat.plugin.serverName, event);
+		MessageSender.quitMessage(event.getPlayer().getName(), MCNSAChat.serverName, event);
 	}
 	//Handles chat events
 	@EventHandler(priority = EventPriority.LOWEST)

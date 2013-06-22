@@ -1,6 +1,7 @@
 package com.mcnsa.chat.type;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,7 +9,9 @@ import java.util.Map;
 import com.mcnsa.chat.file.Players;
 import com.mcnsa.chat.plugin.MCNSAChat;
 
-public class ChatPlayer {
+public class ChatPlayer implements Serializable{
+
+	private static final long serialVersionUID = -4493289681267602037L;
 	public String name;
 	public String server;
 	public String channel;
@@ -17,25 +20,23 @@ public class ChatPlayer {
 	public ArrayList<String> listening;
 	public ArrayList<String> muted = new ArrayList<String>();
 	public ArrayList<String> serversVisited = new ArrayList<String>();
-	public Players playersFile;
-	private MCNSAChat plugin;
+	transient Players playersFile;
 	
 	@SuppressWarnings("unchecked")
 	public ChatPlayer(String username){
-		this.plugin = MCNSAChat.plugin;
 		
 		//Player name
 		this.name = username;
 		//Player server
-		this.server = this.plugin.shortCode;
+		this.server = MCNSAChat.shortCode;
 		
 		//check to see if there is actually a player file there
 		File playerFile = new File("plugins/MCNSAChat/Players/", username+".yml");
 		playersFile = new Players(this.name);
 		if (!playerFile.exists()) {
 			//Player is new to the server. Set the defaults
-			this.channel = this.plugin.getConfig().getString("defaultChannel");
-			this.listening = (ArrayList<String>) this.plugin.getConfig().getList("defaultListen");
+			this.channel = MCNSAChat.plugin.getConfig().getString("defaultChannel");
+			this.listening = (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen");
 			this.modes.put("SEEALL", false);
 			this.modes.put("MUTE", false);
 			this.modes.put("POOF", false);
@@ -44,14 +45,14 @@ public class ChatPlayer {
 		else {
 			
 			//Get the details from the player's config file 
-			if (this.playersFile.get().contains(MCNSAChat.plugin.serverName+"-Channel")) {
-				this.channel = this.playersFile.get().getString(MCNSAChat.plugin.serverName+"-Channel");
+			if (this.playersFile.get().contains(MCNSAChat.serverName+"-Channel")) {
+				this.channel = this.playersFile.get().getString(MCNSAChat.serverName+"-Channel");
 			}
 			else {
-				this.channel = this.plugin.getConfig().getString("defaultChannel");
+				this.channel = MCNSAChat.plugin.getConfig().getString("defaultChannel");
 			}
 			this.listening = (ArrayList<String>) this.playersFile.get().getList("listening");
-			for (String defaultListen: (ArrayList<String>) this.plugin.getConfig().getList("defaultListen")) {
+			for (String defaultListen: (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen")) {
 				if (!this.listening.contains(defaultListen))
 					this.listening.add(defaultListen);
 			}
@@ -65,7 +66,10 @@ public class ChatPlayer {
 		playersFile.save();
 	}
 	public void savePlayer() {
-		this.playersFile.get().set(MCNSAChat.plugin.serverName+"-Channel", this.channel);
+		if (this.playersFile == null) {
+			this.playersFile = new Players(this.name);
+		}
+		this.playersFile.get().set(MCNSAChat.serverName+"-Channel", this.channel);
 		this.playersFile.get().set("channel", this.channel);
 		this.playersFile.get().set("listening", this.listening);
 		this.playersFile.get().set("lastPm", this.lastPm);
