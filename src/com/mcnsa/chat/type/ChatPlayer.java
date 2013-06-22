@@ -21,6 +21,7 @@ public class ChatPlayer implements Serializable{
 	public ArrayList<String> muted = new ArrayList<String>();
 	public ArrayList<String> serversVisited = new ArrayList<String>();
 	transient Players playersFile;
+	public int timeoutTill = 0;
 	
 	@SuppressWarnings("unchecked")
 	public ChatPlayer(String username){
@@ -62,6 +63,7 @@ public class ChatPlayer implements Serializable{
 			this.modes.put("POOF", this.playersFile.get().getBoolean("modes.POOF"));
 			this.muted = (ArrayList<String>) this.playersFile.get().getList("muted");
 			this.serversVisited = (ArrayList<String>) this.playersFile.get().getList("serversVisited");
+			this.timeoutTill = this.playersFile.get().getInt("timeoutTill");
 		}
 		playersFile.save();
 	}
@@ -78,6 +80,7 @@ public class ChatPlayer implements Serializable{
 		this.playersFile.get().set("modes.POOF", this.modes.get("POOF"));
 		this.playersFile.get().set("muted", this.muted);
 		this.playersFile.get().set("serversVisited", this.serversVisited);
+		this.playersFile.get().set("timeoutTill", this.timeoutTill);
 		this.playersFile.save();
 	}
 	public void changeChannel(String channel) {

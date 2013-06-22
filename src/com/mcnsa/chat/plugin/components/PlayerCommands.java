@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.bukkit.command.CommandSender;
 
 import com.mcnsa.chat.networking.Network;
-import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
 import com.mcnsa.chat.plugin.exceptions.ChatCommandException;

@@ -1,5 +1,7 @@
 package com.mcnsa.chat.plugin.listeners;
 
+import java.util.Date;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +15,7 @@ import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.MessageSender;
+import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerListener implements Listener{
 	private MCNSAChat plugin;
@@ -51,9 +54,30 @@ public class PlayerListener implements Listener{
 			//Debug
 			MCNSAChat.console.info(playerName+" is new to the server");
 		}
-		
+		//Check timeout status
+		if (PlayerManager.getPlayer(playerName).modes.get("MUTE")) {
+			//get current time
+			long timeNow = new Date().getTime();
+			if (PlayerManager.getPlayer(playerName).timeoutTill < timeNow) {
+				//Player has finished their timeout
+				PlayerManager.getPlayer(playerName).modes.put("MUTE", false);
+			}
+			else {
+				//get time left
+				long timeLeft = (PlayerManager.getPlayer(playerName).timeoutTill - timeNow) * 20;
+				//Schedule the untimeout
+				final String finalPlayerName = playerName;
+				Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin, new Runnable() {
+					public void run() {
+						if (PlayerManager.getPlayer(finalPlayerName) != null)
+							PlayerManager.getPlayer(finalPlayerName).modes.put("MUTE", false);
+					}
+				}, timeLeft);
+			}
+			
+		}
 		//Notify other players
-		MessageSender.joinMessage(playerName, MCNSAChat.serverName, event);
+		MessageSender.joinMessage(playerName, event);
 		
 		Network.playerJoined(PlayerManager.getPlayer(playerName));
 		
@@ -65,12 +89,17 @@ public class PlayerListener implements Listener{
 		PlayerManager.PlayerLogout(event.getPlayer().getName());
 
 		//Notify others
-		MessageSender.quitMessage(event.getPlayer().getName(), MCNSAChat.serverName, event);
+		MessageSender.quitMessage(event.getPlayer().getName(), event);
+		
+		//Notify network
+		Network.playerQuit(PlayerManager.getPlayer(event.getPlayer().getName()));
 	}
 	//Handles chat events
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void playerChat(AsyncPlayerChatEvent event){
-		MessageSender.sendChannel(event.getPlayer().getName(), event.getMessage());
+		//Get chatplayer
+		ChatPlayer player = PlayerManager.getPlayer(event.getPlayer().getName());
+		MessageSender.channelMessage(player.channel, MCNSAChat.shortCode, player.name, event.getMessage());
 		event.setCancelled(true);
 	}
 }

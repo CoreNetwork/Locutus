@@ -6,13 +6,14 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import com.mcnsa.chat.networking.packets.NetworkBroadcastPacket;
-import com.mcnsa.chat.networking.packets.ServerAuthedPacket;
-import com.mcnsa.chat.networking.packets.ServerFailAuthPacket;
-import com.mcnsa.chat.networking.packets.ServerJoinedPacket;
+import org.bukkit.Bukkit;
+
+import com.mcnsa.chat.networking.packets.*;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.utils.FileLog;
 import com.mcnsa.chat.plugin.utils.MessageSender;
+import com.mcnsa.chat.type.ChatChannel;
 
 public class ClientThread extends Thread{
 	
@@ -111,8 +112,48 @@ public class ClientThread extends Thread{
 			
 			String message = MCNSAChat.plugin.getConfig().getString("strings.networkMessage");
 			message = message.replaceAll("%message%", packet.message);
-			MessageSender.broadcast("&cMCNSA NetMessage: "+message);
+			MessageSender.broadcast(message);
 			
+		}
+		else if (recieved instanceof PmPacket) {
+			PmPacket packet = (PmPacket) recieved;
+			
+			//Check if target is on this server
+			if (Bukkit.getPlayer(packet.target) != null && Bukkit.getPlayer(packet.sender) == null)
+				MessageSender.recievePM(packet.message, packet.sender, packet.target);
+		}
+		else if (recieved instanceof PlayerJoinedPacket) {
+			PlayerJoinedPacket packet = (PlayerJoinedPacket) recieved;
+			if (!packet.server.equals(MCNSAChat.serverName)) {
+				//player joining other server
+				MessageSender.joinMessage(packet.player.name, packet.server);
+			}
+		}
+		else if (recieved instanceof PlayerQuitPacket) {
+			PlayerQuitPacket packet = (PlayerQuitPacket) recieved;
+			if (!packet.server.equals(MCNSAChat.serverName)) {
+				//player quitting other server
+				MessageSender.quitMessage(packet.player.name, packet.server);
+			}
+		}
+		else if (recieved instanceof ChannelListPacket) {
+			ChannelListPacket packet = (ChannelListPacket) recieved;
+			//Log to console
+			MCNSAChat.console.info("Recieved channel list from network");
+			//Replace the channel list with recieved channels
+			ChannelManager.channels = packet.channels;
+		}
+		else if (recieved instanceof ChannelUpdatePacket) {
+			ChannelUpdatePacket packet = (ChannelUpdatePacket) recieved;
+			ChatChannel chan = ChannelManager.getChannel(packet.channel.name);
+			if (chan != null)
+				ChannelManager.channels.remove(chan);
+			ChannelManager.channels.add(packet.channel);
+		}
+		else if (recieved instanceof ChatPacket) {
+			ChatPacket packet = (ChatPacket) recieved;
+			if (!packet.serverCode.equals(MCNSAChat.shortCode))
+				MessageSender.channelMessage(packet.channel, packet.serverCode, packet.player, packet.message);
 		}
 		return true;
 	}
