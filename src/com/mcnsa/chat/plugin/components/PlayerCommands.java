@@ -140,6 +140,7 @@ public class PlayerCommands {
 	}
 	@Command(command = "message",
 			aliases= {"msg", "whisper", "tell", "w"},
+			arguments = {"Player", "Message"},
 			description = "Message a player",
 			permissions = {"msg"})
 	public static boolean message(CommandSender sender, String player, String... Message) {
@@ -151,6 +152,46 @@ public class PlayerCommands {
 		}
 		ChatPlayer targetPlayer = targetPlayers.get(0);
 		
+		StringBuffer messageString = new StringBuffer();
+		for (String message: Message) {
+			messageString.append(message+" ");
+		}
+		
+		//Send the pm back to the sender
+		MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+		
+		//Try sending the pm to the target
+		MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+		
+		//Send it to network
+		Network.PmSend(sender.getName(), targetPlayer.name, messageString.toString());
+		
+		return true;
+	}
+	@Command(command = "r",
+			arguments = {"Message"},
+			aliases = {"reply"},
+			permissions = {"msg"}, 
+			description = "Reply to the last PM send or recieved")
+	public static boolean reply(CommandSender sender, String... Message) {
+		//Get the player
+		ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
+		
+		//check to see if the lastpm is actually filled in
+		if (playerSender.lastPm == null || playerSender.lastPm.length() < 1){
+			MessageSender.send("There is no one to reply to", playerSender.name);
+			return true;
+		}
+		//Get who they are replying to
+		ChatPlayer targetPlayer = PlayerManager.getPlayer(playerSender.lastPm);
+		
+		//See if target player is online
+		if (targetPlayer == null) {
+			MessageSender.send("That player is offline", playerSender.name);
+			return true;
+		}
+		
+		//Build the chat message
 		StringBuffer messageString = new StringBuffer();
 		for (String message: Message) {
 			messageString.append(message+" ");
