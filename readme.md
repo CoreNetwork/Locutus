@@ -56,6 +56,7 @@ Built jars can be found at http://build.mcnsa.com/
 
 # Configuration
 Config.yml, Main plugin configuration
+
 |**Config**|**Default**|**Description**|
 |:------|:--------------|:----------|
 |`name`|`S`|Set the short name of the server. This is displayed in next to the channel name by default|
