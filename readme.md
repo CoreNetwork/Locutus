@@ -28,12 +28,7 @@ Not Implemented yet
     
 ##MCNSA Fun Commands
 
-|**Command**|**Permission Node**|**Description**|
-|:------|:--------------|:----------|
-|`/dicks`|`mcnsachat.fun.dicks`|A message of love.|
-|`/mab`|`mcnsachat.fun.mab`|A message of love.|
-|`/pong`|`mcnsachat.fun.pong`|Alternative to `/ping`.|
-|`/rand [<min>] <max>`|`mcnsachat.fun.rand`|Gives a random number according to `min` (default: `0`) and `max` (default: `20`).|
+Not Implemented yet
 
 # Configuration
 Config.yml, Main plugin configuration
