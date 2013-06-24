@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.bukkit.command.CommandSender;
 
 import com.mcnsa.chat.networking.Network;
+import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
 import com.mcnsa.chat.plugin.exceptions.ChatCommandException;
@@ -26,7 +27,7 @@ public class PlayerCommands {
 			permissions = {"move"})
 	public static boolean channelChange(CommandSender sender, String channel) throws ChatCommandException{
 		//Get the player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName());
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
 		
 		//see if its a persist channel
 		if (ChannelManager.getChannel(channel) != null) {
@@ -59,7 +60,7 @@ public class PlayerCommands {
 			permissions = {})
 	public static boolean mutePlayer(CommandSender sender, String mutedPlayer) {
 		//Get the player sending command
-		ChatPlayer playerSending = PlayerManager.getPlayer(sender.getName());
+		ChatPlayer playerSending = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
 		
 		//Try and find the player they are trying to mute
 		ArrayList<ChatPlayer> playerResults = PlayerManager.playerSearch(mutedPlayer);
@@ -91,7 +92,7 @@ public class PlayerCommands {
 			permissions = {})
 	public static boolean channelList(CommandSender sender) {
 		//Get the player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName());
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
 		//Get the channel list
 		ArrayList<String> channels = ChannelManager.getChannelList(player);
 		
@@ -113,7 +114,7 @@ public class PlayerCommands {
 		Channel = Channel.substring(0, 1).toUpperCase() + Channel.substring(1);
 		
 		//Get the player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName());
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
 		
 		//Try and get the channel
 		ChatChannel targetChannel = ChannelManager.getChannel(Channel);
@@ -209,4 +210,57 @@ public class PlayerCommands {
 		return true;
 	}
 	
+	@Command(
+			command = "me",
+			aliases = {"action"},
+			permissions = {"me"},
+			description = "Format your message like irc /me"
+			)
+	public static boolean cmdMe(CommandSender sender, String... rawMessage) {
+		//Build the chat message
+		StringBuffer messageString = new StringBuffer();
+		for (String message: rawMessage) {
+			messageString.append(message+" ");
+		}
+		
+		//Send it to relevent players
+		MessageSender.actionMessage(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), messageString.toString());
+
+		return true;
+	}
+	
+	@Command(
+			command = "mute",
+			aliases = {"cmute", "ignore"},
+			permissions = {""},
+			description = "Mute or unmute a player"
+			)
+	public static boolean mute(CommandSender sender, String player) {
+		//Get the sender instance
+		ChatPlayer senderPlayer = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
+		
+		//Try and see if we can find the target player
+		if (PlayerManager.playerSearch(player).size() > 0) {
+			ChatPlayer target = PlayerManager.playerSearch(player).get(0);
+			player = target.name;
+		}
+		
+		//Make sure the player isn't trying to mute themselves
+		if (sender.getName().equalsIgnoreCase(player)) {
+			MessageSender.send("&cYou cannot mute yourself! That would be silly :)", sender.getName());
+			return true;
+		}
+		//See if the person is already in the mutelist
+		if (senderPlayer.muted.contains(player)) {
+			//Player is already muted. Remove
+			senderPlayer.muted.remove(player);
+			MessageSender.send("&6"+player+" has been unmuted", sender.getName());
+		}
+		else {
+			//Player is to be muted
+			senderPlayer.muted.add(player);
+			MessageSender.send("&6"+player+" has been muted", sender.getName());
+		}
+		return true;
+	}
 }

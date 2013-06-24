@@ -9,11 +9,13 @@ public class PlayerChatPacket implements Serializable {
 	public String serverShortCode;
 	public String Channel;
 	public String message;
+	public String action;
 	
-	public PlayerChatPacket(String player, String serverSC, String channel, String message){
+	public PlayerChatPacket(String player, String serverSC, String channel, String message, String action){
 		this.playername = player;
 		this.serverShortCode = serverSC;
 		this.Channel = channel;
 		this.message = message;
+		this.action = action;
 	}
 }

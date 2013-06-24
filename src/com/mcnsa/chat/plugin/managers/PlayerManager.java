@@ -40,6 +40,14 @@ public class PlayerManager {
 		}
 		return null;
 	}
+	public static ChatPlayer getPlayer(String name, String server) {
+		for (ChatPlayer player: players) {
+			if (player.name.equalsIgnoreCase(name) && player.server.equals(server)){
+				return player;
+			}
+		}
+		return null;
+	}
 	public static List<ChatPlayer> getServerPlayers(String server) {
 		List<ChatPlayer> serverPlayers = new ArrayList<ChatPlayer>();
 		for (int i = 0; i < players.size(); i++) {

@@ -3,6 +3,8 @@ package com.mcnsa.chat.plugin.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+import com.mcnsa.chat.plugin.MCNSAChat;
+
 public class ConsoleLogging {
 	
 	public void info (String message) {
@@ -14,7 +16,11 @@ public class ConsoleLogging {
 	public void severe (String message) {
 		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[&4SEVERE&f] "+message));
 	}
-	
+	public void networkLogging(String message) {
+		if (MCNSAChat.plugin.getConfig().getBoolean("consoleLogServerInfo")) {
+			Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[NET] "+message));
+		}
+	}
 	public static String processColours(String str) {
 		str = str.replaceAll("&0", ChatColor.BLACK.toString());
 		str = str.replaceAll("&1", ChatColor.DARK_BLUE.toString());

@@ -58,6 +58,7 @@ public class ClientThread extends Thread{
 				MCNSAChat.console.warning("Chatserver connection refused. Check chatserver address and reload");
 				//Set server to single server mode
 				MCNSAChat.multiServer = false;
+				MCNSAChat.network = null;
 				//Log in error log
 				FileLog.writeError("Network: "+e.getMessage());
 			}
@@ -126,14 +127,17 @@ public class ClientThread extends Thread{
 			PlayerJoinedPacket packet = (PlayerJoinedPacket) recieved;
 			if (!packet.server.equals(MCNSAChat.serverName)) {
 				//player joining other server
-				MessageSender.joinMessage(packet.player.name, packet.server);
+				MessageSender.joinMessage(packet.player, packet.server);
+				//Log to console
+				MCNSAChat.console.networkLogging(packet.player.name+" Joined "+packet.server);
 			}
 		}
 		else if (recieved instanceof PlayerQuitPacket) {
 			PlayerQuitPacket packet = (PlayerQuitPacket) recieved;
 			if (!packet.server.equals(MCNSAChat.serverName)) {
 				//player quitting other server
-				MessageSender.quitMessage(packet.player.name, packet.server);
+				MessageSender.quitMessage(packet.player, packet.server);
+				MCNSAChat.console.networkLogging(packet.player.name+" Left "+packet.server);
 			}
 		}
 		else if (recieved instanceof ChannelListPacket) {

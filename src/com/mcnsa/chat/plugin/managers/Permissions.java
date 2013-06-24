@@ -1,5 +1,7 @@
 package com.mcnsa.chat.plugin.managers;
 
+import java.util.ArrayList;
+
 import com.mcnsa.chat.plugin.MCNSAChat;
 
 import ru.tehkode.permissions.PermissionManager;
@@ -58,5 +60,14 @@ public class Permissions {
 		if (user.has(corePermission+"player.usecolour")) 
 			return true;
 		return false;
+	}
+	public static ArrayList<String> getForceListens(String playerName) {
+		PermissionUser user = pex.getUser(playerName);
+		ArrayList<String> permissions = new ArrayList<String>();
+		for (String permission: user.getPermissions("world")) {
+			if (permission.startsWith("mcnsachat.forcelisten."))
+				permissions.add(permission.replace("mcnsachat.forcelisten.", ""));
+		}
+		return permissions;
 	}
 }

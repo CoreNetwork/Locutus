@@ -10,9 +10,9 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class Network {
-	public static void chatMessage(ChatPlayer player, String channel, String message) {
+	public static void chatMessage(ChatPlayer player, String channel, String message, String action) {
 		if (MCNSAChat.network != null) {
-			PlayerChatPacket packet = new PlayerChatPacket(player.name, player.server, channel, message);
+			PlayerChatPacket packet = new PlayerChatPacket(player.name, player.server, channel, message, action);
 			MCNSAChat.network.write(packet);
 		}
 	}
