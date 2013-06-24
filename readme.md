@@ -55,7 +55,7 @@ Channels.yml, Persistent channel configuration
 |:------|:----------|
 |`mcnsachat.read`|Allows players to read chat.|
 |`mcnsachat.write`|Allows players to chat.|
-|`mcnsachat.read.<name>`|Allows players to chat in a special channel. Permission name is declared in `persistence.yml`, via `read_permission`.|
-|`mcnsachat.write.<name>`|Allows players to chat in a special channel. Permission name is declared in `persistence.yml`, via `write_permission`.|
-|`mcnsachat.forcelisten.<name>`|Force players to listen to a channel (example: useful for moderator channel, so mods don�t have to explicitly do `/clisten mod`). Permission name is declared in `persistence.yml`, via `read_permission`.|
+|`mcnsachat.read.<name>`|Allows players to chat in a special channel. Permission name is declared in `channels.yml`, via `read_permission`.|
+|`mcnsachat.write.<name>`|Allows players to chat in a special channel. Permission name is declared in `channels.yml`, via `write_permission`.|
+|`mcnsachat.forcelisten.<name>`|Force players to listen to a channel (example: useful for moderator channel, so mods don't have to explicitly do `/clisten mod`). Permission name is declared in `channels.yml`, via `name`.|
 |`mcnsachat.player.cancolor`|Allows to use color (ie: `&c`) and formatting (ie: `&o`) codes in chat. Cannot overwrite `/cmode <channel> BORING`.|
