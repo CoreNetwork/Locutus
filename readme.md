@@ -25,7 +25,7 @@ Cross-server, multi-channel chat plugin.
 |`/cto`|`mcnsachat.admin.timeout`|Get a list of players in timeout|
 |`/cto [player]`|`mcnsachat.admin.timeout`|Remove `[player]` from timeout manually|
 |`/cto [player] [time] [reason]`|`mcnsachat.admin.timeout`|Put `[player]` in timeout for `[time]` minutes with `[reason]`|
-|`/say [message]`|`mcnsachat.admin.say`|Send `[message` as the server console|
+|`/say [message]`|`mcnsachat.admin.say`|Send `[message]` as the server console|
 |`/clock [player]`|`mcnsachat.admin.lock`|Lock a player in a channel|
 |`/cmove [player] [channel]`|`mcnsachat.admin.move`|Move `[player]` into `[channel]`|
 |`/creload`|`mcnsachat.admin.reload`|Reload the configuration file|
@@ -36,8 +36,8 @@ Cross-server, multi-channel chat plugin.
 |**Command**|**Permission Node**|**Description**|
 |------|:--------------|:----------|
 |`/cregister [channel]`|`mcnsachat.admin.register`|Registers a channel with the channel manager|
-|`/addmode [rave,boring,local]`|`mcnsachat.admin.mode`|Adds a mode to the channel. See modes for details|
-|`/delmode [rave,boring,local]`|`mcnsachat.admin.mode`|Removes a mode from the channel. See modes for details|
+|`/addmode [rave,boring,local]`|`mcnsachat.admin.mode`|Adds a mode to the channel your in, if registeres. See modes for details|
+|`/delmode [rave,boring,local]`|`mcnsachat.admin.mode`|Removes a mode from the channel your in, if registered. See modes for details|
     
 ##MCNSA Fun Commands
 
