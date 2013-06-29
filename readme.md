@@ -57,7 +57,7 @@ Config.yml, Main plugin configuration
 |`ChatServerPassword`||Specify the password for the chatserver|
 |`consoleLogChat`|`true`|Whether to log the chat in the console as well as the chatlog file|
 |`consoleLogServers`|`true`|Whether to log chat messages from other servers in console as well as the chatlog file|
-|`consoleLogServerInfo`|'true'|Whether to display player joins and quits from another server|
+|`consoleLogServerInfo`|`true`|Whether to display player joins and quits from another server|
 |`hideJoinPlayerList`|`false`|Hide the list of players dsiplayed on join|
 |`displayWelcome`|`true`|Display the welcome prompt for new players|
 |`consoleSender-colour`|`&4`|What colour the console messages are to be displayed in|
