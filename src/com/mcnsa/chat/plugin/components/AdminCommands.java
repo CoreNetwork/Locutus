@@ -326,7 +326,6 @@ public class AdminCommands {
 		MessageSender.send("&6Chat Config reloaded", sender.getName());
 		return true;
 	}
-	
 	@Command(
 			command = "cnet",
 			description = "Cross server chat controls, use off, on, or reset",

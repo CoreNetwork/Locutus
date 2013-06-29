@@ -37,6 +37,6 @@ strings:
   pm_receive: '&7(from %from%) %message%' # you can also use %to%
   timeout-mod: '%prefix%%player% %fHas been put in timeout for %time% seconds'
   timeout-player: 'You have been placed in timeout for %time% seconds'
-  timeout-players: '%prefix%%player% &fHas been put in timeout for %time% seconds'
+  timeout-players: '%prefix%%player% &fHas been put in timeout for %time% minutes'
   timeout-reason: 'For %reason%'
   networkMessage: '&cNetwork Message: %message%'

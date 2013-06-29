@@ -95,7 +95,7 @@ public class PlayerCommands {
 	@Command(command = "clist",
 			aliases = {"Channels"},
 			description = "Get a list of channels",
-			permissions = {})
+			permissions = {"list"})
 	public static boolean channelList(CommandSender sender) {
 		//Get the player
 		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
