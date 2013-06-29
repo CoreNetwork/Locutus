@@ -52,7 +52,7 @@ Config.yml, Main plugin configuration
 |`ServerName`|`Survival`|Set the long name for the server. Usually displayed when a player joins and quits|
 |`defaultChannel`|`s`|Set the channel a player should be in on first join|
 |`defaultListen`|`[S, Server, Global]`|Set the default list of channels a player should be listening to on first join|
-|`multiServer`|'false'|Check whether the plugin should attempt to connect to a chatserver|
+|`multiServer`|`false`|Check whether the plugin should attempt to connect to a chatserver|
 |`chatServer`||Specify the chatserver address|
 |`ChatServerPassword`||Specify the password for the chatserver|
 |`consoleLogChat`|`true`|Whether to log the chat in the console as well as the chatlog file|
