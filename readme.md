@@ -29,15 +29,15 @@ Cross-server, multi-channel chat plugin.
 |`/clock [player]`|`mcnsachat.admin.lock`|Lock a player in a channel|
 |`/cmove [player] [channel]`|`mcnsachat.admin.move`|Move `[player]` into `[channel]`|
 |`/creload`|`mcnsachat.admin.reload`|Reload the configuration file|
-|`/cnet [on|off|reset]`|`mcnsachat.admin.csccontrol`|`on` turns on multi server mode, `off` turns it off, `reset` resets the connection|
+|`/cnet [on,off,reset]`|`mcnsachat.admin.csccontrol`|`on` turns on multi server mode, `off` turns it off, `reset` resets the connection|
 
 ##Channel management
 
 |**Command**|**Permission Node**|**Description**|
 |------|:--------------|:----------|
 |`/cregister [channel]`|`mcnsachat.admin.register`|Registers a channel with the channel manager|
-|`/addmode [rave|boring|local]`|`mcnsachat.admin.mode`|Adds a mode to the channel. See modes for details|
-|`/delmode [rave|boring|local]`|`mcnsachat.admin.mode`|Removes a mode from the channel. See modes for details|
+|`/addmode [rave,boring,local]`|`mcnsachat.admin.mode`|Adds a mode to the channel. See modes for details|
+|`/delmode [rave,boring,local]`|`mcnsachat.admin.mode`|Removes a mode from the channel. See modes for details|
     
 ##MCNSA Fun Commands
 
