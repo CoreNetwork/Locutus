@@ -41,6 +41,7 @@ public class ChatPlayer implements Serializable{
 			this.modes.put("SEEALL", false);
 			this.modes.put("MUTE", false);
 			this.modes.put("POOF", false);
+			this.modes.put("LOCKED", false);
 			this.lastPm = null;
 		}
 		else {
@@ -61,6 +62,7 @@ public class ChatPlayer implements Serializable{
 			this.modes.put("SEEALL", this.playersFile.get().getBoolean("modes.SEELALL"));
 			this.modes.put("MUTE", this.playersFile.get().getBoolean("modes.MUTE"));
 			this.modes.put("POOF", this.playersFile.get().getBoolean("modes.POOF"));
+			this.modes.put("LOCKED", this.playersFile.get().getBoolean("modes.LOCKED"));
 			this.muted = (ArrayList<String>) this.playersFile.get().getList("muted");
 			this.serversVisited = (ArrayList<String>) this.playersFile.get().getList("serversVisited");
 			this.timeoutTill = this.playersFile.get().getLong("timeoutTill");

@@ -28,6 +28,11 @@ public class PlayerCommands {
 	public static boolean channelChange(CommandSender sender, String channel) throws ChatCommandException{
 		//Get the player
 		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
+		//Check to see if the Player is locked in channel
+		if (player.modes.get("LOCKED")) {
+			MessageSender.send("&cYou are locked in this channel", player.name);
+			return true;
+		}
 		
 		//see if its a persist channel
 		if (ChannelManager.getChannel(channel) != null) {
@@ -44,6 +49,7 @@ public class PlayerCommands {
 		String playersInChannel = ChannelManager.playersInChannel(channel);
 		//We can say this player has the permissions. Lets welcome them
 		player.changeChannel(channel);
+		
 		MessageSender.send(Colours.color("&6Welcome to the "+channel+" channel. Players here: " + playersInChannel), player.name);
 
 		//Update player on other servers
@@ -57,7 +63,7 @@ public class PlayerCommands {
 			aliases = {"ignore", "mute"},
 			arguments = {"Player"},
 			description = "Mute a player",
-			permissions = {})
+			permissions = {"mute"})
 	public static boolean mutePlayer(CommandSender sender, String mutedPlayer) {
 		//Get the player sending command
 		ChatPlayer playerSending = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
@@ -87,7 +93,7 @@ public class PlayerCommands {
 	}
 	
 	@Command(command = "clist",
-			aliases = {"Channels", "c"},
+			aliases = {"Channels"},
 			description = "Get a list of channels",
 			permissions = {})
 	public static boolean channelList(CommandSender sender) {
@@ -99,9 +105,15 @@ public class PlayerCommands {
 		StringBuffer message = new StringBuffer();
 		for (String channel: channels) {
 			if (message.length() < 1)
-				message.append(channel);
+				if (ChannelManager.getChannel(channel) != null)
+					message.append(ChannelManager.getChannel(channel).color + channel + "&f");
+				else 
+					message.append(channel);
 			else
-				message.append(", "+channel);
+				if (ChannelManager.getChannel(channel) != null)
+					message.append(", "+ChannelManager.getChannel(channel).color + channel + "&f");
+				else 
+					message.append(", "+channel);
 		}
 		MessageSender.send("Channels: "+message.toString(), player.name);
 		return true;
@@ -145,28 +157,38 @@ public class PlayerCommands {
 			description = "Message a player",
 			permissions = {"msg"})
 	public static boolean message(CommandSender sender, String player, String... Message) {
-		//Get targetPlayer
-		ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
-		if (targetPlayers.isEmpty()) {
-			MessageSender.send("Could not find player: "+player, sender.getName());
-			return true;
-		}
-		ChatPlayer targetPlayer = targetPlayers.get(0);
 		
 		StringBuffer messageString = new StringBuffer();
 		for (String message: Message) {
 			messageString.append(message+" ");
 		}
-		
-		//Send the pm back to the sender
-		MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-		
-		//Try sending the pm to the target
-		MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
-		
-		//Send it to network
-		Network.PmSend(sender.getName(), targetPlayer.name, messageString.toString());
-		
+		//sending to console support
+		if (player.equalsIgnoreCase("console")) {
+			//Send the pm back to the sender
+			MessageSender.sendPM(messageString.toString(), sender.getName(), player);
+			
+			//Try sending the pm to the target
+			MessageSender.recievePM(messageString.toString(), sender.getName(), player);
+			return true;
+		}
+		else {
+			//Get targetPlayer
+			ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
+			if (targetPlayers.isEmpty()) {
+				MessageSender.send("Could not find player: "+player, sender.getName());
+				return true;
+			}
+			ChatPlayer targetPlayer = targetPlayers.get(0);
+			
+			//Send the pm back to the sender
+			MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+			
+			//Try sending the pm to the target
+			MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+			
+			//Send it to network
+			Network.PmSend(sender.getName(), targetPlayer.name, messageString.toString());
+		}
 		return true;
 	}
 	@Command(command = "r",
@@ -260,6 +282,22 @@ public class PlayerCommands {
 			//Player is to be muted
 			senderPlayer.muted.add(player);
 			MessageSender.send("&6"+player+" has been muted", sender.getName());
+		}
+		return true;
+	}
+	
+	@Command(
+			command= "csearch",
+			description = "Find what channel a player is in"
+			)
+	public static boolean csearch(CommandSender sender, String player) {
+		//Try and see if we can find the target player
+		if (PlayerManager.playerSearch(player).size() > 0) {
+			ChatPlayer target = PlayerManager.playerSearch(player).get(0);
+			MessageSender.send(target.name+" is in channel: "+target.channel, sender.getName());
+		}
+		else {
+			MessageSender.send("&cCould not find: "+player, sender.getName());
 		}
 		return true;
 	}

@@ -1,5 +1,7 @@
 package com.mcnsa.chat.plugin.utils;
 
+import java.util.Random;
+
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 
@@ -48,5 +50,13 @@ public class Colours {
 	}
 	public static String color(String str) {
 		return ChatColor.translateAlternateColorCodes('&', str);
+	}
+	public static String raveColor(String rawMessage) {
+		Random r = new Random();
+		String newStr = "";
+		String colors = "123456789abcde";
+		for (int i = 0; i < rawMessage.length(); i++)
+			newStr += "&" + colors.charAt(r.nextInt(colors.length())) + rawMessage.charAt(i);
+		return newStr;
 	}
 }

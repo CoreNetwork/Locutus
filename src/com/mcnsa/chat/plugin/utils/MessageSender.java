@@ -12,24 +12,10 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
+import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class MessageSender {
-	public static void sendmsg(String rawmessage, String playerSender, String player) {
-		//Get the player
-		ChatPlayer cPlayer = PlayerManager.getPlayer(player);
-		
-		//Check if player has muted playersender
-		if (!cPlayer.muted.contains(playerSender)) {
-			//Player is not muted 
-			String message = MCNSAChat.plugin.getConfig().getString("strings.pm_receive");	
-			message = message.replaceAll("%prefix%", Colours.PlayerPrefix(playerSender));
-			message = message.replaceAll("%from%", playerSender);
-			message = message.replaceAll("%to%", player);
-			
-			Bukkit.getPlayer(player).sendMessage(Colours.stripColor(message));
-		}
-	}
 	public static void joinMessage(String playerName, PlayerJoinEvent event) {
 		//Build the message
 		String message = MCNSAChat.plugin.getConfig().getString("strings.player-join");
@@ -108,42 +94,58 @@ public class MessageSender {
 		}
 	}
 	public static void sendPM(String rawMessage, String sender, String target) {
-		//Function sends the message back to the player sending the pm
-		String message = MCNSAChat.plugin.getConfig().getString("strings.pm_send");
-		message = message.replaceAll("%prefix%", Colours.PlayerPrefix(sender));
-		message = message.replaceAll("%from%", sender);
-		message = message.replaceAll("%to%", target);
-		message = message.replaceAll("%message%", rawMessage);
-		Bukkit.getPlayer(sender).sendMessage(Colours.processConsoleColours(message));
-		
-		//set last pm to the target
-		PlayerManager.getPlayer(sender).lastPm = target;
-		
-		//update player
-		Network.updatePlayer(PlayerManager.getPlayer(sender));
-	}
-	public static void recievePM(String rawMessage, String sender, String target) {
-		//Function sends the message to the player
-		String message = MCNSAChat.plugin.getConfig().getString("strings.pm_receive");
-		message = message.replaceAll("%prefix%", Colours.PlayerPrefix(sender));
-		message = message.replaceAll("%from%", sender);
-		message = message.replaceAll("%to%", target);
-		message = message.replaceAll("%message%", rawMessage);
-		
-		//Check if the target has muted the sender
-		if (!PlayerManager.getPlayer(target).muted.contains(sender) && Bukkit.getPlayer(target) != null) {
-			Bukkit.getPlayer(target).sendMessage(Colours.processConsoleColours(message));
+		if (sender.equalsIgnoreCase("console")) {
+			MCNSAChat.console.pm_send(target, rawMessage);
+		}
+		else {
+			//Function sends the message back to the player sending the pm
+			String message = MCNSAChat.plugin.getConfig().getString("strings.pm_send");
+			message = message.replaceAll("%prefix%", Colours.PlayerPrefix(sender));
+			message = message.replaceAll("%from%", sender);
+			message = message.replaceAll("%to%", target);
+			message = message.replaceAll("%message%", rawMessage);
+			Bukkit.getPlayer(sender).sendMessage(Colours.processConsoleColours(message));
 			
-			//Set the targets last pm
-			PlayerManager.getPlayer(target).lastPm = sender;
+			//set last pm to the target
+			PlayerManager.getPlayer(sender).lastPm = target;
 			
 			//update player
-			Network.updatePlayer(PlayerManager.getPlayer(target));
+			Network.updatePlayer(PlayerManager.getPlayer(sender));
+		}
+	}
+	public static void recievePM(String rawMessage, String sender, String target) {
+		if (target.equalsIgnoreCase("console")) {
+			MCNSAChat.console.pm_send(sender, rawMessage);
+		}
+		else {
+			//Function sends the message to the player
+			String message = MCNSAChat.plugin.getConfig().getString("strings.pm_receive");
+			message = message.replaceAll("%prefix%", Colours.PlayerPrefix(sender));
+			message = message.replaceAll("%from%", sender);
+			message = message.replaceAll("%to%", target);
+			message = message.replaceAll("%message%", rawMessage);
+			
+			//Check if the target has muted the sender
+			if (!PlayerManager.getPlayer(target).muted.contains(sender) && Bukkit.getPlayer(target) != null) {
+				Bukkit.getPlayer(target).sendMessage(Colours.processConsoleColours(message));
+				
+				//Set the targets last pm
+				PlayerManager.getPlayer(target).lastPm = sender;
+				
+				//update player
+				Network.updatePlayer(PlayerManager.getPlayer(target));
+			}
 		}
 	}
 	public static void send(String message, String player) {
 		Player playerRecieving = Bukkit.getPlayer(player);
-		playerRecieving.sendMessage(Colours.processConsoleColours(message));
+		if (playerRecieving != null) {
+			playerRecieving.sendMessage(Colours.processConsoleColours(message));
+		}
+		else {
+			//send to console
+			Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours(message));
+		}
 	}
 	public static void broadcast(String message) {
 		for (Player player: Bukkit.getOnlinePlayers()) {
@@ -155,6 +157,20 @@ public class MessageSender {
 		//Strip colour if no permissions
 		if (!Permissions.useColours(player))
 			rawMessage = Colours.stripColor(rawMessage);
+		
+		//Channel modes
+		if (ChannelManager.getChannel(channel) != null) {
+			ChatChannel chan = ChannelManager.getChannel(channel);
+			
+			if (chan.modes.get("RAVE")) {
+				//Colourise the message
+				rawMessage = Colours.raveColor(rawMessage);
+			}
+			else if (chan.modes.get("BORING")) {
+				//Strip all colour
+				rawMessage = Colours.stripColor(rawMessage);
+			}
+		}
 		//Get the base message
 		String message = MCNSAChat.plugin.getConfig().getString("strings.message");
 		message = message.replaceAll("%server%", serverCode);
@@ -184,8 +200,10 @@ public class MessageSender {
 		}
 		
 		//See if need to send to other servers
-		if (!serverCode.equals(MCNSAChat.shortCode))
-			Network.chatMessage(PlayerManager.getPlayer(player), channel, message, "CHAT");
+		if (serverCode.equals(MCNSAChat.shortCode)) {
+			if (ChannelManager.getChannel(channel) != null && !ChannelManager.getChannel(channel).modes.get("LOCAL"))
+				Network.chatMessage(PlayerManager.getPlayer(player), channel, rawMessage, "CHAT");
+		}
 	}
 	public static void actionMessage(ChatPlayer player, String rawMessage) {
 		//Strip colours if needed
@@ -220,7 +238,20 @@ public class MessageSender {
 		}
 		
 		//See if need to send to other servers
-		if (!player.server.equals(MCNSAChat.shortCode))
-			Network.chatMessage(player, player.channel, message, "ACTION");
+		if (player.server.equals(MCNSAChat.shortCode)) {
+			if (ChannelManager.getChannel(player.channel) != null && !ChannelManager.getChannel(player.channel).modes.get("LOCAL"))
+				Network.chatMessage(player, player.channel, message, "ACTION");
+		}
+	}
+	public static void timeoutPlayer(String player, String time, String reason) {
+		//Get base string
+		String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.timeout-player");
+		notifyMessage = notifyMessage.replace("%time%", time);
+		
+		String reasonMessage = MCNSAChat.plugin.getConfig().getString("strings.timeout-reason");
+		reasonMessage = reasonMessage.replace("%reason%", reason);
+		
+		MessageSender.send(notifyMessage, player);
+		MessageSender.send(reasonMessage, player);
 	}
 }

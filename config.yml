@@ -23,6 +23,10 @@ hideJoinPlayerList: false
 #Display the welcome message for new players
 displayWelcome: true
 
+#Console sender used when using /say
+consoleSender-colour: &4
+consoleSender: CONSOLE
+
 strings:
   player-welcome: '&aWelcome &e%player% &ato the server!'
   player-join: '%prefix%%player% &ehas joined %server%!'

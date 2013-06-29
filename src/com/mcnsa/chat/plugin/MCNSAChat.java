@@ -40,12 +40,7 @@ public class MCNSAChat extends JavaPlugin{
 		plugin = this;
 		console = new ConsoleLogging();
 		
-		MCNSAChat.logs = new FileLog();
 		
-		//Check to see if the directory for players exists
-		File playerFolder = new File("plugins/MCNSAChat/Players");
-		if (!playerFolder.exists())
-			playerFolder.mkdir();
 				
 		//Load the configs
 		console.info("Loading config");
@@ -56,6 +51,13 @@ public class MCNSAChat extends JavaPlugin{
 		MCNSAChat.chatserverPort = this.getConfig().getInt("chatServerPort");
 		MCNSAChat.chatserverPasscode = this.getConfig().getString("chatServerPasscode");
 		MCNSAChat.multiServer = this.getConfig().getBoolean("multiServer");
+		
+		MCNSAChat.logs = new FileLog();
+		
+		//Check to see if the directory for players exists
+		File playerFolder = new File("plugins/MCNSAChat/Players");
+		if (!playerFolder.exists())
+			playerFolder.mkdir();
 		
 		console.info("Config Loaded");
 		console.info("Server name is: "+MCNSAChat.serverName);
@@ -94,20 +96,18 @@ public class MCNSAChat extends JavaPlugin{
 		new PlayerListener();
 		
 		//See if multiserver is enabled
-		if (MCNSAChat.multiServer) {
-			final MCNSAChat finalthis = this;
-			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-				public void run() {
-					if (network == null && MCNSAChat.multiServer) {
-						network = new ClientThread(finalthis);
-						network.start();
-					}
+		final MCNSAChat finalthis = this;
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			public void run() {
+				if (network == null && MCNSAChat.multiServer) {
+					network = new ClientThread(finalthis);
+					network.start();
 				}
-			}, 0L, 600L);
-		}
+			}
+		}, 0L, 600L);
 	}
 	public void onDisable() {
-		if (multiServer) {
+		if (multiServer && network != null) {
 			console.info("Closing network threads");
 			Network.serverLeft();
 			MCNSAChat.network = null;

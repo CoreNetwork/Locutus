@@ -2,8 +2,6 @@ package com.mcnsa.chat.plugin.managers;
 
 import java.util.ArrayList;
 
-import com.mcnsa.chat.plugin.MCNSAChat;
-
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -40,7 +38,6 @@ public class Permissions {
 			return true;
 		}
 		if (user.has(corePermission+"write."+permission)) {
-			MCNSAChat.console.info("Checking permission "+corePermission+"write."+permission);
 			return true;
 		}
 		return false;

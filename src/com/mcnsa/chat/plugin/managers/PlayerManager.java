@@ -1,9 +1,12 @@
 package com.mcnsa.chat.plugin.managers;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerManager {
@@ -63,10 +66,36 @@ public class PlayerManager {
 	public static ArrayList<ChatPlayer> playerSearch(String string) {
 		ArrayList<ChatPlayer> results = new ArrayList<ChatPlayer>();
 		for (int i = 0; i < players.size(); i++){
-			if (players.get(i).name.startsWith(string) && !results.contains(players.get(i))) {
+			if (players.get(i).name.toLowerCase().startsWith(string.toLowerCase()) && !results.contains(players.get(i))) {
 				results.add(players.get(i));
 			}
 		}
 		return results;
+	}
+	public static void unmutePlayer(String Player) {
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).name.equalsIgnoreCase(Player)) {
+				players.get(i).modes.put("MUTE", false);
+				Network.updatePlayer(players.get(i));
+				
+				//Notify player
+				MessageSender.send("&6You have been removed from timeout", Player);
+				//UpdatePlayers on network
+				Network.updatePlayer(players.get(i));
+			}
+		}
+	}
+	public static void mutePlayer(String Player, String time, String reason) {
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).name.equalsIgnoreCase(Player)) {
+				players.get(i).modes.put("MUTE", true);
+				players.get(i).timeoutTill = new Date().getTime() + (Integer.valueOf(time) * 60000);
+				//Inform the player
+				if (players.get(i).server.equals(MCNSAChat.shortCode))
+					MessageSender.timeoutPlayer(Player, time, reason);
+				//UpdatePlayers on network
+				Network.updatePlayer(players.get(i));
+			}
+		}
 	}
 }

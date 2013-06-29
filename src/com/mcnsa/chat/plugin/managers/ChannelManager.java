@@ -71,11 +71,10 @@ public class ChannelManager {
 		for (int i = 0; i< channels.size(); i++) {
 			ChatChannel chan = channels.get(i);
 			if (Permissions.checkReadPerm(chan.read_permission, player.name) && Permissions.checkWritePerm(chan.write_permission, player.name)) {
-				if (!channelList.contains(chan.color+chan.name+"&f"))	
-					channelList.add(chan.color+chan.name+"&f");
+				if (!channelList.contains(chan.name))	
+					channelList.add(chan.name);
 			}
 		}
-		
 		//Now get the channels the players are in
 		for (int i = 0; i< playerChannelList.size(); i++) {
 			String playerChan = playerChannelList.get(i);

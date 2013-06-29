@@ -55,9 +55,7 @@ public class PlayerListener implements Listener{
 		if (PlayerManager.getPlayer(playerName).modes.get("MUTE")) {
 			//get current time
 			long timeNow = new Date().getTime();
-//Debug
-MCNSAChat.console.info("Time now: "+timeNow);
-MCNSAChat.console.info("Player timeout till"+PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).timeoutTill);
+
 			if (PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).timeoutTill < timeNow) {
 				//Player has finished their timeout
 				PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).modes.put("MUTE", false);
@@ -65,16 +63,16 @@ MCNSAChat.console.info("Player timeout till"+PlayerManager.getPlayer(playerName,
 			}
 			else {
 				//get time left
-				long timeLeft = (((PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).timeoutTill - timeNow)/1000)*60) * 20;
+				long timeLeft = ((PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).timeoutTill - timeNow)/1000) * 20;
+				
 				//Schedule the untimeout
 				final String finalPlayerName = playerName;
 				Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin, new Runnable() {
 					public void run() {
-						if (PlayerManager.getPlayer(finalPlayerName) != null){
-							PlayerManager.getPlayer(finalPlayerName).modes.put("MUTE", false);
-							Network.updatePlayer(PlayerManager.getPlayer(finalPlayerName));
+							if (PlayerManager.getPlayer(finalPlayerName, MCNSAChat.shortCode) != null && PlayerManager.getPlayer(finalPlayerName, MCNSAChat.shortCode).modes.get("MUTE")){
+								PlayerManager.unmutePlayer(finalPlayerName);
+							}
 						}
-					}
 				}, timeLeft);
 			}
 			
@@ -122,7 +120,7 @@ MCNSAChat.console.info("Player timeout till"+PlayerManager.getPlayer(playerName,
 		//Get chatplayer
 		ChatPlayer player = PlayerManager.getPlayer(event.getPlayer().getName(), MCNSAChat.shortCode);
 		if (!player.modes.get("MUTE")) { 
-		MessageSender.channelMessage(player.channel, MCNSAChat.shortCode, player.name, event.getMessage());
+			MessageSender.channelMessage(player.channel, MCNSAChat.shortCode, player.name, event.getMessage());
 		}
 		else {
 			MessageSender.send("&c You are in timeout. Please try again later", player.name);

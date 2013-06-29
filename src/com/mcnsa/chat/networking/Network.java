@@ -7,12 +7,13 @@ import com.mcnsa.chat.networking.packets.PlayerUpdatePacket;
 import com.mcnsa.chat.networking.packets.PmPacket;
 import com.mcnsa.chat.networking.packets.ServerLeftPacket;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class Network {
 	public static void chatMessage(ChatPlayer player, String channel, String message, String action) {
 		if (MCNSAChat.network != null) {
-			PlayerChatPacket packet = new PlayerChatPacket(player.name, player.server, channel, message, action);
+			PlayerChatPacket packet = new PlayerChatPacket(player, player.server, channel, message, action);
 			MCNSAChat.network.write(packet);
 		}
 	}
@@ -45,5 +46,13 @@ public class Network {
 			PmPacket packet = new PmPacket(sender, target, message);
 			MCNSAChat.network.write(packet);
 		}
+	}
+	public static void actionMessage(ChatPlayer player, String message) {
+		// TODO Auto-generated method stub
+		
+	}
+	public static void channelUpdate(ChatChannel channel) {
+		// TODO Auto-generated method stub
+		
 	}
 }

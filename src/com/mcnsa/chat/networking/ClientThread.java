@@ -154,10 +154,13 @@ public class ClientThread extends Thread{
 				ChannelManager.channels.remove(chan);
 			ChannelManager.channels.add(packet.channel);
 		}
-		else if (recieved instanceof ChatPacket) {
-			ChatPacket packet = (ChatPacket) recieved;
-			if (!packet.serverCode.equals(MCNSAChat.shortCode))
-				MessageSender.channelMessage(packet.channel, packet.serverCode, packet.player, packet.message);
+		else if (recieved instanceof PlayerChatPacket) {
+			PlayerChatPacket packet = (PlayerChatPacket) recieved;
+			if (!packet.serverShortCode.equals(MCNSAChat.shortCode))
+				if (packet.action.equals("CHAT"))
+					MessageSender.channelMessage(packet.Channel, packet.serverShortCode, packet.player.name, packet.message);
+				if (packet.action.equals("ACTION"))
+					MessageSender.actionMessage(packet.player, packet.message);
 		}
 		return true;
 	}

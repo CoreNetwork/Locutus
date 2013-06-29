@@ -46,4 +46,12 @@ public class ConsoleLogging {
 		str = str.replaceAll("&r", ChatColor.RESET.toString());
 		return str;
 	}
+	public void pm_send(String target, String rawMessage) {
+		//This is for displaying the pms send from console, to the console
+		Bukkit.getConsoleSender().sendMessage("&f[&aMCNSAChat&f]&f[&aPM Sent to "+target+"&f] "+rawMessage);		
+	}
+	public void pm_recieved(String sender, String rawMessage) {
+		//This is for displaying the pms send from console, to the console
+		Bukkit.getConsoleSender().sendMessage("&f[&aMCNSAChat&f]&f[&4PM recieved from "+sender+"&f] "+rawMessage);		
+	}
 }
