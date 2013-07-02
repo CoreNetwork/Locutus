@@ -156,6 +156,10 @@ public class AdminCommands {
 		//Let the sender know that its created
 		MessageSender.send("&6Channel "+channel+" registered", sender.getName());
 		
+		//Add to channel Manager
+		ChannelManager.channels.add(Channel);
+		//Send to network
+		Network.channelUpdate(Channel);
 		return true;
 	}
 	
@@ -214,6 +218,10 @@ public class AdminCommands {
 		else if (mode.equalsIgnoreCase("local")) {
 			channel.modes.put("LOCAL", false);
 			MessageSender.send("&6Local mode deactivated!", sender.getName());
+		}
+		else if (mode.equalsIgnoreCase("persist")) {
+			channel.modes.put("PERSIST", false);
+			MessageSender.send("&6Persist decativated. Channel will be removed", sender.getName());
 		}
 		
 		Network.channelUpdate(channel);
@@ -340,6 +348,8 @@ public class AdminCommands {
 		}
 		else if (action.equalsIgnoreCase("off")) {
 			MCNSAChat.multiServer = false;
+			Network.serverLeft();
+			MCNSAChat.network = null;
 			MessageSender.send("&6Cross server chat turned off", sender.getName());
 			return true;
 		}
@@ -397,4 +407,5 @@ public class AdminCommands {
 		return true;
 
 	}
+	
 }

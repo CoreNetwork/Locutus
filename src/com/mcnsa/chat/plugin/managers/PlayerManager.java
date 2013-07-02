@@ -105,4 +105,12 @@ public class PlayerManager {
 		PlayerManager.removePlayer(player.name, player.server);
 		PlayerManager.players.add(player);
 	}
+
+	public static void addPlayers(ArrayList<ChatPlayer> players2) {
+		for (ChatPlayer play: players2) {
+			if (getPlayer(play.name, play.server) == null)
+				players.add(play);
+		}
+		
+	}
 }

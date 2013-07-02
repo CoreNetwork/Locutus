@@ -223,7 +223,6 @@ public class MessageSender {
 		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(player.channel);
 		if (players != null) {
 			for (ChatPlayer sendPlayer: players) {
-				MCNSAChat.console.info("Loop through player: "+player.name);
 				if (!sendPlayer.server.equals(MCNSAChat.shortCode))
 					continue;
 				//Check if the sending player is muted by the player recieving the message
@@ -251,6 +250,8 @@ public class MessageSender {
 		}
 	}
 	public static void timeoutPlayer(String player, String time, String reason) {
+		if (reason.length() < 1)
+			reason = "annoying a mod";
 		//Get base string
 		String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.timeout-player");
 		notifyMessage = notifyMessage.replace("%time%", time);
@@ -260,6 +261,26 @@ public class MessageSender {
 		
 		MessageSender.send(notifyMessage, player);
 		MessageSender.send(reasonMessage, player);
+		
+		//send to everyone in the players channel
+		String playernotify = MCNSAChat.plugin.getConfig().getString("strings.timeout-players");
+		playernotify = playernotify.replace("%prefix%", Colours.PlayerPrefix(player));
+		playernotify = playernotify.replace("%player%", player);
+		playernotify = playernotify.replace("%time%", time);
+		
+		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(PlayerManager.getPlayer(player).channel);
+		if (players != null) {
+			for (ChatPlayer sendPlayer: players) {
+				if (!sendPlayer.server.equals(MCNSAChat.shortCode))
+					continue;
+				//Check if the sending player is the player in timeout
+				if (!sendPlayer.name.equalsIgnoreCase(player)) {
+					
+					MessageSender.send(playernotify, sendPlayer.name);
+					MessageSender.send(reasonMessage, sendPlayer.name);
+				}
+			}
+		}
 	}
 	public static void consoleChat(String rawMessage, String channel) {
 		// used for console to send messages to a channel

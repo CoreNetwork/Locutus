@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.anjocaido.groupmanager.GroupManager;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -98,6 +100,8 @@ public class MCNSAChat extends JavaPlugin{
 		console.info("Loading channels");
 		loadChannels();
 		
+		//Support for /reload
+		addOnlinePlayers();
 		//Start up the player listener
 		new PlayerListener();
 		
@@ -173,5 +177,12 @@ public class MCNSAChat extends JavaPlugin{
 		}
 		this.channels.get().set("channels", savedChannels);
 		this.channels.save();
+	}
+	
+	public void addOnlinePlayers() {
+		Player[] players = Bukkit.getOnlinePlayers();
+		for(Player player: players) {
+			PlayerManager.PlayerLogin(player.getName());
+		}
 	}
 }

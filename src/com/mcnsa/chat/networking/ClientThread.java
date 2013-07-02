@@ -173,6 +173,13 @@ public class ClientThread extends Thread{
 			MCNSAChat.console.networkLogging(packet.player.name+" Updated from "+packet.player.server);
 			
 		}
+		else if (recieved instanceof PlayerListPacket) {
+			PlayerListPacket packet = (PlayerListPacket) recieved;
+			//Update player
+			PlayerManager.players = packet.players;
+			MCNSAChat.console.networkLogging(" Updated playerlist from "+packet.server);
+			
+		}
 		return true;
 	}
 	public void write(Object packet) {
