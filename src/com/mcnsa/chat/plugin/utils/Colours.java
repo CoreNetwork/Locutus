@@ -4,16 +4,13 @@ import java.util.Random;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
-
-import ru.tehkode.permissions.PermissionUser;
-
-import com.mcnsa.chat.plugin.managers.Permissions;
+import com.mcnsa.chat.plugin.MCNSAChat;
 
 public class Colours {
 	public static String PlayerPrefix(String playerName) {
-		PermissionUser user = Permissions.pex.getUser(playerName);
-		String prefix = user.getPrefix();
-		return color(prefix);
+		String prefix = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getUserPrefix(playerName);
+		return prefix;
+		
 	}
 	public static String processConsoleColours(String str) {
 		str = str.replaceAll("&0", ChatColor.BLACK.toString());

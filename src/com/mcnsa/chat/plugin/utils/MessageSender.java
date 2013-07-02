@@ -50,9 +50,11 @@ public class MessageSender {
 		ArrayList<ChatPlayer> sendTo = new ArrayList<ChatPlayer>();
 		for(String channel: player.listening) {
 			ArrayList<ChatPlayer> targetPlayers = ChannelManager.getPlayersListening(channel);
-			for (ChatPlayer targetPlayer: targetPlayers){
-				if (!sendTo.contains(targetPlayer) && targetPlayer.server.equals(MCNSAChat.shortCode))
-					sendTo.add(targetPlayer);
+			if (targetPlayers != null) {
+				for (ChatPlayer targetPlayer: targetPlayers){
+					if (!sendTo.contains(targetPlayer) && targetPlayer.server.equals(MCNSAChat.shortCode))
+						sendTo.add(targetPlayer);
+				}
 			}
 		}
 		//Now send to players
@@ -115,7 +117,7 @@ public class MessageSender {
 	}
 	public static void recievePM(String rawMessage, String sender, String target) {
 		if (target.equalsIgnoreCase("console")) {
-			MCNSAChat.console.pm_send(sender, rawMessage);
+			MCNSAChat.console.pm_recieved(sender, rawMessage);
 		}
 		else {
 			//Function sends the message to the player
@@ -180,15 +182,16 @@ public class MessageSender {
 		message = message.replaceAll("%message%", rawMessage);
 		
 		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(channel);
-		for (ChatPlayer sendPlayer: players) {
-			if (!sendPlayer.server.equals(MCNSAChat.shortCode))
-				continue;
-			//Check if the sending player is muted by the player recieving the message
-			if (!sendPlayer.muted.contains(player)) {
-				Bukkit.getPlayer(sendPlayer.name).sendMessage(Colours.processConsoleColours(message));
+		if (players != null) {
+			for (ChatPlayer sendPlayer: players) {
+				if (!sendPlayer.server.equals(MCNSAChat.shortCode))
+					continue;
+				//Check if the sending player is muted by the player recieving the message
+				if (!sendPlayer.muted.contains(player)) {
+					Bukkit.getPlayer(sendPlayer.name).sendMessage(Colours.processConsoleColours(message));
+				}
 			}
 		}
-		
 		//Log to file
 		FileLog.writeChat(rawMessage);
 		
@@ -201,7 +204,7 @@ public class MessageSender {
 		
 		//See if need to send to other servers
 		if (serverCode.equals(MCNSAChat.shortCode)) {
-			if (ChannelManager.getChannel(channel) != null && !ChannelManager.getChannel(channel).modes.get("LOCAL"))
+			if (ChannelManager.getChannel(channel) != null && !ChannelManager.getChannel(channel).modes.get("LOCAL") || ChannelManager.getChannel(channel) == null)
 				Network.chatMessage(PlayerManager.getPlayer(player), channel, rawMessage, "CHAT");
 		}
 	}
@@ -218,12 +221,16 @@ public class MessageSender {
 		message = message.replaceAll("%message%", rawMessage);
 		
 		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(player.channel);
-		for (ChatPlayer sendPlayer: players) {
-			if (!sendPlayer.server.equals(MCNSAChat.shortCode))
-				continue;
-			//Check if the sending player is muted by the player recieving the message
-			if (!sendPlayer.muted.contains(player)) {
-				Bukkit.getPlayer(sendPlayer.name).sendMessage(Colours.processConsoleColours(message));
+		if (players != null) {
+			for (ChatPlayer sendPlayer: players) {
+				MCNSAChat.console.info("Loop through player: "+player.name);
+				if (!sendPlayer.server.equals(MCNSAChat.shortCode))
+					continue;
+				//Check if the sending player is muted by the player recieving the message
+				if (!sendPlayer.muted.contains(player)) {
+					
+					Bukkit.getPlayer(sendPlayer.name).sendMessage(Colours.processConsoleColours(message));
+				}
 			}
 		}
 		
@@ -239,8 +246,8 @@ public class MessageSender {
 		
 		//See if need to send to other servers
 		if (player.server.equals(MCNSAChat.shortCode)) {
-			if (ChannelManager.getChannel(player.channel) != null && !ChannelManager.getChannel(player.channel).modes.get("LOCAL"))
-				Network.chatMessage(player, player.channel, message, "ACTION");
+			if (ChannelManager.getChannel(player.channel) != null && !ChannelManager.getChannel(player.channel).modes.get("LOCAL")|| ChannelManager.getChannel(player.channel) == null)
+				Network.chatMessage(player, player.channel, rawMessage, "ACTION");
 		}
 	}
 	public static void timeoutPlayer(String player, String time, String reason) {
@@ -253,5 +260,28 @@ public class MessageSender {
 		
 		MessageSender.send(notifyMessage, player);
 		MessageSender.send(reasonMessage, player);
+	}
+	public static void consoleChat(String rawMessage, String channel) {
+		// used for console to send messages to a channel
+		String message = MCNSAChat.plugin.getConfig().getString("strings.message");
+		message = message.replaceAll("%server%", MCNSAChat.shortCode);
+		message = message.replaceAll("%channel%", channel);
+		message = message.replaceAll("%prefix%", MCNSAChat.plugin.getConfig().getString("consoleSender-colour"));
+		message = message.replaceAll("%player%", "["+MCNSAChat.plugin.getConfig().getString("consoleSender")+"]");
+		message = message.replaceAll("%message%", rawMessage);
+		
+		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(channel);
+		if (players != null) {
+			for (ChatPlayer sendPlayer: players) {
+				if (!sendPlayer.server.equals(MCNSAChat.shortCode))
+					continue;
+				
+				Bukkit.getPlayer(sendPlayer.name).sendMessage(Colours.processConsoleColours(message));
+			}
+		}
+		//Log to file
+		FileLog.writeChat(rawMessage);
+		
+		Bukkit.getConsoleSender().sendMessage((Colours.processConsoleColours(message)));
 	}
 }

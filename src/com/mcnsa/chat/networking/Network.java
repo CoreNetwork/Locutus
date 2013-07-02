@@ -41,7 +41,7 @@ public class Network {
 			MCNSAChat.network.write(packet);
 		}
 	}
-	public static void PmSend(String sender, String target, String message) {
+	public static void PmSend(ChatPlayer sender, String target, String message) {
 		if (MCNSAChat.network != null) {
 			PmPacket packet = new PmPacket(sender, target, message);
 			MCNSAChat.network.write(packet);

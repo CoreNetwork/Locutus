@@ -13,11 +13,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
-import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
+import com.mcnsa.chat.plugin.utils.Colours;
 import com.mcnsa.chat.plugin.utils.MessageSender;
-import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerListener implements Listener{
@@ -77,25 +76,15 @@ public class PlayerListener implements Listener{
 			}
 			
 		}
-		
-		//Check for listen permissions
-		for (String channel: PlayerManager.getPlayer(playerName).listening) {
-			//Get chat channel
-			ChatChannel chan = ChannelManager.getChannel(channel);
-			if (chan != null) {
-				//Check permissions
-				if (!Permissions.checkReadPerm(chan.read_permission, playerName))
-					//Player does not have permission to read this channel
-					PlayerManager.getPlayer(playerName).listening.remove(channel);
-			}
-		}
-		
+				
 		//Check for forcelistens
 		for (String forceChannel: Permissions.getForceListens(playerName)) {
-			if (PlayerManager.getPlayer(playerName).listening.contains(forceChannel))
+			if (!PlayerManager.getPlayer(playerName).listening.contains(forceChannel))
 				PlayerManager.getPlayer(playerName).listening.add(forceChannel);
 		}
 		
+		//Set their name on the player tab list
+		event.getPlayer().setPlayerListName(Colours.processConsoleColours(Colours.PlayerPrefix(playerName)+playerName));
 		//Notify other players
 		MessageSender.joinMessage(playerName, event);
 		
@@ -105,14 +94,14 @@ public class PlayerListener implements Listener{
 	//Handles logouts
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void playerQuit (PlayerQuitEvent event) {
+				
 		//Save the player
 		PlayerManager.PlayerLogout(event.getPlayer().getName());
-
+		
 		//Notify others
 		MessageSender.quitMessage(event.getPlayer().getName(), event);
 		
-		//Notify network
-		Network.playerQuit(PlayerManager.getPlayer(event.getPlayer().getName()));
+		
 	}
 	//Handles chat events
 	@EventHandler(priority = EventPriority.LOWEST)

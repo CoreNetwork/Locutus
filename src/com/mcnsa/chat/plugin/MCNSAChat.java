@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.anjocaido.groupmanager.GroupManager;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mcnsa.chat.file.Channels;
@@ -30,6 +33,7 @@ public class MCNSAChat extends JavaPlugin{
 	public static FileLog logs;
 	public CommandManager commandManager;
 	public ComponentManager componentManager;
+	public static GroupManager groupManager;
 	public static MCNSAChat plugin;
 	public static ConsoleLogging console;
 	public static ClientThread network;
@@ -39,7 +43,9 @@ public class MCNSAChat extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		console = new ConsoleLogging();
-		
+		final PluginManager pluginManager = plugin.getServer().getPluginManager();
+		final Plugin GMplugin = pluginManager.getPlugin("GroupManager");
+		groupManager = (GroupManager)GMplugin;
 		
 				
 		//Load the configs

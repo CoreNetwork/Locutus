@@ -163,7 +163,7 @@ public class PlayerCommands {
 			messageString.append(message+" ");
 		}
 		//sending to console support
-		if (player.equalsIgnoreCase("console")) {
+		if (player.equalsIgnoreCase("console") || sender.getName().equalsIgnoreCase("console")) {
 			//Send the pm back to the sender
 			MessageSender.sendPM(messageString.toString(), sender.getName(), player);
 			
@@ -187,7 +187,7 @@ public class PlayerCommands {
 			MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
 			
 			//Send it to network
-			Network.PmSend(sender.getName(), targetPlayer.name, messageString.toString());
+			Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
 		}
 		return true;
 	}
@@ -197,6 +197,11 @@ public class PlayerCommands {
 			permissions = {"msg"}, 
 			description = "Reply to the last PM send or recieved")
 	public static boolean reply(CommandSender sender, String... Message) {
+		//Build the chat message
+		StringBuffer messageString = new StringBuffer();
+		for (String message: Message) {
+			messageString.append(message+" ");
+		}
 		//Get the player
 		ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
 		
@@ -205,30 +210,34 @@ public class PlayerCommands {
 			MessageSender.send("There is no one to reply to", playerSender.name);
 			return true;
 		}
-		//Get who they are replying to
-		ChatPlayer targetPlayer = PlayerManager.getPlayer(playerSender.lastPm);
-		
-		//See if target player is online
-		if (targetPlayer == null) {
-			MessageSender.send("That player is offline", playerSender.name);
+		//sending to console support
+		if (playerSender.lastPm.equalsIgnoreCase("console")) {
+			//Send the pm back to the sender
+			MessageSender.sendPM(messageString.toString(), sender.getName(), playerSender.lastPm);
+			
+			//Try sending the pm to the target
+			MessageSender.recievePM(messageString.toString(), sender.getName(), playerSender.lastPm);
 			return true;
 		}
-		
-		//Build the chat message
-		StringBuffer messageString = new StringBuffer();
-		for (String message: Message) {
-			messageString.append(message+" ");
+		else {
+			//Get who they are replying to
+			ChatPlayer targetPlayer = PlayerManager.getPlayer(playerSender.lastPm);
+			
+			//See if target player is online
+			if (targetPlayer == null) {
+				MessageSender.send("That player is offline", playerSender.name);
+				return true;
+			}
+						
+			//Send the pm back to the sender
+			MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+			
+			//Try sending the pm to the target
+			MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+			
+			//Send it to network
+			Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
 		}
-		
-		//Send the pm back to the sender
-		MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-		
-		//Try sending the pm to the target
-		MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
-		
-		//Send it to network
-		Network.PmSend(sender.getName(), targetPlayer.name, messageString.toString());
-		
 		return true;
 	}
 	

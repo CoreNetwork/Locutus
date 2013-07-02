@@ -351,4 +351,50 @@ public class AdminCommands {
 		MessageSender.send("&4Invalid arguments: use on, off, or reset", sender.getName());
 		return true;
 	}
+	@Command(
+			command = "seeall",
+			description = "Vewa all channels",
+			permissions = {"seelall"}
+			)
+	public static boolean seeall(CommandSender sender) {
+		//Function sets the mode to allow to see all channels
+		//get player
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName(),MCNSAChat.shortCode);
+		
+		if (player.modes.get("SEEALL")) {
+			player.modes.put("SEEALL", false);
+			MessageSender.send("&6You are no longer listening to all channels", player.name);
+		}
+		else {
+			player.modes.put("SEEALL", true);
+			MessageSender.send("&6You are now listening to all channels", player.name);
+		}
+		return true;
+	}
+	@Command(
+			command = "chansay",
+			description = "send a message to channel via console",
+			arguments = {"Channel", "message"},
+			permissions = {"console"}
+			)
+	public static boolean consolechat(CommandSender sender, String Channel, String... rawMessage) {
+		if (!sender.getName().equalsIgnoreCase("CONSOLE")) {
+			MessageSender.send("&4This command chan only be used by console", sender.getName());
+			return true;
+		}
+		
+		StringBuffer message = new StringBuffer();
+		for (String part: rawMessage) {
+			if (message.length() < 1)
+				message.append(part);
+			else {
+				message.append(" "+part);
+			}
+		}
+		
+		MessageSender.consoleChat(message.toString(), Channel);
+		
+		return true;
+
+	}
 }

@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import com.mcnsa.chat.networking.packets.*;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
+import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.FileLog;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
@@ -120,25 +121,28 @@ public class ClientThread extends Thread{
 			PmPacket packet = (PmPacket) recieved;
 			
 			//Check if target is on this server
-			if (Bukkit.getPlayer(packet.target) != null && Bukkit.getPlayer(packet.sender) == null)
-				MessageSender.recievePM(packet.message, packet.sender, packet.target);
+			if (Bukkit.getPlayer(packet.target) != null)
+				MessageSender.recievePM(packet.message, packet.sender.name, packet.target);
 		}
 		else if (recieved instanceof PlayerJoinedPacket) {
 			PlayerJoinedPacket packet = (PlayerJoinedPacket) recieved;
-			if (!packet.server.equals(MCNSAChat.serverName)) {
-				//player joining other server
-				MessageSender.joinMessage(packet.player, packet.server);
-				//Log to console
-				MCNSAChat.console.networkLogging(packet.player.name+" Joined "+packet.server);
-			}
+			
+			//player joining other server
+			MessageSender.joinMessage(packet.player, packet.server);
+			//Add to playermanager
+			PlayerManager.players.add(packet.player);
+			//Log to console
+			MCNSAChat.console.networkLogging(packet.player.name+" Joined "+packet.server);
+
 		}
 		else if (recieved instanceof PlayerQuitPacket) {
 			PlayerQuitPacket packet = (PlayerQuitPacket) recieved;
-			if (!packet.server.equals(MCNSAChat.serverName)) {
-				//player quitting other server
-				MessageSender.quitMessage(packet.player, packet.server);
-				MCNSAChat.console.networkLogging(packet.player.name+" Left "+packet.server);
-			}
+			//player quitting other server
+			MessageSender.quitMessage(packet.player, packet.server);
+			//save and remove
+			packet.player.savePlayer();
+			PlayerManager.players.remove(packet.player);
+			MCNSAChat.console.networkLogging(packet.player.name+" Left "+packet.server);
 		}
 		else if (recieved instanceof ChannelListPacket) {
 			ChannelListPacket packet = (ChannelListPacket) recieved;
@@ -161,6 +165,13 @@ public class ClientThread extends Thread{
 					MessageSender.channelMessage(packet.Channel, packet.serverShortCode, packet.player.name, packet.message);
 				if (packet.action.equals("ACTION"))
 					MessageSender.actionMessage(packet.player, packet.message);
+		}
+		else if (recieved instanceof PlayerUpdatePacket) {
+			PlayerUpdatePacket packet = (PlayerUpdatePacket) recieved;
+			//Update player
+			PlayerManager.updatePlayer(packet.player);
+			MCNSAChat.console.networkLogging(packet.player.name+" Updated from "+packet.player.server);
+			
 		}
 		return true;
 	}

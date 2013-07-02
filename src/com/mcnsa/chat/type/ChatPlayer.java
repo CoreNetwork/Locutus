@@ -8,6 +8,9 @@ import java.util.Map;
 
 import com.mcnsa.chat.file.Players;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.managers.ChannelManager;
+import com.mcnsa.chat.plugin.managers.Permissions;
+import com.mcnsa.chat.plugin.managers.PlayerManager;
 
 public class ChatPlayer implements Serializable{
 
@@ -53,10 +56,20 @@ public class ChatPlayer implements Serializable{
 			else {
 				this.channel = MCNSAChat.plugin.getConfig().getString("defaultChannel");
 			}
+			//Listining stuff
 			this.listening = (ArrayList<String>) this.playersFile.get().getList("listening");
 			for (String defaultListen: (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen")) {
 				if (!this.listening.contains(defaultListen))
 					this.listening.add(defaultListen);
+			}
+			for (int i = 0; i < this.listening.size(); i++) {
+				
+				ChatChannel chan = ChannelManager.getChannel(this.listening.get(i));
+				if (chan != null) {
+					if (!Permissions.checkReadPerm(chan.read_permission, this.name))
+						this.listening.remove(i);
+				}
+				
 			}
 			this.lastPm = this.playersFile.get().getString("lastPm");
 			this.modes.put("SEEALL", this.playersFile.get().getBoolean("modes.SEELALL"));
@@ -87,6 +100,7 @@ public class ChatPlayer implements Serializable{
 	}
 	public void changeChannel(String channel) {
 		this.channel = channel.substring(0, 1).toUpperCase() + channel.substring(1);
+		PlayerManager.updatePlayer(this);
 	}
 	public boolean channelListen(String channel){
 		if (this.listening.contains(channel)){

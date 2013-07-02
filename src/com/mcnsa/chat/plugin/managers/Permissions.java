@@ -2,68 +2,51 @@ package com.mcnsa.chat.plugin.managers;
 
 import java.util.ArrayList;
 
-import ru.tehkode.permissions.PermissionManager;
-import ru.tehkode.permissions.PermissionUser;
-import ru.tehkode.permissions.bukkit.PermissionsEx;
+import com.mcnsa.chat.plugin.MCNSAChat;
 
 public class Permissions {
-	public static String corePermission = "MCNSAChat.";
-	public static PermissionManager pex = PermissionsEx.getPermissionManager();
+	public static String corePermission = "mcnsachat.";
 	public Permissions(){
 	}
-	public static boolean checkPlayerPerm(String permission, String playerName) {
-		PermissionUser user = pex.getUser(playerName);
-		if (user.has(corePermission+"player."+permission)) 
-			return true;
-		return false;
-	}
-	public static boolean checkAdminPerm(String permission, String playerName) {
-		PermissionUser user = pex.getUser(playerName);
-		if (user.has(corePermission+"admin."+permission)) 
-			return true;
-		return false;
-	}
 	public static boolean checkReadPerm(String permission, String playerName) {
-		PermissionUser user = pex.getUser(playerName);
-		if (permission.length() < 1 && user.has(corePermission+"read")) {
+		if (permission == null || permission.equals("")) {
 			return true;
 		}
-		if (user.has(corePermission+"read."+permission)) 
+		String checkPermission = corePermission+"read."+permission;
+		//MCNSAChat.console.info("Checking for permission: "+checkPermission);
+		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, checkPermission)) 
 			return true;
 		return false;
 	}
 	public static boolean checkWritePerm(String permission, String playerName) {
-		PermissionUser user = pex.getUser(playerName);
-		if (permission.length() < 1 && user.has(corePermission+"write")) {
+		if (permission == null || permission.equals("")) {
 			return true;
 		}
-		if (user.has(corePermission+"write."+permission)) {
+		String checkPermission = corePermission+"write."+permission;
+		//MCNSAChat.console.info("Checking for permission: "+checkPermission);
+		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, checkPermission)) 
 			return true;
-		}
 		return false;
 	}
 	public static boolean checkPermission (String permission, String playerName) {
-		PermissionUser user = pex.getUser(playerName);
-		if (user.has(corePermission+permission)) 
+		String checkPermission = corePermission+permission;
+		//MCNSAChat.console.info("Checking for permission: "+checkPermission);
+		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, checkPermission)) 
 			return true;
 		return false;
 	}
-	public static String getPrefix(String playerName){
-		PermissionUser user = pex.getUser(playerName);
-		return user.getPrefix();
-	}
 	public static Boolean useColours(String playerName) {
-		PermissionUser user = pex.getUser(playerName);
-		if (user.has(corePermission+"player.usecolour")) 
+		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, corePermission+"player.cancolour"))
 			return true;
+		
 		return false;
 	}
 	public static ArrayList<String> getForceListens(String playerName) {
-		PermissionUser user = pex.getUser(playerName);
 		ArrayList<String> permissions = new ArrayList<String>();
-		for (String permission: user.getPermissions("world")) {
-			if (permission.startsWith("mcnsachat.forcelisten."))
-				permissions.add(permission.replace("mcnsachat.forcelisten.", ""));
+		//loop through the channels in the channel manager and check force listen perms
+		for (int i = 0; i < ChannelManager.channels.size(); i++) {
+			if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, corePermission+"forcelisten."+ChannelManager.channels.get(i).name))
+				permissions.add(ChannelManager.channels.get(i).name);
 		}
 		return permissions;
 	}

@@ -8,17 +8,17 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 public class ConsoleLogging {
 	
 	public void info (String message) {
-		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[INFO] "+message));
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[INFO] "+message));
 	}
 	public void warning (String message) {
-		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[&6WARNING&f] "+message));
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[&6WARNING&f] "+message));
 	}
 	public void severe (String message) {
-		Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[&4SEVERE&f] "+message));
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[&4SEVERE&f] "+message));
 	}
 	public void networkLogging(String message) {
 		if (MCNSAChat.plugin.getConfig().getBoolean("consoleLogServerInfo")) {
-			Bukkit.getConsoleSender().sendMessage(processColours("&f[&aMCNSAChat&f]&f[NET] "+message));
+			Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[NET] "+message));
 		}
 	}
 	public static String processColours(String str) {
@@ -48,10 +48,10 @@ public class ConsoleLogging {
 	}
 	public void pm_send(String target, String rawMessage) {
 		//This is for displaying the pms send from console, to the console
-		Bukkit.getConsoleSender().sendMessage("&f[&aMCNSAChat&f]&f[&aPM Sent to "+target+"&f] "+rawMessage);		
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[&aPM Sent to "+target+"&f] "+rawMessage));		
 	}
 	public void pm_recieved(String sender, String rawMessage) {
 		//This is for displaying the pms send from console, to the console
-		Bukkit.getConsoleSender().sendMessage("&f[&aMCNSAChat&f]&f[&4PM recieved from "+sender+"&f] "+rawMessage);		
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[&aPM recieved from "+sender+"&f] "+rawMessage));		
 	}
 }

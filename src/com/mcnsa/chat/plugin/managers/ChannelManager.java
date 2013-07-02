@@ -2,6 +2,7 @@ package com.mcnsa.chat.plugin.managers;
 
 import java.util.ArrayList;
 
+import com.mcnsa.chat.plugin.utils.Colours;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
@@ -37,8 +38,9 @@ public class ChannelManager {
 	}
 	public static ArrayList<ChatPlayer> getPlayersInChannel(String channel) {
 		ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
-		for (ChatPlayer player: PlayerManager.players) {
-			if (player.channel.equalsIgnoreCase(channel)) {
+		for (int i = 0; i< players.size(); i++) {
+			ChatPlayer player = PlayerManager.players.get(i);
+			if (player.channel.equalsIgnoreCase(channel) || player.listening.contains(channel)) {
 				players.add(player);
 			}
 		}
@@ -105,9 +107,14 @@ public class ChannelManager {
 	}
 	public static String playersInChannel(String channel) {
 		StringBuffer playerList = new StringBuffer();
-		if (!getPlayersInChannel(channel).isEmpty()) {
-			for(ChatPlayer player: getPlayersInChannel(channel)){
-			playerList.append(Permissions.getPrefix(player.name)+player.name);
+		if (getPlayersListening(channel) != null) {
+			for(ChatPlayer player: getPlayersListening(channel)){
+				if (!playerList.toString().contains(player.name) || !player.modes.get("SEEALL") && player.channel.equalsIgnoreCase(channel)){
+					if (playerList.length() < 1)
+						playerList.append(Colours.PlayerPrefix(player.name)+player.name);
+					else
+						playerList.append(", "+Colours.PlayerPrefix(player.name)+player.name);
+				}
 			}
 		}
 		if (playerList.length() == 0)

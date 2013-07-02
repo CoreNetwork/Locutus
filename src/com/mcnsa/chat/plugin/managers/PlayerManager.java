@@ -22,8 +22,10 @@ public class PlayerManager {
 		MCNSAChat.console.info("Added "+player);
 	}
 	public static void PlayerLogout(String player){
-		ChatPlayer cplayer = getPlayer(player);
+		ChatPlayer cplayer = getPlayer(player, MCNSAChat.shortCode);
 		cplayer.savePlayer();
+		//Notify network
+		Network.playerQuit(cplayer);
 		removePlayer(player, MCNSAChat.shortCode);
 	}
 	public static void removePlayer(String name, String server) {
@@ -97,5 +99,10 @@ public class PlayerManager {
 				Network.updatePlayer(players.get(i));
 			}
 		}
+	}
+
+	public static void updatePlayer(ChatPlayer player) {
+		PlayerManager.removePlayer(player.name, player.server);
+		PlayerManager.players.add(player);
 	}
 }
