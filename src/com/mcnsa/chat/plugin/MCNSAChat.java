@@ -15,7 +15,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mcnsa.chat.file.Channels;
 import com.mcnsa.chat.networking.ClientThread;
-import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.managers.ComponentManager;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
@@ -24,6 +23,7 @@ import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.FileLog;
 import com.mcnsa.chat.type.ChatChannel;
+import com.mcnsa.chat.type.ChatPlayer;
 
 public class MCNSAChat extends JavaPlugin{
 	public static String serverName;
@@ -119,10 +119,13 @@ public class MCNSAChat extends JavaPlugin{
 	public void onDisable() {
 		if (multiServer && network != null) {
 			console.info("Closing network threads");
-			Network.serverLeft();
+			MCNSAChat.network.close();
 			MCNSAChat.network = null;
 				
 		}
+		//Clear players
+		PlayerManager.players = new ArrayList<ChatPlayer>();
+		
 		console.info("Saving Channels");
 		saveChannels();
 		
@@ -148,6 +151,10 @@ public class MCNSAChat extends JavaPlugin{
 				}
 			}
 			ChannelManager.channels.add(c);
+			//Add alias to channelmanager
+			if (c.alias !=null) {
+				ChannelManager.channelAlias.put(c.alias, c.name);
+			}
 			c = null;
 		}
 	}
@@ -182,7 +189,8 @@ public class MCNSAChat extends JavaPlugin{
 	public void addOnlinePlayers() {
 		Player[] players = Bukkit.getOnlinePlayers();
 		for(Player player: players) {
-			PlayerManager.PlayerLogin(player.getName());
+			if (PlayerManager.getPlayer(player.getName(), MCNSAChat.shortCode) == null)
+				PlayerManager.PlayerLogin(player.getName());
 		}
 	}
 }

@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mcnsa.chat.file.Players;
+import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
-import com.mcnsa.chat.plugin.managers.PlayerManager;
 
 public class ChatPlayer implements Serializable{
 
@@ -98,18 +98,23 @@ public class ChatPlayer implements Serializable{
 		this.playersFile.get().set("timeoutTill", this.timeoutTill);
 		this.playersFile.save();
 	}
-	public void changeChannel(String channel) {
-		this.channel = channel.substring(0, 1).toUpperCase() + channel.substring(1);
-		PlayerManager.updatePlayer(this);
+	public void changeChannel(String newChannel) {
+		this.channel = newChannel.substring(0, 1).toUpperCase() + newChannel.substring(1);
 	}
 	public boolean channelListen(String channel){
-		if (this.listening.contains(channel)){
-			this.listening.remove(channel);
+		if (listening.contains(channel)){
+			listening.remove(channel);
 			return false;
 		}
 		else {
-			this.listening.add(channel);
+			listening.add(channel);
+			//Update player on other servers
+			Network.updatePlayer(this);
 			return true;
 		}
+	}
+	public void addListen(String channel) {
+		listening.add(channel);
+		Network.updatePlayer(this);
 	}
 }

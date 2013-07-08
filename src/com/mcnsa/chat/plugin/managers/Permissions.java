@@ -1,7 +1,6 @@
 package com.mcnsa.chat.plugin.managers;
 
 import java.util.ArrayList;
-
 import com.mcnsa.chat.plugin.MCNSAChat;
 
 public class Permissions {
@@ -50,4 +49,5 @@ public class Permissions {
 		}
 		return permissions;
 	}
+	
 }

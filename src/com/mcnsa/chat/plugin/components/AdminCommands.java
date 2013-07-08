@@ -137,11 +137,12 @@ public class AdminCommands {
 			command = "cregister",
 			description = "Register a channel with the channel manager",
 			permissions = {"register"},
-			arguments = {"Channel"}
+			arguments = {"Channel"},
+			playerOnly = true
 			)
 	public static boolean registerChannel(CommandSender sender, String channel) {
 		//Function registers a channel with the channel manager
-		
+		channel = channel.substring(0, 1).toUpperCase() + channel.substring(1);
 		//Check to make sure the channel isn't already registered.
 		if (ChannelManager.getChannel(channel) != null) {
 			MessageSender.send("&cChannel is already registered.", sender.getName());
@@ -164,12 +165,13 @@ public class AdminCommands {
 	}
 	
 	@Command(
-			command = "addmode",
+			command = "cmode",
 			description = "Add a mode to the channel your in: Rave, Boring, or Local",
-			arguments = {"Mode"},
-			permissions = {"mode"}
+			arguments = {"action","Mode"},
+			permissions = {"mode"},
+			playerOnly = true
 			)
-	public static boolean addMode(CommandSender sender, String mode) {
+	public static boolean addMode(CommandSender sender, String action, String mode) {
 		//Function adds modes to the channel
 		//Get the channel
 		ChatChannel channel = ChannelManager.getChannel(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
@@ -177,54 +179,93 @@ public class AdminCommands {
 			MessageSender.send("&cChannel is not registered. Please register first by /cregister <channel>", sender.getName());
 			return true;
 		}
-		else if (mode.equalsIgnoreCase("rave")) {
-			channel.modes.put("RAVE", true);
-			MessageSender.send("&6Rave mode activated!", sender.getName());
+		if (action.equalsIgnoreCase("add")) {
+			if (mode.equalsIgnoreCase("rave")) {
+				channel.modes.put("RAVE", true);
+				MessageSender.send("&6Rave mode activated!", sender.getName());
+			}
+			else if (mode.equalsIgnoreCase("boring")) {
+				channel.modes.put("BORING", true);
+				MessageSender.send("&6Boring mode activated!", sender.getName());
+			}
+			else if (mode.equalsIgnoreCase("local")) {
+				channel.modes.put("LOCAL", true);
+				MessageSender.send("&6Local mode activated!", sender.getName());
+			}
 		}
-		else if (mode.equalsIgnoreCase("boring")) {
-			channel.modes.put("BORING", true);
-			MessageSender.send("&6Boring mode activated!", sender.getName());
+		else if (action.equalsIgnoreCase("del")){
+			if (mode.equalsIgnoreCase("rave")) {
+				channel.modes.put("RAVE", false);
+				MessageSender.send("&6Rave mode deactivated!", sender.getName());
+			}
+			else if (mode.equalsIgnoreCase("boring")) {
+				channel.modes.put("BORING", false);
+				MessageSender.send("&6Boring mode deactivated!", sender.getName());
+			}
+			else if (mode.equalsIgnoreCase("local")) {
+				channel.modes.put("LOCAL", false);
+				MessageSender.send("&6Local mode deactivated!", sender.getName());
+			}
 		}
-		else if (mode.equalsIgnoreCase("local")) {
-			channel.modes.put("LOCAL", true);
-			MessageSender.send("&6Local mode activated!", sender.getName());
+		else {
+			MessageSender.send("&cUsage: /cmode [add|del] [rave|boring|mute|local]", sender.getName());
 		}
-		
 		Network.channelUpdate(channel);
 		return true;
 	}
 	@Command(
-			command = "delmode",
-			description = "Remove a mode from the channel your in: Rave, Boring, or Local",
-			arguments = {"Mode"},
-			permissions = {"mode"}
+			command = "cmodify",
+			arguments = {"setting", "variable"},
+			description = "Set the alias and read/write permissions fo the channel your in",
+			permissions = {"modify"},
+			playerOnly = true
 			)
-	public static boolean removeMode(CommandSender sender, String mode) {
-		//Function removes modes to the channel
-		//Get the channel
-		ChatChannel channel = ChannelManager.getChannel(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
-		if (channel == null) {
-			MessageSender.send("&cChannel is not registered. Please register first by /cregister <channel>", sender.getName());
+	public static boolean chanmodify(CommandSender sender,String setting, String var) {
+		//Get channel
+		ChatChannel channel = ChannelManager.getChannel(PlayerManager.getPlayer(sender.getName()).channel);
+		if (channel == null){
+			MessageSender.send("&cChannel is not registered", sender.getName());
 			return true;
 		}
-		else if (mode.equalsIgnoreCase("rave")) {
-			channel.modes.put("RAVE", false);
-			MessageSender.send("&6Rave mode deactivated!", sender.getName());
+		if (setting.equalsIgnoreCase("alias")) {
+			channel.alias = var;
+			MessageSender.send("&6Channel alias changed to: /"+var, sender.getName());
 		}
-		else if (mode.equalsIgnoreCase("boring")) {
-			channel.modes.put("BORING", false);
-			MessageSender.send("&6Boring mode deactivated!", sender.getName());
+		else if (setting.equalsIgnoreCase("readperm")) {
+			channel.read_permission = var;
+			MessageSender.send("&6Channel read permission changed to: "+var, sender.getName());
 		}
-		else if (mode.equalsIgnoreCase("local")) {
-			channel.modes.put("LOCAL", false);
-			MessageSender.send("&6Local mode deactivated!", sender.getName());
+		else if (setting.equalsIgnoreCase("writeperm")) {
+			channel.read_permission = var;
+			MessageSender.send("&6Channel write permission changed to: "+var, sender.getName());
 		}
-		else if (mode.equalsIgnoreCase("persist")) {
-			channel.modes.put("PERSIST", false);
-			MessageSender.send("&6Persist decativated. Channel will be removed", sender.getName());
+		Network.channelUpdate(channel);
+		return true;
+	}
+	
+	@Command(
+			command = "cremove",
+			permissions = "register",
+			description = "Deregister a channel",
+			arguments = {"Channel"}
+			)
+	public static boolean deregister(CommandSender sender, String channel) {
+		channel = channel.substring(0, 1).toUpperCase() + channel.substring(1);
+		ChatChannel chan = ChannelManager.getChannel(channel);
+		if (chan == null) {
+			MessageSender.send("&cChannel is not registered.", sender.getName());
+			return true;
 		}
 		
-		Network.channelUpdate(channel);
+		//Remove from channel Manager
+		ChannelManager.channels.remove(chan);
+		
+		//Update other servers
+		Network.channelUpdate(chan);
+		
+		//Inform user
+		MessageSender.send("&cChannel: "+channel+" has been removed.", sender.getName());
+		
 		return true;
 	}
 	@Command(
@@ -348,7 +389,9 @@ public class AdminCommands {
 		}
 		else if (action.equalsIgnoreCase("off")) {
 			MCNSAChat.multiServer = false;
-			Network.serverLeft();
+			//sanity check
+			if (MCNSAChat.network != null)
+				MCNSAChat.network.close();
 			MCNSAChat.network = null;
 			MessageSender.send("&6Cross server chat turned off", sender.getName());
 			return true;
@@ -364,7 +407,8 @@ public class AdminCommands {
 	@Command(
 			command = "seeall",
 			description = "Vewa all channels",
-			permissions = {"seelall"}
+			permissions = {"seelall"},
+			playerOnly = true
 			)
 	public static boolean seeall(CommandSender sender) {
 		//Function sets the mode to allow to see all channels

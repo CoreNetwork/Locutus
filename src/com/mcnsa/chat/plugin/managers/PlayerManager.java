@@ -17,9 +17,11 @@ public class PlayerManager {
 	}
 	
 	public static void PlayerLogin(String player){
-		ChatPlayer newPlayer= new ChatPlayer(player);
-		players.add(newPlayer);
-		MCNSAChat.console.info("Added "+player);
+		if (PlayerManager.getPlayer(player, MCNSAChat.shortCode) == null) {
+			ChatPlayer newPlayer= new ChatPlayer(player);
+			players.add(newPlayer);
+			MCNSAChat.console.info("Added "+player);
+		}
 	}
 	public static void PlayerLogout(String player){
 		ChatPlayer cplayer = getPlayer(player, MCNSAChat.shortCode);
@@ -31,9 +33,8 @@ public class PlayerManager {
 	public static void removePlayer(String name, String server) {
 	    for (int i = 0; i < players.size(); i++) {
 	      ChatPlayer play = (ChatPlayer)players.get(i);
-	      if ((play.name.equalsIgnoreCase(name)) && (play.server.equalsIgnoreCase(server))) {
+	      if (play.name.equalsIgnoreCase(name) && play.server.equalsIgnoreCase(server)) {
 	        players.remove(play);
-	        break;
 	      }
 	    }
 	}
@@ -78,7 +79,6 @@ public class PlayerManager {
 		for (int i = 0; i < players.size(); i++) {
 			if (players.get(i).name.equalsIgnoreCase(Player)) {
 				players.get(i).modes.put("MUTE", false);
-				Network.updatePlayer(players.get(i));
 				
 				//Notify player
 				MessageSender.send("&6You have been removed from timeout", Player);
@@ -102,7 +102,7 @@ public class PlayerManager {
 	}
 
 	public static void updatePlayer(ChatPlayer player) {
-		PlayerManager.removePlayer(player.name, player.server);
+		PlayerManager.players.remove(PlayerManager.getPlayer(player.name, player.server));
 		PlayerManager.players.add(player);
 	}
 

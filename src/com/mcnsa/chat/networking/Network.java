@@ -1,11 +1,6 @@
 package com.mcnsa.chat.networking;
 
-import com.mcnsa.chat.networking.packets.PlayerChatPacket;
-import com.mcnsa.chat.networking.packets.PlayerJoinedPacket;
-import com.mcnsa.chat.networking.packets.PlayerQuitPacket;
-import com.mcnsa.chat.networking.packets.PlayerUpdatePacket;
-import com.mcnsa.chat.networking.packets.PmPacket;
-import com.mcnsa.chat.networking.packets.ServerLeftPacket;
+import com.mcnsa.chat.networking.packets.*;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
@@ -29,16 +24,11 @@ public class Network {
 			MCNSAChat.network.write(packet);
 		}
 	}
-	public static void serverLeft() {
-		if (MCNSAChat.network != null) {
-			ServerLeftPacket packet = new ServerLeftPacket(MCNSAChat.serverName);
-			MCNSAChat.network.write(packet);
-		}
-	}
 	public static void updatePlayer(ChatPlayer player) {
 		if (MCNSAChat.network != null) {
 			PlayerUpdatePacket packet = new PlayerUpdatePacket(player);
 			MCNSAChat.network.write(packet);
+			MCNSAChat.console.info(packet.toString());
 		}
 	}
 	public static void PmSend(ChatPlayer sender, String target, String message) {
@@ -47,12 +37,12 @@ public class Network {
 			MCNSAChat.network.write(packet);
 		}
 	}
-	public static void actionMessage(ChatPlayer player, String message) {
-		// TODO Auto-generated method stub
-		
-	}
 	public static void channelUpdate(ChatChannel channel) {
-		// TODO Auto-generated method stub
-		
+		if (MCNSAChat.network != null) {
+			ChannelUpdatePacket packet = new ChannelUpdatePacket(channel);
+			MCNSAChat.console.info("Channels updated");
+			MCNSAChat.network.write(packet);
+			packet = null;
+		}
 	}
 }

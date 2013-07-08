@@ -1,6 +1,7 @@
 package com.mcnsa.chat.plugin.managers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.mcnsa.chat.plugin.utils.Colours;
 import com.mcnsa.chat.type.ChatChannel;
@@ -8,6 +9,7 @@ import com.mcnsa.chat.type.ChatPlayer;
 
 public class ChannelManager {
 	public static ArrayList<ChatChannel> channels = new ArrayList<ChatChannel>();
+	public static HashMap<String, String> channelAlias = new HashMap<String, String>();
 	public ChannelManager(){
 	}
 	public void removeChannel(String chan) {

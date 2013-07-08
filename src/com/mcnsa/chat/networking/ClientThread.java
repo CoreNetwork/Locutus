@@ -38,7 +38,7 @@ public class ClientThread extends Thread{
 			
 			MCNSAChat.console.info("Connected to chatserver");
 			ServerJoinedPacket packet = new ServerJoinedPacket();
-			out.writeObject(packet);
+			out.writeUnshared(packet);
 			
 			while (loop(in, out))
 				;
@@ -93,7 +93,8 @@ public class ClientThread extends Thread{
 	
 	public Boolean loop(ObjectInputStream in, ObjectOutputStream out) throws ClassNotFoundException, IOException {
 		//Get the object
-		Object recieved = in.readObject();
+		Object recieved = in.readUnshared();
+		MCNSAChat.console.info(recieved.toString());
 		if (recieved instanceof ServerAuthedPacket) {
 			//Password was accepted by the server
 			MCNSAChat.console.info("Chatserver authed");
@@ -130,7 +131,7 @@ public class ClientThread extends Thread{
 			//player joining other server
 			MessageSender.joinMessage(packet.player, packet.server);
 			//Add to playermanager
-			PlayerManager.players.add(packet.player);
+			PlayerManager.updatePlayer(packet.player);
 			//Log to console
 			MCNSAChat.console.networkLogging(packet.player.name+" Joined "+packet.server);
 
@@ -150,6 +151,15 @@ public class ClientThread extends Thread{
 			MCNSAChat.console.info("Recieved channel list from network");
 			//Replace the channel list with recieved channels
 			ChannelManager.channels = packet.channels;
+			
+			//Check for aliases
+			for (int i = 0; i < ChannelManager.channels.size(); i++) {
+				ChatChannel chan = ChannelManager.channels.get(i);
+				//Check to see if the channel has an alias set
+				if (chan.alias != null & !ChannelManager.channelAlias.containsKey(chan.alias)) {
+					ChannelManager.channelAlias.put(chan.alias, chan.name);
+				}
+			}
 		}
 		else if (recieved instanceof ChannelUpdatePacket) {
 			ChannelUpdatePacket packet = (ChannelUpdatePacket) recieved;
@@ -180,15 +190,26 @@ public class ClientThread extends Thread{
 			MCNSAChat.console.networkLogging(" Updated playerlist from "+packet.server);
 			
 		}
+		recieved = null;
 		return true;
 	}
 	public void write(Object packet) {
 		try {
-			out.writeObject(packet);
+			out.writeUnshared(packet);
+			packet = null;
 		} catch (IOException e) {
 			FileLog.writeError("Error writing packet: "+packet.toString()+" : "+e.getMessage());
 			//Reset the connection
 			MCNSAChat.network = null;
 		}
+	}
+
+	public void close() {
+		try {
+			this.socket.close();
+		} catch (IOException e) {
+			
+		}
+		
 	}
 }

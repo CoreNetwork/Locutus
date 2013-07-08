@@ -46,10 +46,10 @@ public class FileLog {
 		}
 	}
 	
-	public static void writeChat(String message) {
+	public static void writeChat(String server, String Player, String channel, String message) {
 		try {
 			String time = new SimpleDateFormat("yy-MM-dd HH:mm:ss").format(new Date());
-			message = time + "|"+ message;
+			message = time + "|<"+server+channel+">"+message;
 			chatLog.write(message);
 			chatLog.newLine();
 			chatLog.flush();

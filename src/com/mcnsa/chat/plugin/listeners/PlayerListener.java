@@ -8,11 +8,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.Colours;
@@ -84,7 +86,11 @@ public class PlayerListener implements Listener{
 		}
 		
 		//Set their name on the player tab list
-		event.getPlayer().setPlayerListName(Colours.processConsoleColours(Colours.PlayerPrefix(playerName)+playerName));
+		String playerlistName = Colours.color(Colours.PlayerPrefix(playerName)+playerName);
+		if (playerlistName.length() > 16)
+			playerlistName = playerlistName.substring(0, 16);
+		event.getPlayer().setPlayerListName(playerlistName);
+		
 		//Notify other players
 		MessageSender.joinMessage(playerName, event);
 		
@@ -100,8 +106,7 @@ public class PlayerListener implements Listener{
 		
 		//Notify others
 		MessageSender.quitMessage(event.getPlayer().getName(), event);
-		
-		
+
 	}
 	//Handles chat events
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -115,5 +120,49 @@ public class PlayerListener implements Listener{
 			MessageSender.send("&c You are in timeout. Please try again later", player.name);
 		}
 		event.setCancelled(true);
+	}
+	
+	//Handles channel alias's and command listeners
+	@EventHandler
+	public void channelalias(PlayerCommandPreprocessEvent event) {
+		if (event.isCancelled())
+			return;
+		String[] args = event.getMessage().split(" ");
+		String command = args[0].substring(1);
+		if (command == null)
+			return;
+		
+		if (ChannelManager.channelAlias.containsKey(command) && command !=null) {
+			//Check if there is any arguments
+			if (args.length == 1) {
+				//moving channel
+				ChatPlayer player = PlayerManager.getPlayer(event.getPlayer().getName(), MCNSAChat.shortCode);
+				player.changeChannel(ChannelManager.channelAlias.get(command));
+				event.setCancelled(true);
+				return;
+			}
+			
+			//build the message
+			StringBuffer message = new StringBuffer();
+			for (int i = 1; i < args.length; i++) {
+				if (message.length() < 1)
+					message.append(args[i]);
+				else
+					message.append(" "+args[i]);
+					
+			}
+			
+			//Get chatplayer
+			ChatPlayer player = PlayerManager.getPlayer(event.getPlayer().getName(), MCNSAChat.shortCode);
+			if (!player.modes.get("MUTE")) { 
+				MessageSender.channelMessage(ChannelManager.channelAlias.get(command), MCNSAChat.shortCode, player.name, message.toString());
+			}
+			else {
+				MessageSender.send("&c You are in timeout. Please try again later", player.name);
+			}
+			
+			
+			event.setCancelled(true);
+		}
 	}
 }
