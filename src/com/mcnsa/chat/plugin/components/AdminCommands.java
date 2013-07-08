@@ -102,7 +102,6 @@ public class AdminCommands {
 			MessageSender.send("&cCould not find player", sender.getName());
 			return true;
 		}
-		
 		ChatPlayer targetPlayer = targetPlayers.get(0);
 		
 		if (targetPlayer.modes.get("MUTE")) {
@@ -131,6 +130,8 @@ public class AdminCommands {
 				}
 		}, timeleft);
 		
+		//Send to network
+		Network.timeout(targetPlayer, sb.toString(), Integer.valueOf(time));
 		return true;
 	}
 	@Command(
@@ -220,24 +221,30 @@ public class AdminCommands {
 			permissions = {"modify"},
 			playerOnly = true
 			)
-	public static boolean chanmodify(CommandSender sender,String setting, String var) {
+	public static boolean chanmodify(CommandSender sender,String setting, String... var) {
 		//Get channel
 		ChatChannel channel = ChannelManager.getChannel(PlayerManager.getPlayer(sender.getName()).channel);
+		if (var[0] == null)
+			var [0] = "";
 		if (channel == null){
 			MessageSender.send("&cChannel is not registered", sender.getName());
 			return true;
 		}
 		if (setting.equalsIgnoreCase("alias")) {
-			channel.alias = var;
-			MessageSender.send("&6Channel alias changed to: /"+var, sender.getName());
+			channel.alias = var[0];
+			MessageSender.send("&6Channel alias changed to: /"+var[0], sender.getName());
 		}
 		else if (setting.equalsIgnoreCase("readperm")) {
-			channel.read_permission = var;
-			MessageSender.send("&6Channel read permission changed to: "+var, sender.getName());
+			channel.read_permission = var[0];
+			MessageSender.send("&6Channel read permission changed to: "+var[0], sender.getName());
 		}
 		else if (setting.equalsIgnoreCase("writeperm")) {
-			channel.read_permission = var;
-			MessageSender.send("&6Channel write permission changed to: "+var, sender.getName());
+			channel.read_permission = var[0];
+			MessageSender.send("&6Channel write permission changed to: "+var[0], sender.getName());
+		}
+		else if (setting.equalsIgnoreCase("color")) {
+			channel.color = "&"+var[0];
+			MessageSender.send("&6Channel color changed to: &"+var[0]+"this", sender.getName());
 		}
 		Network.channelUpdate(channel);
 		return true;
@@ -429,7 +436,8 @@ public class AdminCommands {
 			command = "chansay",
 			description = "send a message to channel via console",
 			arguments = {"Channel", "message"},
-			permissions = {"console"}
+			permissions = {"console"},
+			consoleOnly = true
 			)
 	public static boolean consolechat(CommandSender sender, String Channel, String... rawMessage) {
 		if (!sender.getName().equalsIgnoreCase("CONSOLE")) {

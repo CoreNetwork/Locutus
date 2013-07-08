@@ -5,7 +5,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
 import org.bukkit.Bukkit;
 
 import com.mcnsa.chat.networking.packets.*;
@@ -68,6 +67,8 @@ public class ClientThread extends Thread{
 				//No need to set the server to single server mode
 				//Log in error log
 				FileLog.writeError("Network: "+e.getMessage());
+				//Remove other server players
+				PlayerManager.removeNonServerPlayers();
 				//Reset connection
 				MCNSAChat.network = null;
 			}
@@ -94,7 +95,6 @@ public class ClientThread extends Thread{
 	public Boolean loop(ObjectInputStream in, ObjectOutputStream out) throws ClassNotFoundException, IOException {
 		//Get the object
 		Object recieved = in.readUnshared();
-		MCNSAChat.console.info(recieved.toString());
 		if (recieved instanceof ServerAuthedPacket) {
 			//Password was accepted by the server
 			MCNSAChat.console.info("Chatserver authed");
@@ -181,6 +181,7 @@ public class ClientThread extends Thread{
 			//Update player
 			PlayerManager.updatePlayer(packet.player);
 			MCNSAChat.console.networkLogging(packet.player.name+" Updated from "+packet.player.server);
+			MCNSAChat.console.info(packet.player.channel);
 			
 		}
 		else if (recieved instanceof PlayerListPacket) {
@@ -190,17 +191,37 @@ public class ClientThread extends Thread{
 			MCNSAChat.console.networkLogging(" Updated playerlist from "+packet.server);
 			
 		}
+		else if (recieved instanceof TimeoutPacket) {
+			TimeoutPacket packet = (TimeoutPacket) recieved;
+			//inform players
+			MessageSender.timeoutPlayer(packet.player.name, String.valueOf(packet.time), packet.reason);
+
+			//Set timer just incase other servers go down
+			final String finalPlayerName = packet.player.name;
+			long timeleft = packet.time * 1210;
+			Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin, new Runnable() {
+				public void run() {
+						if (PlayerManager.getPlayer(finalPlayerName, MCNSAChat.shortCode) != null && PlayerManager.getPlayer(finalPlayerName).modes.get("MUTE")){
+							PlayerManager.unmutePlayer(finalPlayerName);
+						}
+					}
+			}, timeleft);
+			
+		}
 		recieved = null;
 		return true;
 	}
 	public void write(Object packet) {
 		try {
 			out.writeUnshared(packet);
-			packet = null;
+			out.reset();
 		} catch (IOException e) {
 			FileLog.writeError("Error writing packet: "+packet.toString()+" : "+e.getMessage());
-			//Reset the connection
 			MCNSAChat.network = null;
+			//Log in error log
+			FileLog.writeError("Network: "+e.getMessage());
+			//Remove other server players
+			PlayerManager.removeNonServerPlayers();
 		}
 	}
 

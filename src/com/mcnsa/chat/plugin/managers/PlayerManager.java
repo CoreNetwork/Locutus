@@ -113,4 +113,15 @@ public class PlayerManager {
 		}
 		
 	}
+
+	public static void removeNonServerPlayers() {
+		// TODO Auto-generated method stub
+		ArrayList<ChatPlayer> newPlayers = new ArrayList<ChatPlayer>();
+		for (int i = 0; i < players.size(); i++) {
+			ChatPlayer player = players.get(i);
+			if (player.server.equals(MCNSAChat.shortCode))
+				newPlayers.add(player);
+		}
+		players = newPlayers;
+	}
 }

@@ -158,9 +158,7 @@ public class MessageSender {
 		
 	}
 	public static void channelMessage(String channel, String serverCode, String player, String rawMessage) {
-		//See if the player is listening to channel
-		if (!PlayerManager.getPlayer(player).listening.contains(channel))
-			PlayerManager.getPlayer(player).addListen(channel);
+		
 		String processedMessage = rawMessage;
 		//Strip colour if no permissions
 		if (!Permissions.useColours(player))
@@ -182,7 +180,13 @@ public class MessageSender {
 				send("&cYou do not have permission to chat in this channel", player);
 				return;
 			}
+			
 		}
+		//See if the player is listening to channel
+		if (!PlayerManager.getPlayer(player).listening.contains(channel) || !PlayerManager.getPlayer(player).channel.equalsIgnoreCase(channel))
+			if (ChannelManager.getChannel(channel) !=null && Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, player))
+				PlayerManager.getPlayer(player).addListen(channel);
+				
 		//Get the base message
 		String message = MCNSAChat.plugin.getConfig().getString("strings.message");
 		message = message.replace("%server%", serverCode);

@@ -9,5 +9,5 @@ public class TimeoutPacket implements Serializable{
 	private static final long serialVersionUID = 972058071008966303L;
 	public String reason;
 	public ChatPlayer player;
-	public int time;
+	public long time;
 }

@@ -24,7 +24,7 @@ hideJoinPlayerList: false
 displayWelcome: true
 
 #Console sender used when using /say
-consoleSender-colour: &4
+consoleSender-colour: '&4'
 consoleSender: CONSOLE
 
 strings:

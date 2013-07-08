@@ -1,6 +1,20 @@
 channels:
-- name: Default
-  alias: d
+- name: E
+  alias: e
+  color: '&f'
+  modes:
+  - PERSIST
+  write_permission: 
+  read_permission:
+- name: F
+  alias: f
+  color: '&f'
+  modes:
+  - PERSIST
+  write_permission: 
+  read_permission:
+- name: E
+  alias: e
   color: '&f'
   modes:
   - PERSIST
@@ -20,3 +34,17 @@ channels:
   - PERSIST
   write_permission: 'broadcast'
   read_permission: ''
+- name: MOD
+  alias: m
+  color: '&a'
+  modes:
+  - PERSIST
+  write_permission: mod
+  read_permission: mod
+- name: ADMIN
+  alias: a
+  color: '&a'
+  modes:
+  - PERSIST
+  write_permission: admin
+  read_permission: admin

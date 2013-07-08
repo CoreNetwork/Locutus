@@ -28,7 +28,7 @@ public class Network {
 		if (MCNSAChat.network != null) {
 			PlayerUpdatePacket packet = new PlayerUpdatePacket(player);
 			MCNSAChat.network.write(packet);
-			MCNSAChat.console.info(packet.toString());
+			MCNSAChat.console.info(packet.player.channel);
 		}
 	}
 	public static void PmSend(ChatPlayer sender, String target, String message) {
@@ -40,9 +40,17 @@ public class Network {
 	public static void channelUpdate(ChatChannel channel) {
 		if (MCNSAChat.network != null) {
 			ChannelUpdatePacket packet = new ChannelUpdatePacket(channel);
-			MCNSAChat.console.info("Channels updated");
+			MCNSAChat.console.info("Channel "+channel.name+" updated");
 			MCNSAChat.network.write(packet);
-			packet = null;
+		}
+	}
+	public static void timeout(ChatPlayer player, String reason, long timeleft) {
+		if (MCNSAChat.network != null ) {
+			TimeoutPacket packet = new TimeoutPacket();
+			packet.player = player;
+			packet.reason = reason;
+			packet.time = timeleft;
+			MCNSAChat.network.write(packet);
 		}
 	}
 }
