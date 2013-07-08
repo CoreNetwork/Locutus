@@ -36,9 +36,10 @@ Cross-server, multi-channel chat plugin.
 |**Command**|**Permission Node**|**Description**|
 |------|:--------------|:----------|
 |`/cregister [channel]`|`mcnsachat.admin.register`|Registers a channel with the channel manager|
-|`/addmode [rave,boring,local]`|`mcnsachat.admin.mode`|Adds a mode to the channel your in, if registeres. See modes for details|
-|`/delmode [rave,boring,local]`|`mcnsachat.admin.mode`|Removes a mode from the channel your in, if registered. See modes for details|
-    
+|`/cmode [add,del] [rave,boring,local]`|`mcnsachat.admin.mode`|Add or remove a mode to the channel your in, if registeres. See modes for details|
+|`/cmodify [alias,readperm,writeperm,color] [string]`|`mcnsachat.admin.modify`|Changes the different settings of the channel. For colour, only specify the letter or number|
+|`/cremove [channel]`|`mcnsachat.admin.register`|Remove `[channel]` from the channel manager.|
+
 ##MCNSA Fun Commands
 
 Not Implemented yet
