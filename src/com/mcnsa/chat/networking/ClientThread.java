@@ -77,6 +77,8 @@ public class ClientThread extends Thread{
 				MCNSAChat.console.warning("Chatserver Connection Closed:"+e.getMessage());
 				//reset the connection
 				MCNSAChat.network = null;
+				//Remove any unneeded players
+				PlayerManager.removeNonServerPlayers();
 				//Log in error log
 				FileLog.writeError("Network: "+e.getMessage());
 			}
@@ -87,6 +89,8 @@ public class ClientThread extends Thread{
 			MCNSAChat.console.warning("Class not found exception. Could not find class for packet. Closing thread");
 			//Set server to single server mode
 			MCNSAChat.network = null;
+			//Remove any unneeded players
+			PlayerManager.removeNonServerPlayers();
 			//Log in error log
 			FileLog.writeError("Network: "+e.getMessage());
 		}

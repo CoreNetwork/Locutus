@@ -11,6 +11,7 @@ import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
+import com.mcnsa.chat.plugin.utils.Colours;
 
 public class ChatPlayer implements Serializable{
 
@@ -25,6 +26,7 @@ public class ChatPlayer implements Serializable{
 	public ArrayList<String> serversVisited = new ArrayList<String>();
 	transient Players playersFile;
 	public long timeoutTill = 0;
+	public String formatted;
 	
 	@SuppressWarnings("unchecked")
 	public ChatPlayer(String username){
@@ -80,6 +82,7 @@ public class ChatPlayer implements Serializable{
 			this.serversVisited = (ArrayList<String>) this.playersFile.get().getList("serversVisited");
 			this.timeoutTill = this.playersFile.get().getLong("timeoutTill");
 		}
+		this.formatted = Colours.PlayerPrefix(name)+this.name;
 		playersFile.save();
 	}
 	public void savePlayer() {

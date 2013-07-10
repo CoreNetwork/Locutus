@@ -310,7 +310,7 @@ public class MessageSender {
 		}
 		
 		//log to console
-		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours(playernotify + " For "+ reasonMessage));
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours(playernotify + " "+ reasonMessage));
 	}
 	public static void consoleChat(String rawMessage, String channel) {
 		// used for console to send messages to a channel
@@ -331,7 +331,7 @@ public class MessageSender {
 			ChatPlayer chatPlayer = PlayerManager.getPlayer(player.getName(), MCNSAChat.shortCode);
 			//Sanity check
 			if (chatPlayer != null) {
-				if (chatPlayer.channel.equalsIgnoreCase(channel) || chatPlayer.listening.contains(channel.toLowerCase()) || chatPlayer.modes.get("SEEALL"))
+				if (chatPlayer.channel.equalsIgnoreCase(channel) || chatPlayer.listening.contains(channel.toLowerCase()) || Permissions.getForceListens(chatPlayer.name).contains(channel) ||chatPlayer.modes.get("SEEALL"))
 					send(Colours.processConsoleColours(message), player.getName());
 			}
 		}

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.utils.MessageSender;
@@ -117,10 +120,9 @@ public class PlayerManager {
 	public static void removeNonServerPlayers() {
 		// TODO Auto-generated method stub
 		ArrayList<ChatPlayer> newPlayers = new ArrayList<ChatPlayer>();
-		for (int i = 0; i < players.size(); i++) {
-			ChatPlayer player = players.get(i);
-			if (player.server.equals(MCNSAChat.shortCode))
-				newPlayers.add(player);
+		Player[] bukkitPlayers = Bukkit.getOnlinePlayers();
+		for (Player player: bukkitPlayers) {
+			newPlayers.add(getPlayer(player.getName(), MCNSAChat.shortCode));
 		}
 		players = newPlayers;
 	}

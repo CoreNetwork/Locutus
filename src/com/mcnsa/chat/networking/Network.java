@@ -1,6 +1,12 @@
 package com.mcnsa.chat.networking;
 
-import com.mcnsa.chat.networking.packets.*;
+import com.mcnsa.chat.networking.packets.ChannelUpdatePacket;
+import com.mcnsa.chat.networking.packets.PlayerChatPacket;
+import com.mcnsa.chat.networking.packets.PlayerJoinedPacket;
+import com.mcnsa.chat.networking.packets.PlayerQuitPacket;
+import com.mcnsa.chat.networking.packets.PlayerUpdatePacket;
+import com.mcnsa.chat.networking.packets.PmPacket;
+import com.mcnsa.chat.networking.packets.TimeoutPacket;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
@@ -28,7 +34,6 @@ public class Network {
 		if (MCNSAChat.network != null) {
 			PlayerUpdatePacket packet = new PlayerUpdatePacket(player);
 			MCNSAChat.network.write(packet);
-			MCNSAChat.console.info(packet.player.channel);
 		}
 	}
 	public static void PmSend(ChatPlayer sender, String target, String message) {
