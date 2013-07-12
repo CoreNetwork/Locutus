@@ -176,7 +176,7 @@ public class MessageSender {
 				//Strip all colour
 				processedMessage = Colours.stripColor(processedMessage);
 			}
-			if (!Permissions.checkWritePerm(chan.write_permission, player)) {
+			if (!Permissions.checkWritePerm(chan.write_permission, player) && serverCode.equalsIgnoreCase(MCNSAChat.shortCode)) {
 				send("&cYou do not have permission to chat in this channel", player);
 				return;
 			}
@@ -208,6 +208,7 @@ public class MessageSender {
 					continue;
 				//Check if the sending player is muted by the player recieving the message
 				if (!sendPlayer.muted.contains(player)) {
+					if (ChannelManager.getChannel(channel) != null && Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, sendPlayer.name))
 					send(Colours.processConsoleColours(message), sendPlayer.name);
 				}
 			}
@@ -324,7 +325,7 @@ public class MessageSender {
 			message = message.replace("%channel%", channel);
 		
 		message = message.replace("%prefix%", MCNSAChat.plugin.getConfig().getString("consoleSender-colour"));
-		message = message.replace("%player%", "["+MCNSAChat.plugin.getConfig().getString("consoleSender")+"]");
+		message = message.replace("%player%", MCNSAChat.plugin.getConfig().getString("consoleSender"));
 		message = message.replace("%message%", rawMessage);
 		
 		for (Player player: Bukkit.getOnlinePlayers()) {

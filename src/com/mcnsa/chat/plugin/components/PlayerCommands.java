@@ -127,11 +127,12 @@ public class PlayerCommands {
 	
 	@Command(command = "listen",
 			description = "Listen to a channel",
+			arguments = {"channel"},
 			permissions = {},
 			playerOnly = true)
 	public static boolean channelListen(CommandSender sender, String Channel) {
 		Channel = Channel.substring(0, 1).toUpperCase() + Channel.substring(1);
-		
+		String channel = Channel;
 		//Get the player
 		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
 		
@@ -144,18 +145,26 @@ public class PlayerCommands {
 				MessageSender.send("&4You do not have permission to listen to: "+targetChannel.color+targetChannel.name, player.name);
 				return true;
 			}
-			Channel = targetChannel.color+targetChannel.name;
+			channel = targetChannel.color+targetChannel.name;
 		}
 		//Change the channel
-		if (player.channelListen(Channel)) {
-			MessageSender.send("&6You are now listening to "+Channel, player.name);
+		int result = player.channelListen(Channel);
+		if (result == 2 || result == 3) {
+			MessageSender.send("&6You are now listening to "+channel, player.name);
+			Network.updatePlayer(player);
 		}
-		else {
-			MessageSender.send("&6You have stopped listening to "+Channel, player.name);
+		else if (result == 1 ) {
+			MessageSender.send("&6You have stopped listening to "+channel, player.name);
+			Network.updatePlayer(player);
+		}
+		else  if (result == 4){
+			MessageSender.send("&cYou cannot listen to this channel "+channel, player.name);
+			Network.updatePlayer(player);
 		}
 		
 		//Update player on other servers
 		Network.updatePlayer(player);
+		
 		return true;
 	}
 	@Command(command = "message",

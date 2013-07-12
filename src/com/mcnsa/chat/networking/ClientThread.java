@@ -185,7 +185,6 @@ public class ClientThread extends Thread{
 			//Update player
 			PlayerManager.updatePlayer(packet.player);
 			MCNSAChat.console.networkLogging(packet.player.name+" Updated from "+packet.player.server);
-			MCNSAChat.console.info(packet.player.channel);
 			
 		}
 		else if (recieved instanceof PlayerListPacket) {

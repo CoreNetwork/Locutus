@@ -58,18 +58,22 @@ public class ChatPlayer implements Serializable{
 			else {
 				this.channel = MCNSAChat.plugin.getConfig().getString("defaultChannel");
 			}
-			//Listining stuff
+			//Listening stuff
 			this.listening = (ArrayList<String>) this.playersFile.get().getList("listening");
 			for (String defaultListen: (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen")) {
-				if (!this.listening.contains(defaultListen))
+				if (!this.listening.contains(defaultListen)) {
 					this.listening.add(defaultListen);
+					MCNSAChat.console.info("Adding default channel: "+defaultListen);
+				}
 			}
 			for (int i = 0; i < this.listening.size(); i++) {
 				
 				ChatChannel chan = ChannelManager.getChannel(this.listening.get(i));
 				if (chan != null) {
-					if (!Permissions.checkReadPerm(chan.read_permission, this.name))
+					if (!Permissions.checkReadPerm(chan.read_permission, this.name)) {
 						this.listening.remove(i);
+						MCNSAChat.console.info("Adding removing listen: "+chan.name);
+					}
 				}
 				
 			}
@@ -84,6 +88,7 @@ public class ChatPlayer implements Serializable{
 		}
 		this.formatted = Colours.PlayerPrefix(name)+this.name;
 		playersFile.save();
+		MCNSAChat.console.info(this.listening.toString());
 	}
 	public void savePlayer() {
 		if (this.playersFile == null) {
@@ -104,20 +109,32 @@ public class ChatPlayer implements Serializable{
 	public void changeChannel(String newChannel) {
 		this.channel = newChannel.substring(0, 1).toUpperCase() + newChannel.substring(1);
 	}
-	public boolean channelListen(String channel){
+	public int channelListen(String channel){
 		if (listening.contains(channel)){
 			listening.remove(channel);
-			return false;
+			Network.updatePlayer(this);
+			return 1;
 		}
-		else {
+		else if (ChannelManager.getChannel(channel) != null && Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, name)){
 			listening.add(channel);
 			//Update player on other servers
 			Network.updatePlayer(this);
-			return true;
+			return 2;
+		}
+		else if (ChannelManager.getChannel(channel) == null){
+			listening.add(channel);
+			//Update player on other servers
+			Network.updatePlayer(this);
+			return 3;
+		}
+		else {
+			return 4;
 		}
 	}
 	public void addListen(String channel) {
-		listening.add(channel);
+		if (!listening.contains(channel)) {
+			listening.add(channel);
+		}
 		Network.updatePlayer(this);
 	}
 }

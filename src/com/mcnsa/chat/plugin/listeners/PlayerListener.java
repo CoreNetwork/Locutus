@@ -19,6 +19,7 @@ import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.Colours;
 import com.mcnsa.chat.plugin.utils.MessageSender;
+import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerListener implements Listener{
@@ -79,10 +80,15 @@ public class PlayerListener implements Listener{
 			
 		}
 				
-		//Check for forcelistens
-		for (String forceChannel: Permissions.getForceListens(playerName)) {
-			if (!PlayerManager.getPlayer(playerName).listening.contains(forceChannel))
-				PlayerManager.getPlayer(playerName).listening.add(forceChannel);
+		//Get forceListens
+		for (int i = 0; i < ChannelManager.channels.size(); i++) {
+			ChatChannel chan = ChannelManager.channels.get(i);
+			if (Permissions.forcelisten(playerName, chan.name)) {
+				if (!PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).listening.contains(chan.name)) {
+					PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).listening.add(chan.name);
+					MCNSAChat.console.info("Adding forcelisten: "+chan.name);
+				}
+			}
 		}
 		
 		//Set their name on the player tab list
@@ -138,6 +144,7 @@ public class PlayerListener implements Listener{
 				//moving channel
 				ChatPlayer player = PlayerManager.getPlayer(event.getPlayer().getName(), MCNSAChat.shortCode);
 				player.changeChannel(ChannelManager.channelAlias.get(command));
+				Network.updatePlayer(player);
 				event.setCancelled(true);
 				return;
 			}

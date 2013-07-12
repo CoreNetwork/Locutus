@@ -27,7 +27,7 @@ public class ChannelManager {
 	public static ArrayList<ChatPlayer> getPlayersListening(String channel){
 		ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 		for (ChatPlayer player: PlayerManager.players) {
-			if (player.channel.equalsIgnoreCase(channel)|| player.listening.contains(channel)|| player.modes.get("SEEALL")) {
+			if (player.channel.equalsIgnoreCase(channel)|| player.listening.contains(channel) || player.modes.get("SEEALL")) {
 				players.add(player);
 			}
 		}

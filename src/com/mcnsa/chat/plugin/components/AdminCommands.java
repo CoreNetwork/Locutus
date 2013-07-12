@@ -436,15 +436,10 @@ public class AdminCommands {
 			command = "chansay",
 			description = "send a message to channel via console",
 			arguments = {"Channel", "message"},
-			permissions = {"console"},
-			consoleOnly = true
+			permissions = {"console"}
 			)
 	public static boolean consolechat(CommandSender sender, String Channel, String... rawMessage) {
-		if (!sender.getName().equalsIgnoreCase("CONSOLE")) {
-			MessageSender.send("&4This command chan only be used by console", sender.getName());
-			return true;
-		}
-		
+				
 		StringBuffer message = new StringBuffer();
 		for (String part: rawMessage) {
 			if (message.length() < 1)

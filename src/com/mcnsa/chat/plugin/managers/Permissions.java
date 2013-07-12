@@ -30,12 +30,21 @@ public class Permissions {
 	public static boolean checkPermission (String permission, String playerName) {
 		String checkPermission = corePermission+permission;
 		//MCNSAChat.console.info("Checking for permission: "+checkPermission);
-		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, checkPermission)) 
+		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, corePermission+permission)) {
+			MCNSAChat.console.info("has permission: "+checkPermission);
 			return true;
+		}
+		MCNSAChat.console.info("has permission: "+checkPermission);
 		return false;
 	}
 	public static Boolean useColours(String playerName) {
 		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, corePermission+"player.cancolour"))
+			return true;
+		
+		return false;
+	}
+	public static Boolean forcelisten(String playerName, String channel) {
+		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, corePermission+"forcelisten."+channel))
 			return true;
 		
 		return false;
@@ -48,6 +57,10 @@ public class Permissions {
 				permissions.add(ChannelManager.channels.get(i).name);
 		}
 		return permissions;
+	}
+	public static String getSuffix(String player) {
+		String suffix = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getUserSuffix(player);
+		return suffix;
 	}
 	
 }
