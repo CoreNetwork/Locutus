@@ -22,6 +22,7 @@ public class MessageSender {
 		message = message.replace("%server%", MCNSAChat.serverName);
 		message = message.replace("%prefix%", Colours.PlayerPrefix(playerName));
 		message = message.replace("%player%", playerName);
+		message = message.replace("%suffix%", Colours.PlayerSuffix(playerName));
 		//Notify console
 		MCNSAChat.console.info(Colours.processConsoleColours(message));
 		//Set the join message
@@ -33,6 +34,7 @@ public class MessageSender {
 		message = message.replace("%server%", MCNSAChat.serverName);
 		message = message.replace("%prefix%", Colours.PlayerPrefix(playerName));
 		message = message.replace("%player%", playerName);
+		message = message.replace("%suffix%", Colours.PlayerSuffix(playerName));
 		
 		//Notify console
 		MCNSAChat.console.info(Colours.processConsoleColours(message));
@@ -45,6 +47,7 @@ public class MessageSender {
 		message = message.replace("%server%", server);
 		message = message.replace("%prefix%", Colours.PlayerPrefix(player.name));
 		message = message.replace("%player%", player.name);
+		message = message.replace("%suffix%", Colours.PlayerSuffix(player.name));
 		
 		//Loop through players listening list and collect names
 		ArrayList<ChatPlayer> sendTo = new ArrayList<ChatPlayer>();
@@ -71,6 +74,7 @@ public class MessageSender {
 		message = message.replace("%server%", server);
 		message = message.replace("%prefix%", Colours.PlayerPrefix(player.name));
 		message = message.replace("%player%", player.name);
+		message = message.replace("%suffix%", Colours.PlayerSuffix(player.name));
 		
 		//Loop through players listening list and collect names
 		ArrayList<ChatPlayer> sendTo = new ArrayList<ChatPlayer>();
