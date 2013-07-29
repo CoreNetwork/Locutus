@@ -195,6 +195,7 @@ public class MessageSender {
 		
 		message = message.replace("%prefix%", Colours.PlayerPrefix(player));
 		message = message.replace("%player%", player);
+		message = message.replace("%suffix%", Colours.PlayerSuffix(player));
 		message = message.replace("%message%", processedMessage);
 		
 		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(channel);
@@ -243,6 +244,7 @@ public class MessageSender {
 		
 		message = message.replace("%prefix%", Colours.PlayerPrefix(player.name));
 		message = message.replace("%player%", player.name);
+		message = message.replace("%suffix%", Colours.PlayerSuffix(player.name));
 		message = message.replace("%message%", processedMessage);
 		
 		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(player.channel);

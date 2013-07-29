@@ -56,4 +56,8 @@ public class Colours {
 			newStr += "&" + colors.charAt(r.nextInt(colors.length())) + rawMessage.charAt(i);
 		return newStr;
 	}
+	public static String PlayerSuffix(String playerName) {
+		String suffix = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getUserSuffix(playerName);
+		return suffix;
+	}
 }
