@@ -112,7 +112,7 @@ public class CommandManager implements TabExecutor {
 			for(String knownAlias: knownAliases) {
 				// if it's already a bukkit command, overwrite it
 				if(commandMap.getCommand(knownAlias) != null) {
-					MCNSAChat.console.info("Overwriting command "+knownAlias);
+					//MCNSAChat.console.info("Overwriting command "+knownAlias);
 					commandMap.getCommand(knownAlias).unregister(commandMap);
 				}
 
@@ -212,7 +212,7 @@ public class CommandManager implements TabExecutor {
 	// go through a given class and register all the commands in it
 	private void registerComponentCommands(CommandMap commandMap, Component component) {
 		// get our class
-		MCNSAChat.console.info("Loading commands");
+		//MCNSAChat.console.info("Loading commands");
 		Class<?> cls = component.clazz;
 
 		// loop through all our methods in the given class
