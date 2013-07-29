@@ -134,6 +134,7 @@ public class AdminCommands {
 		Network.timeout(targetPlayer, sb.toString(), Integer.valueOf(time));
 		return true;
 	}
+	
 	@Command(
 			command = "cregister",
 			description = "Register a channel with the channel manager",
@@ -214,8 +215,9 @@ public class AdminCommands {
 		Network.channelUpdate(channel);
 		return true;
 	}
+
 	@Command(
-			command = "cmodify",
+			command = "cedit",
 			arguments = {"setting", "variable"},
 			description = "Set the alias and read/write permissions fo the channel your in",
 			permissions = {"modify"},
@@ -267,6 +269,8 @@ public class AdminCommands {
 		//Remove from channel Manager
 		ChannelManager.channels.remove(chan);
 		
+		chan.modes.put("PERSIST", false);
+		
 		//Update other servers
 		Network.channelUpdate(chan);
 		
@@ -275,6 +279,7 @@ public class AdminCommands {
 		
 		return true;
 	}
+
 	@Command(
 			command = "say",
 			arguments = {"Message"},
@@ -382,6 +387,7 @@ public class AdminCommands {
 		MessageSender.send("&6Chat Config reloaded", sender.getName());
 		return true;
 	}
+
 	@Command(
 			command = "cnet",
 			description = "Cross server chat controls, use off, on, or reset",
@@ -390,8 +396,13 @@ public class AdminCommands {
 	public static boolean net(CommandSender sender, String action) {
 		//Function allows setting of the cross server functionality
 		if (action.equalsIgnoreCase("on")) {
-			MCNSAChat.multiServer = true;
-			MessageSender.send("&6Cross server chat turned on", sender.getName());
+			if (!MCNSAChat.multiServer) {
+				MCNSAChat.multiServer = true;
+				MessageSender.send("&6Cross server chat turned on", sender.getName());
+			}
+			else {
+				MessageSender.send("&6Cross server chat is already on", sender.getName());
+			}
 			return true;
 		}
 		else if (action.equalsIgnoreCase("off")) {
@@ -401,20 +412,25 @@ public class AdminCommands {
 				MCNSAChat.network.close();
 			MCNSAChat.network = null;
 			MessageSender.send("&6Cross server chat turned off", sender.getName());
+			PlayerManager.removeNonServerPlayers();
 			return true;
 		}
 		else if (action.equalsIgnoreCase("reset")) {
+			if (MCNSAChat.network != null)
+				MCNSAChat.network.close();
 			MCNSAChat.network = null;
 			MessageSender.send("&6Cross server chat reset", sender.getName());
+			PlayerManager.removeNonServerPlayers();
 			return true;
 		}
 		MessageSender.send("&4Invalid arguments: use on, off, or reset", sender.getName());
 		return true;
 	}
+
 	@Command(
 			command = "seeall",
 			description = "Vewa all channels",
-			permissions = {"seelall"},
+			permissions = {"seeall"},
 			playerOnly = true
 			)
 	public static boolean seeall(CommandSender sender) {
@@ -432,6 +448,7 @@ public class AdminCommands {
 		}
 		return true;
 	}
+
 	@Command(
 			command = "chansay",
 			description = "send a message to channel via console",
@@ -453,6 +470,25 @@ public class AdminCommands {
 		
 		return true;
 
+	}
+
+	@Command(
+			command = "forceremove",
+			description = "Strips everyone's listens for a channel",
+			arguments = {"Channel"}
+			)
+	public static boolean stripListens(CommandSender sender, String channel) {
+		//Strips everyone's listens for a channel
+		for (int i = 0; i < PlayerManager.players.size(); i++) {
+			ChatPlayer player = PlayerManager.players.get(i);
+			if (player.listening.contains(channel)) {
+				player.listening.remove(channel);
+				MessageSender.send("removed "+player.name+ "from listening to "+channel, sender.getName());
+				Network.updatePlayer(player);
+			}
+		}
+		
+		return true;
 	}
 	
 }

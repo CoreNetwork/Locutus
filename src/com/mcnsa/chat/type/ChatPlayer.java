@@ -61,22 +61,20 @@ public class ChatPlayer implements Serializable{
 			//Listening stuff
 			this.listening = (ArrayList<String>) this.playersFile.get().getList("listening");
 			for (String defaultListen: (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen")) {
-				if (!this.listening.contains(defaultListen)) {
-					this.listening.add(defaultListen);
-					MCNSAChat.console.info("Adding default channel: "+defaultListen);
+				if (!this.listening.contains(defaultListen.toLowerCase())) {
+					this.listening.add(defaultListen.toLowerCase());
 				}
 			}
+			ArrayList<String> newListen = new ArrayList<String>();
 			for (int i = 0; i < this.listening.size(); i++) {
-				
 				ChatChannel chan = ChannelManager.getChannel(this.listening.get(i));
 				if (chan != null) {
-					if (!Permissions.checkReadPerm(chan.read_permission, this.name)) {
-						this.listening.remove(i);
-						MCNSAChat.console.info("Adding removing listen: "+chan.name);
+					if (Permissions.checkReadPerm(chan.read_permission, this.name) && !newListen.contains(channel.toLowerCase())) {
+						newListen.add(channel.toLowerCase());
 					}
 				}
-				
 			}
+			this.listening = newListen;
 			this.lastPm = this.playersFile.get().getString("lastPm");
 			this.modes.put("SEEALL", this.playersFile.get().getBoolean("modes.SEELALL"));
 			this.modes.put("MUTE", this.playersFile.get().getBoolean("modes.MUTE"));
@@ -88,7 +86,6 @@ public class ChatPlayer implements Serializable{
 		}
 		this.formatted = Colours.PlayerPrefix(name)+this.name;
 		playersFile.save();
-		MCNSAChat.console.info(this.listening.toString());
 	}
 	public void savePlayer() {
 		if (this.playersFile == null) {
@@ -110,30 +107,23 @@ public class ChatPlayer implements Serializable{
 		this.channel = newChannel.substring(0, 1).toUpperCase() + newChannel.substring(1);
 	}
 	public int channelListen(String channel){
-		if (listening.contains(channel)){
-			listening.remove(channel);
+		if (listening.contains(channel.toLowerCase())){
+			listening.remove(channel.toLowerCase());
 			Network.updatePlayer(this);
 			return 1;
 		}
-		else if (ChannelManager.getChannel(channel) != null && Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, name)){
-			listening.add(channel);
-			//Update player on other servers
-			Network.updatePlayer(this);
+		else if (ChannelManager.getChannel(channel) != null && !Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, name)){
 			return 2;
 		}
-		else if (ChannelManager.getChannel(channel) == null){
-			listening.add(channel);
-			//Update player on other servers
+		else {
+			listening.add(channel.toLowerCase());
 			Network.updatePlayer(this);
 			return 3;
 		}
-		else {
-			return 4;
-		}
 	}
 	public void addListen(String channel) {
-		if (!listening.contains(channel)) {
-			listening.add(channel);
+		if (!listening.contains(channel.toLowerCase())) {
+			listening.add(channel.toLowerCase());
 		}
 		Network.updatePlayer(this);
 	}

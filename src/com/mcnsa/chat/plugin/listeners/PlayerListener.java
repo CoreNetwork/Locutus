@@ -30,7 +30,7 @@ public class PlayerListener implements Listener{
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
 	//Handles login events
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerLogin(PlayerJoinEvent event) {
 		//Get the player
 		Player player = event.getPlayer();
@@ -84,9 +84,8 @@ public class PlayerListener implements Listener{
 		for (int i = 0; i < ChannelManager.channels.size(); i++) {
 			ChatChannel chan = ChannelManager.channels.get(i);
 			if (Permissions.forcelisten(playerName, chan.name)) {
-				if (!PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).listening.contains(chan.name)) {
-					PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).listening.add(chan.name);
-					MCNSAChat.console.info("Adding forcelisten: "+chan.name);
+				if (!PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).listening.contains(chan.name.toLowerCase())) {
+					PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).listening.add(chan.name.toLowerCase());
 				}
 			}
 		}
@@ -104,7 +103,7 @@ public class PlayerListener implements Listener{
 		
 	}
 	//Handles logouts
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void playerQuit (PlayerQuitEvent event) {
 				
 		//Save the player
@@ -131,22 +130,35 @@ public class PlayerListener implements Listener{
 	//Handles channel alias's and command listeners
 	@EventHandler
 	public void channelalias(PlayerCommandPreprocessEvent event) {
-		if (event.isCancelled())
-			return;
 		String[] args = event.getMessage().split(" ");
 		String command = args[0].substring(1);
-		if (command == null)
-			return;
 		
-		if (ChannelManager.channelAlias.containsKey(command) && command !=null) {
+		if (ChannelManager.channelAlias.containsKey(command) && command != null) {
 			//Check if there is any arguments
 			if (args.length == 1) {
 				//moving channel
 				ChatPlayer player = PlayerManager.getPlayer(event.getPlayer().getName(), MCNSAChat.shortCode);
-				player.changeChannel(ChannelManager.channelAlias.get(command));
-				Network.updatePlayer(player);
-				event.setCancelled(true);
-				return;
+				String channel = ChannelManager.channelAlias.get(command);
+				//make sure its a registered channel
+				if (ChannelManager.getChannel(channel) != null) {
+					ChatChannel chan = ChannelManager.getChannel(channel);
+					channel = chan.name;
+					if (Permissions.checkReadPerm(chan.read_permission, player.name)) {
+							//Get players in channel
+							String playersInChannel = ChannelManager.playersInChannel(channel);
+							//We can say this player has the permissions. Lets welcome them
+							player.changeChannel(channel);
+							Network.updatePlayer(player);
+							MessageSender.send(Colours.color("&6Welcome to the "+channel+" channel. Players here: " + playersInChannel), player.name);
+							event.setCancelled(true);
+							return;
+						}
+					else {
+						MessageSender.send("&cYou do not have permissions for this channel", player.name);
+						event.setCancelled(true);
+						return;
+					}
+				}
 			}
 			
 			//build the message
@@ -158,15 +170,22 @@ public class PlayerListener implements Listener{
 					message.append(" "+args[i]);
 					
 			}
-			
-			//Get chatplayer
+			//get chat player
 			ChatPlayer player = PlayerManager.getPlayer(event.getPlayer().getName(), MCNSAChat.shortCode);
+			String channel = ChannelManager.channelAlias.get(command).toLowerCase();
+			
+			//See if the player is listening to channel
+			if (!player.listening.contains(channel.toLowerCase()) || !player.channel.equalsIgnoreCase(channel.toLowerCase()))
+				if (ChannelManager.getChannel(channel) !=null && Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, player.name))
+					player.addListen(channel);
+			
 			if (!player.modes.get("MUTE")) { 
 				MessageSender.channelMessage(ChannelManager.channelAlias.get(command), MCNSAChat.shortCode, player.name, message.toString());
 			}
 			else {
 				MessageSender.send("&c You are in timeout. Please try again later", player.name);
 			}
+			
 			
 			
 			event.setCancelled(true);

@@ -31,7 +31,6 @@ public class Permissions {
 		String checkPermission = corePermission+permission;
 		//MCNSAChat.console.info("Checking for permission: "+checkPermission);
 		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, corePermission+permission)) {
-			MCNSAChat.console.info("has permission: "+checkPermission);
 			return true;
 		}
 		MCNSAChat.console.info("has permission: "+checkPermission);

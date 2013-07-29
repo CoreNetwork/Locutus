@@ -27,7 +27,7 @@ public class ChannelManager {
 	public static ArrayList<ChatPlayer> getPlayersListening(String channel){
 		ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 		for (ChatPlayer player: PlayerManager.players) {
-			if (player.channel.equalsIgnoreCase(channel)|| player.listening.contains(channel) || player.modes.get("SEEALL")) {
+			if (player.channel.equalsIgnoreCase(channel)|| player.listening.contains(channel.toLowerCase()) || player.modes.get("SEEALL")) {
 				players.add(player);
 			}
 		}
@@ -42,7 +42,7 @@ public class ChannelManager {
 		ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 		for (int i = 0; i< players.size(); i++) {
 			ChatPlayer player = PlayerManager.players.get(i);
-			if (player.channel.equalsIgnoreCase(channel) || player.listening.contains(channel)) {
+			if (player.channel.equalsIgnoreCase(channel) || player.listening.contains(channel.toLowerCase())) {
 				players.add(player);
 			}
 		}

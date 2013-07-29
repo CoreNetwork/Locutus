@@ -149,15 +149,15 @@ public class PlayerCommands {
 		}
 		//Change the channel
 		int result = player.channelListen(Channel);
-		if (result == 2 || result == 3) {
+		if (result == 3) {
 			MessageSender.send("&6You are now listening to "+channel, player.name);
 			Network.updatePlayer(player);
 		}
-		else if (result == 1 ) {
+		else if (result == 1) {
 			MessageSender.send("&6You have stopped listening to "+channel, player.name);
 			Network.updatePlayer(player);
 		}
-		else  if (result == 4){
+		else  if (result == 2){
 			MessageSender.send("&cYou cannot listen to this channel "+channel, player.name);
 			Network.updatePlayer(player);
 		}

@@ -182,11 +182,7 @@ public class MessageSender {
 			}
 			
 		}
-		//See if the player is listening to channel
-		if (!PlayerManager.getPlayer(player).listening.contains(channel) || !PlayerManager.getPlayer(player).channel.equalsIgnoreCase(channel))
-			if (ChannelManager.getChannel(channel) !=null && Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, player))
-				PlayerManager.getPlayer(player).addListen(channel);
-				
+						
 		//Get the base message
 		String message = MCNSAChat.plugin.getConfig().getString("strings.message");
 		message = message.replace("%server%", serverCode);
@@ -208,8 +204,8 @@ public class MessageSender {
 					continue;
 				//Check if the sending player is muted by the player recieving the message
 				if (!sendPlayer.muted.contains(player)) {
-					if (ChannelManager.getChannel(channel) != null && Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, sendPlayer.name))
-					send(Colours.processConsoleColours(message), sendPlayer.name);
+					if (ChannelManager.getChannel(channel) != null && Permissions.checkReadPerm(ChannelManager.getChannel(channel).read_permission, sendPlayer.name) || ChannelManager.getChannel(channel) == null)
+						send(Colours.processConsoleColours(message), sendPlayer.name);
 				}
 			}
 		}

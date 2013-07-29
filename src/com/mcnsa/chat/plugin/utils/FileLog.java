@@ -49,7 +49,7 @@ public class FileLog {
 	public static void writeChat(String server, String Player, String channel, String message) {
 		try {
 			String time = new SimpleDateFormat("yy-MM-dd HH:mm:ss").format(new Date());
-			message = time + "|<"+server+channel+">"+message;
+			message = time + "|<"+server+channel+">("+Player+")"+message;
 			chatLog.write(message);
 			chatLog.newLine();
 			chatLog.flush();
@@ -59,6 +59,8 @@ public class FileLog {
 	}
 	public static void writeError(String message) {
 		try {
+			String time = new SimpleDateFormat("yy-MM-dd HH:mm:ss").format(new Date());
+			message = time + "|"+message;
 			errorLog.write(message);
 			errorLog.newLine();
 			errorLog.flush();
