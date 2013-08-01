@@ -23,7 +23,6 @@ public class PlayerManager {
 		if (PlayerManager.getPlayer(player, MCNSAChat.shortCode) == null) {
 			ChatPlayer newPlayer= new ChatPlayer(player);
 			players.add(newPlayer);
-			MCNSAChat.console.info("Added "+player);
 		}
 	}
 	public static void PlayerLogout(String player){
