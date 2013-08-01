@@ -1,4 +1,5 @@
 name: MCNSAChat
 main: com.mcnsa.chat.plugin.MCNSAChat
 version: 4
-author: [maboughey, MCNSA, MCNSA.com]
+author: [maboughey]
+depend: [GroupManager]
