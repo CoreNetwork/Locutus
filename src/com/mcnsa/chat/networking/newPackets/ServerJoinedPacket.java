@@ -1,5 +1,6 @@
 package com.mcnsa.chat.networking.newPackets;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +34,22 @@ public class ServerJoinedPacket {
 		}
 		else {
 			out.writeInt(players.size());
-			
+			for (ChatPlayer player: players){
+				player.write(out);
+			}
+		}
+		
+		out.flush();
+	}
+	
+	public void read(DataInputStream in) throws IOException{
+		this.serverName = in.readUTF();
+		this.serverShortCode = in.readUTF();
+		this.passcode = in.readUTF();
+		int playerNumbers = in.readInt();
+		
+		for (int i = 0; i < playerNumbers; i++){
+			players.add(ChatPlayer.read(in));
 		}
 	}
 }

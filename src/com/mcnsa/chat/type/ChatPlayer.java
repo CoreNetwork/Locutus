@@ -1,5 +1,6 @@
 package com.mcnsa.chat.type;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -89,6 +90,15 @@ public class ChatPlayer implements Serializable{
 		this.formatted = Colours.PlayerPrefix(name)+this.name;
 		playersFile.save();
 	}
+	public ChatPlayer(String name2, String server2, String channel2, String lastPm2, HashMap<String, Boolean> modes2, ArrayList<String> listening2, ArrayList<String> serversVisited2) {
+		this.name = name2;
+		this.server = server2;
+		this.channel = channel2;
+		this.lastPm = lastPm2;
+		this.modes = modes2;
+		this.listening = listening2;
+		this.serversVisited = serversVisited2;
+	}
 	public void savePlayer() {
 		if (this.playersFile == null) {
 			this.playersFile = new Players(this.name);
@@ -135,6 +145,46 @@ public class ChatPlayer implements Serializable{
 		out.writeUTF(this.server);
 		out.writeUTF(this.channel);
 		out.writeUTF(this.lastPm);
+		out.writeUTF("SEEALL");
+		out.writeBoolean(this.modes.get("SEEALL"));
+		out.writeUTF("MUTE");
+		out.writeBoolean(this.modes.get("MUTE"));
+		out.writeUTF("POOF");
+		out.writeBoolean(this.modes.get("POOF"));
+		out.writeUTF("LOCKED");
+		out.writeBoolean(this.modes.get("LOCKED"));
+		out.writeInt(this.listening.size());
+		for (String listen: this.listening) {
+			out.writeUTF(listen);
+		}
+		out.writeInt(this.serversVisited.size());
+		for (String visited: this.serversVisited){
+			out.writeUTF(visited);
+		}
+	}
+	
+	public static ChatPlayer read(DataInputStream in) throws IOException{
+		String name = in.readUTF();
+		String server = in.readUTF();
+		String channel = in.readUTF();
+		String lastPm = in.readUTF();
+		HashMap<String, Boolean> modes = new HashMap<String, Boolean>();
+		modes.put("SEEALL", in.readBoolean());
+		modes.put("MUTE", in.readBoolean());
+		modes.put("POOF", in.readBoolean());
+		modes.put("LOCKED", in.readBoolean());
 		
+		ArrayList <String> listening = new ArrayList<String>();
+		int size = in.readInt();
+		for (int i = 0; i < size; i++) {
+			listening.add(in.readUTF());
+		}
+		ArrayList <String> serversVisited = new ArrayList<String>();
+		int size2 = in.readInt();
+		for (int i = 0; i < size2; i++) {
+			serversVisited.add(in.readUTF());
+		}
+		ChatPlayer cp = new ChatPlayer(name, server, channel, lastPm, modes, listening, serversVisited);
+		return cp;
 	}
 }
