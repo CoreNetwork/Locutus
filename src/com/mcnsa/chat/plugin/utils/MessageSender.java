@@ -329,6 +329,7 @@ public class MessageSender {
 		message = message.replace("%prefix%", MCNSAChat.plugin.getConfig().getString("consoleSender-colour"));
 		message = message.replace("%player%", MCNSAChat.plugin.getConfig().getString("consoleSender"));
 		message = message.replace("%message%", rawMessage);
+		message = message.replace("%suffix%", "");
 		
 		for (Player player: Bukkit.getOnlinePlayers()) {
 			ChatPlayer chatPlayer = PlayerManager.getPlayer(player.getName(), MCNSAChat.shortCode);
