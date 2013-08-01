@@ -9,14 +9,15 @@ Cross-server, multi-channel chat plugin.
 
 |**Command**|**Permission Node**|**Description**|
 |------|:--------------|:----------|
-|`/c <channel>`|`mcnsachat.player.move`|Switches to a channel.|
-|`/mute <player>`|`mcnsachat.player.mute`|Ignore player's chat and private messages.|
-|`/clist`|`mcnsachat.player.list`|List available channels.|
-|`/clisten <channel>`|`mcnsachat.player.listen`|Allows to listen to more channels, while typing in another.|
+|`/me [message]`|`mcnsachat.player.me`|Emotes your message (will appear as `* you <message>`). Example: `/me needs more diamonds`|
+|`/c [channel]`|`mcnsachat.player.move`|Switches to a channel.|
+|`/listen [channel]`||Allows to listen to more channels, while typing in another.|
+|`/msg [player] [message]`|`mcnsachat.player.msg`|Sends a private message to a player. Works across servers. Aliases: `/w`, `/tell`, `/whisper`|
+|`/r [message]`|`mcnsachat.player.msg`|Replies to the last person who messaged you (or whom you messaged)|
+|`/cmute [player]`|`mcnsachat.player.mute`|Ignore player's chat and private messages Aliases: `/mute`, `/ignore`.|
 |`/list`|`mcnsachat.player.list`|Lists everyone online. Aliases: `/who`, `/playerlist`, `/online`, `/players`|
-|`/me <message>`|`mcnsachat.player.me`|Emotes your message (will appear as `* you <message>`). Example: `/me needs more diamonds`|
-|`/msg <player> <message>`|`mcnsachat.player.msg`|Sends a private message to a player. Works across servers. Aliases: `/w`, `/tell`, `/whisper`|
-|`/r <message>`|`mcnsachat.player.msg`|Replies to the last person who messaged you (or whom you messaged)|
+|`/csearch [player]`||Finds the channel a player is in.|
+|`/clist`|`mcnsachat.player.list`|List available channels.|
     
 ## Moderator commands
 
@@ -26,6 +27,7 @@ Cross-server, multi-channel chat plugin.
 |`/cto [player]`|`mcnsachat.admin.timeout`|Remove `[player]` from timeout manually|
 |`/cto [player] [time] [reason]`|`mcnsachat.admin.timeout`|Put `[player]` in timeout for `[time]` minutes with `[reason]`|
 |`/say [message]`|`mcnsachat.admin.say`|Send `[message]` as the server console|
+|`/chansay [channel] [message]`|`mcnsachat.admin.console`|Send a message to channel as console.|
 |`/clock [player]`|`mcnsachat.admin.lock`|Lock a player in a channel|
 |`/cmove [player] [channel]`|`mcnsachat.admin.move`|Move `[player]` into `[channel]`|
 |`/creload`|`mcnsachat.admin.reload`|Reload the configuration file|
@@ -35,17 +37,20 @@ Cross-server, multi-channel chat plugin.
 
 |**Command**|**Permission Node**|**Description**|
 |------|:--------------|:----------|
-|`/cregister [channel]`|`mcnsachat.admin.register`|Registers a channel with the channel manager|
-|`/cmode [add,del] [rave,boring,local]`|`mcnsachat.admin.mode`|Add or remove a mode to the channel your in, if registeres. See modes for details|
-|`/cmodify [alias,readperm,writeperm,color] [string]`|`mcnsachat.admin.modify`|Changes the different settings of the channel. For colour, only specify the letter or number|
-|`/cremove [channel]`|`mcnsachat.admin.register`|Remove `[channel]` from the channel manager.|
+|`/cmode [add,del] [rave,boring,local]`|`mcnsachat.admin.mode`|Add or remove a mode to the channel your in, if registeres. See modes for details.|
+|`/cedit alias [string]`|`mcnsachat.admin.modify`|Changes the alias of the channel you’re in. Alias is a short command invoked to send messages to that channel. Example: `/cedit alias m` invoked in `<MOD>` will make `/m` switch to that channel and `/m message` send messages there.|
+|`/cedit [readperm | writeperm] [string]`|`mcnsachat.admin.modify`|Changes read and write permissions of the channel you’re in. Example: `/cedit readperm pillowtalk` will require `mcnsachat.read.pillowtalk`. For `writeperm` it would be `mcnsachat.write.pillowtalk`.|
+|`/cedit color [colorcode]`|`mcnsachat.admin.modify`|Changes the [color](http://www.minecraftwiki.net/wiki/Formatting_codes#Color_codes) of the name of the channel you’re in.|
+|`/cregister [channel]`|`mcnsachat.admin.register`|Registers a channel with the channel manager.|
+|`/cdelete [channel]`|`mcnsachat.admin.register`|Delete `[channel]` from the channel manager.|
 
 ##MCNSA Fun Commands
 
 Not Implemented yet
 
 # Configuration
-Config.yml, Main plugin configuration
+
+config.yml, Main plugin configuration
 
 |**Config**|**Default**|**Description**|
 |:------|:--------------|:----------|
@@ -54,18 +59,17 @@ Config.yml, Main plugin configuration
 |`defaultChannel`|`s`|Set the channel a player should be in on first join|
 |`defaultListen`|`[S, Server, Global]`|Set the default list of channels a player should be listening to on first join|
 |`multiServer`|`false`|Check whether the plugin should attempt to connect to a chatserver|
-|`chatServer`||Specify the chatserver address|
-|`ChatServerPassword`||Specify the password for the chatserver|
+|`chatServer`||Specify the chatserver address.|
+|`chatServerPort`||Specify the chatserver port.|
+|`chatServerPassword`||Specify the password for the chatserver.|
 |`consoleLogChat`|`true`|Whether to log the chat in the console as well as the chatlog file|
 |`consoleLogServers`|`true`|Whether to log chat messages from other servers in console as well as the chatlog file|
 |`consoleLogServerInfo`|`true`|Whether to display player joins and quits from another server|
-|`hideJoinPlayerList`|`false`|Hide the list of players dsiplayed on join|
-|`displayWelcome`|`true`|Display the welcome prompt for new players|
+|`hideJoinPlayerList`|`false`|Hide the list of players dsiplayed on join.|
+|`displayWelcome`|`true`|Display the welcome prompt for new players.|
 |`consoleSender-colour`|`&4`|What colour the console messages are to be displayed in|
 |`consoleSender`|`CONSOLE`|What the name of the console is when using `/say`|
 
-Channels.yml, Persistent channel configuration
-To be added
 # Permissions
 
 |**Permission Node**|**Description**|
@@ -75,4 +79,4 @@ To be added
 |`mcnsachat.read.<name>`|Allows players to chat in a special channel. Permission name is declared in `channels.yml`, via `read_permission`.|
 |`mcnsachat.write.<name>`|Allows players to chat in a special channel. Permission name is declared in `channels.yml`, via `write_permission`.|
 |`mcnsachat.forcelisten.<name>`|Force players to listen to a channel (example: useful for moderator channel, so mods don't have to explicitly do `/clisten mod`). Permission name is declared in `channels.yml`, via `name`.|
-|`mcnsachat.player.cancolor`|Allows to use color (ie: `&c`) and formatting (ie: `&o`) codes in chat. Cannot overwrite `/cmode <channel> BORING`.|
+|`mcnsachat.player.cancolour`|Allows to use color (ie: `&c`) and formatting (ie: `&o`) codes in chat. Cannot overwrite `/cmode <channel> BORING`.|
