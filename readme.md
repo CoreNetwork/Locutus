@@ -39,7 +39,7 @@ Cross-server, multi-channel chat plugin.
 |------|:--------------|:----------|
 |`/cmode [add,del] [rave,boring,local]`|`mcnsachat.admin.mode`|Add or remove a mode to the channel your in, if registeres. See modes for details.|
 |`/cedit alias [string]`|`mcnsachat.admin.modify`|Changes the alias of the channel you’re in. Alias is a short command invoked to send messages to that channel. Example: `/cedit alias m` invoked in `<MOD>` will make `/m` switch to that channel and `/m message` send messages there.|
-|`/cedit [readperm | writeperm] [string]`|`mcnsachat.admin.modify`|Changes read and write permissions of the channel you’re in. Example: `/cedit readperm pillowtalk` will require `mcnsachat.read.pillowtalk`. For `writeperm` it would be `mcnsachat.write.pillowtalk`.|
+|`/cedit [readperm,writeperm] [string]`|`mcnsachat.admin.modify`|Changes read and write permissions of the channel you’re in. Example: `/cedit readperm pillowtalk` will require `mcnsachat.read.pillowtalk`. For `writeperm` it would be `mcnsachat.write.pillowtalk`.|
 |`/cedit color [colorcode]`|`mcnsachat.admin.modify`|Changes the [color](http://www.minecraftwiki.net/wiki/Formatting_codes#Color_codes) of the name of the channel you’re in.|
 |`/cregister [channel]`|`mcnsachat.admin.register`|Registers a channel with the channel manager.|
 |`/cdelete [channel]`|`mcnsachat.admin.register`|Delete `[channel]` from the channel manager.|
