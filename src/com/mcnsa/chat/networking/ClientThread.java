@@ -23,8 +23,8 @@ public class ClientThread extends Thread{
 	private ObjectOutputStream out;
 	private ObjectInputStream in;
 	public ClientThread(MCNSAChat plugin) {
-		this.chatserver = MCNSAChat.chatserver;
-		this.port = MCNSAChat.chatserverPort;
+		this.chatserver = MCNSAChat.plugin.getConfig().getString("chatServer");
+		this.port = MCNSAChat.plugin.getConfig().getInt("chatServerPort");
 	}
 
 	@Override

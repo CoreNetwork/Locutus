@@ -1,6 +1,8 @@
 package com.mcnsa.chat.type;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,5 +128,13 @@ public class ChatPlayer implements Serializable{
 			listening.add(channel.toLowerCase());
 		}
 		Network.updatePlayer(this);
+	}
+	
+	public void write(DataOutputStream out) throws IOException{
+		out.writeUTF(this.name);
+		out.writeUTF(this.server);
+		out.writeUTF(this.channel);
+		out.writeUTF(this.lastPm);
+		
 	}
 }

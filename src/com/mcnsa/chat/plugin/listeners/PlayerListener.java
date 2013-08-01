@@ -48,9 +48,14 @@ public class PlayerListener implements Listener{
 				//Display the welcome message
 				String message = plugin.getConfig().getString("strings.player-welcome");
 				message = message.replaceAll("%player%", playerName);
-				for (Player otherPlayer : Bukkit.getOnlinePlayers())
-					if (!otherPlayer.getName().equals(event.getPlayer().getName()))
-						MessageSender.send(message, player.getName());
+				for (int i = 0; i < PlayerManager.players.size(); i++){
+					ChatPlayer otherPlayer = PlayerManager.players.get(i);
+					if (!otherPlayer.name.equalsIgnoreCase(playerName) && otherPlayer.server.equals(MCNSAChat.shortCode)) {
+						MessageSender.send(message, otherPlayer.name);
+					}
+				}
+				
+				MCNSAChat.console.info(message);
 			}
 		}
 		//Check timeout status

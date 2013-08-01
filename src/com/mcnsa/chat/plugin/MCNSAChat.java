@@ -39,9 +39,6 @@ public class MCNSAChat extends JavaPlugin{
 	public static MCNSAChat plugin;
 	public static ConsoleLogging console;
 	public static ClientThread network;
-	public static int chatserverPort;
-	public static String chatserverPasscode;
-	public static String chatserver;
 	public void onEnable() {
 		plugin = this;
 		console = new ConsoleLogging();
@@ -55,9 +52,6 @@ public class MCNSAChat extends JavaPlugin{
 		this.saveDefaultConfig();
 		MCNSAChat.serverName = this.getConfig().getString("ServerName");
 		MCNSAChat.shortCode = this.getConfig().getString("ShortCode");
-		MCNSAChat.chatserver = this.getConfig().getString("chatServer");
-		MCNSAChat.chatserverPort = this.getConfig().getInt("chatServerPort");
-		MCNSAChat.chatserverPasscode = this.getConfig().getString("chatServerPasscode");
 		MCNSAChat.multiServer = this.getConfig().getBoolean("multiServer");
 		
 		MCNSAChat.logs = new FileLog();
