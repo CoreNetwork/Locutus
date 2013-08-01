@@ -253,7 +253,7 @@ public class AdminCommands {
 	}
 	
 	@Command(
-			command = "cremove",
+			command = "cdelete",
 			permissions = "register",
 			description = "Deregister a channel",
 			arguments = {"Channel"}
