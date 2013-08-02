@@ -144,14 +144,13 @@ public class ChatPlayer implements Serializable{
 		out.writeUTF(this.name);
 		out.writeUTF(this.server);
 		out.writeUTF(this.channel);
-		out.writeUTF(this.lastPm);
-		out.writeUTF("SEEALL");
+		if (this.lastPm == null)
+			out.writeUTF("null");
+		else
+			out.writeUTF(this.lastPm);
 		out.writeBoolean(this.modes.get("SEEALL"));
-		out.writeUTF("MUTE");
 		out.writeBoolean(this.modes.get("MUTE"));
-		out.writeUTF("POOF");
 		out.writeBoolean(this.modes.get("POOF"));
-		out.writeUTF("LOCKED");
 		out.writeBoolean(this.modes.get("LOCKED"));
 		out.writeInt(this.listening.size());
 		for (String listen: this.listening) {
@@ -184,6 +183,8 @@ public class ChatPlayer implements Serializable{
 		for (int i = 0; i < size2; i++) {
 			serversVisited.add(in.readUTF());
 		}
+		if (lastPm.equals("null"))
+			lastPm = null;
 		ChatPlayer cp = new ChatPlayer(name, server, channel, lastPm, modes, listening, serversVisited);
 		return cp;
 	}

@@ -227,31 +227,31 @@ public class MessageSender {
 		//See if need to send to other servers
 		if (serverCode.equals(MCNSAChat.shortCode)) {
 			if (ChannelManager.getChannel(channel) != null && !ChannelManager.getChannel(channel).modes.get("LOCAL") || ChannelManager.getChannel(channel) == null)
-				Network.chatMessage(PlayerManager.getPlayer(player), channel, rawMessage, "CHAT");
+				Network.chatMessage(player, channel, rawMessage, "CHAT");
 		}
 	}
-	public static void actionMessage(ChatPlayer player, String rawMessage) {
+	public static void actionMessage(String player, String rawMessage, String server, String channel) {
 		String processedMessage = rawMessage;
 		//Strip colours if needed
-		if (!Permissions.useColours(player.name))
+		if (!Permissions.useColours(player))
 			processedMessage = Colours.stripColor(rawMessage);
 		
 		//Get the base message
 		String message = MCNSAChat.plugin.getConfig().getString("strings.action");
-		message = message.replace("%server%", player.server);
+		message = message.replace("%server%", server);
 		
 		//Support for channelcolours
-		if (ChannelManager.getChannel(player.channel) != null)
-			message = message.replace("%channel%", ChannelManager.getChannel(player.channel).color + ChannelManager.getChannel(player.channel).name);
+		if (ChannelManager.getChannel(channel) != null)
+			message = message.replace("%channel%", ChannelManager.getChannel(channel).color + ChannelManager.getChannel(channel).name);
 		else
-			message = message.replace("%channel%", player.channel);
+			message = message.replace("%channel%", channel);
 		
-		message = message.replace("%prefix%", Colours.PlayerPrefix(player.name));
-		message = message.replace("%player%", player.name);
-		message = message.replace("%suffix%", Colours.PlayerSuffix(player.name));
+		message = message.replace("%prefix%", Colours.PlayerPrefix(player));
+		message = message.replace("%player%", player);
+		message = message.replace("%suffix%", Colours.PlayerSuffix(player));
 		message = message.replace("%message%", processedMessage);
 		
-		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(player.channel);
+		ArrayList<ChatPlayer> players = ChannelManager.getPlayersListening(channel);
 		if (players != null) {
 			for (ChatPlayer sendPlayer: players) {
 				if (!sendPlayer.server.equals(MCNSAChat.shortCode))
@@ -264,19 +264,19 @@ public class MessageSender {
 		}
 		
 		//Log to file
-		FileLog.writeChat(player.server, "*"+player.name, player.channel, rawMessage);
+		FileLog.writeChat(server, "*"+player, channel, rawMessage);
 		
 		//Check if logging to console
 		if (MCNSAChat.plugin.getConfig().getBoolean("consoleLogChat")) {
 			//Check for network message logging
-			if (MCNSAChat.plugin.getConfig().getBoolean("consoleLogServers") && !player.server.equals(MCNSAChat.shortCode) || player.server.equals(MCNSAChat.shortCode))
+			if (MCNSAChat.plugin.getConfig().getBoolean("consoleLogServers") && !server.equals(MCNSAChat.shortCode) || server.equals(MCNSAChat.shortCode))
 				Bukkit.getConsoleSender().sendMessage((Colours.processConsoleColours(message)));
 		}
 		
 		//See if need to send to other servers
-		if (player.server.equals(MCNSAChat.shortCode)) {
-			if (ChannelManager.getChannel(player.channel) != null && !ChannelManager.getChannel(player.channel).modes.get("LOCAL")|| ChannelManager.getChannel(player.channel) == null)
-				Network.chatMessage(player, player.channel, rawMessage, "ACTION");
+		if (server.equals(MCNSAChat.shortCode)) {
+			if (ChannelManager.getChannel(channel) != null && !ChannelManager.getChannel(channel).modes.get("LOCAL")|| ChannelManager.getChannel(channel) == null)
+				Network.chatMessage(player, channel, rawMessage, "ACTION");
 		}
 	}
 	public static void timeoutPlayer(String player, String time, String reason) {

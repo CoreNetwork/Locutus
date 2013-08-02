@@ -54,8 +54,6 @@ public class PlayerListener implements Listener{
 						MessageSender.send(message, otherPlayer.name);
 					}
 				}
-				
-				MCNSAChat.console.info(message);
 			}
 		}
 		//Check timeout status

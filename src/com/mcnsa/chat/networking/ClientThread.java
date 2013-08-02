@@ -1,13 +1,25 @@
 package com.mcnsa.chat.networking;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import org.bukkit.Bukkit;
 
-import com.mcnsa.chat.networking.packets.*;
+import com.mcnsa.chat.networking.packets.BasePacket;
+import com.mcnsa.chat.networking.packets.ChannelListingPacket;
+import com.mcnsa.chat.networking.packets.ChannelUpdatePacket;
+import com.mcnsa.chat.networking.packets.NetworkBroadcastPacket;
+import com.mcnsa.chat.networking.packets.PlayerChatPacket;
+import com.mcnsa.chat.networking.packets.PlayerJoinedPacket;
+import com.mcnsa.chat.networking.packets.PlayerListPacket;
+import com.mcnsa.chat.networking.packets.PlayerQuitPacket;
+import com.mcnsa.chat.networking.packets.PlayerTimeoutPacket;
+import com.mcnsa.chat.networking.packets.PlayerUpdatePacket;
+import com.mcnsa.chat.networking.packets.PmPacket;
+import com.mcnsa.chat.networking.packets.ServerAuthPacket;
+import com.mcnsa.chat.networking.packets.ServerJoinedPacket;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
@@ -20,8 +32,8 @@ public class ClientThread extends Thread{
 	private String chatserver;
 	private Socket socket;
 	private int port;
-	private ObjectOutputStream out;
-	private ObjectInputStream in;
+	private DataOutputStream out;
+	private DataInputStream in;
 	public ClientThread(MCNSAChat plugin) {
 		this.chatserver = MCNSAChat.plugin.getConfig().getString("chatServer");
 		this.port = MCNSAChat.plugin.getConfig().getInt("chatServerPort");
@@ -32,12 +44,12 @@ public class ClientThread extends Thread{
 		//This is where we handle networking Such as connecting and transfering of data	
 		try {
 			this.socket = new Socket(this.chatserver, this.port);
-			this.out = new ObjectOutputStream(this.socket.getOutputStream());
-			this.in = new ObjectInputStream(this.socket.getInputStream());
+			this.out = new DataOutputStream(this.socket.getOutputStream());
+			this.in = new DataInputStream(this.socket.getInputStream());
 			
 			MCNSAChat.console.info("Connected to chatserver");
-			ServerJoinedPacket packet = new ServerJoinedPacket();
-			out.writeUnshared(packet);
+			ServerJoinedPacket packet = new ServerJoinedPacket(MCNSAChat.serverName, MCNSAChat.shortCode, MCNSAChat.plugin.getConfig().getString("chatServerPassword"), PlayerManager.players);
+			packet.write(out);
 			
 			while (loop(in, out))
 				;
@@ -84,35 +96,27 @@ public class ClientThread extends Thread{
 			}
 			
 		}
-		catch (ClassNotFoundException e) {
-			//Missing class, Ususally means incompatable with the chatserver
-			MCNSAChat.console.warning("Class not found exception. Could not find class for packet. Closing thread");
-			//Set server to single server mode
-			MCNSAChat.network = null;
-			//Remove any unneeded players
-			PlayerManager.removeNonServerPlayers();
-			//Log in error log
-			FileLog.writeError("Network: "+e.getMessage());
-		}
 	}
 	
-	public Boolean loop(ObjectInputStream in, ObjectOutputStream out) throws ClassNotFoundException, IOException {
-		//Get the object
-		Object recieved = in.readUnshared();
-		if (recieved instanceof ServerAuthedPacket) {
-			//Password was accepted by the server
-			MCNSAChat.console.info("Chatserver authed");
+	public Boolean loop(DataInputStream in, DataOutputStream out) throws IOException {
+		//Get the packet id
+		int id = in.readInt();
+
+		if (id == ServerAuthPacket.id) {
+			//Get packet
+			ServerAuthPacket packet = new ServerAuthPacket();
+			packet.read(in);
+			
+			if (packet.status.equalsIgnoreCase("pass"))
+				MCNSAChat.console.info("Chatserver authed");
+			else
+				MCNSAChat.console.warning("ChatServer authentication Failed. Please check passcode");
+				MCNSAChat.multiServer = false;
 		}
-		else if (recieved instanceof ServerFailAuthPacket){
-			//Failed Authentication. Set to single server mode
-			MCNSAChat.multiServer = false;
-			MCNSAChat.console.warning("Failed Chatserver authentication. Please check password");
-			//Log in error log
-			FileLog.writeError("Network: Chatserver refused authentication");
-		}
-		else if (recieved instanceof NetworkBroadcastPacket) {
+		else if (id == NetworkBroadcastPacket.id) {
 			//Broadcast message from the chatserver
-			NetworkBroadcastPacket packet = (NetworkBroadcastPacket) recieved;
+			NetworkBroadcastPacket packet = new NetworkBroadcastPacket();
+			packet.read(in);
 			//Log to console
 			MCNSAChat.console.info("NetworkBroadcast: "+packet.message);
 			//Send to everyone
@@ -122,15 +126,17 @@ public class ClientThread extends Thread{
 			MessageSender.broadcast(message);
 			
 		}
-		else if (recieved instanceof PmPacket) {
-			PmPacket packet = (PmPacket) recieved;
+		else if (id == PmPacket.id) {
+			PmPacket packet = new PmPacket();
+			packet.read(in);
 			
 			//Check if target is on this server
-			if (Bukkit.getPlayer(packet.target) != null)
-				MessageSender.recievePM(packet.message, packet.sender.name, packet.target);
+			if (Bukkit.getPlayer(packet.reciever) != null)
+				MessageSender.recievePM(packet.message, packet.sender, packet.reciever);
 		}
-		else if (recieved instanceof PlayerJoinedPacket) {
-			PlayerJoinedPacket packet = (PlayerJoinedPacket) recieved;
+		else if (id == PlayerJoinedPacket.id) {
+			PlayerJoinedPacket packet = new PlayerJoinedPacket();
+			packet.read(in);
 			
 			//player joining other server
 			MessageSender.joinMessage(packet.player, packet.server);
@@ -140,8 +146,9 @@ public class ClientThread extends Thread{
 			MCNSAChat.console.networkLogging(packet.player.name+" Joined "+packet.server);
 
 		}
-		else if (recieved instanceof PlayerQuitPacket) {
-			PlayerQuitPacket packet = (PlayerQuitPacket) recieved;
+		else if (id == PlayerQuitPacket.id) {
+			PlayerQuitPacket packet = new PlayerQuitPacket();
+			packet.read(in);
 			//player quitting other server
 			MessageSender.quitMessage(packet.player, packet.server);
 			//save and remove
@@ -149,8 +156,9 @@ public class ClientThread extends Thread{
 			PlayerManager.players.remove(packet.player);
 			MCNSAChat.console.networkLogging(packet.player.name+" Left "+packet.server);
 		}
-		else if (recieved instanceof ChannelListPacket) {
-			ChannelListPacket packet = (ChannelListPacket) recieved;
+		else if (id == ChannelListingPacket.id) {
+			ChannelListingPacket packet = new ChannelListingPacket();
+			packet.read(in);
 			//Log to console
 			MCNSAChat.console.info("Recieved channel list from network");
 			//Replace the channel list with recieved channels
@@ -165,61 +173,72 @@ public class ClientThread extends Thread{
 				}
 			}
 		}
-		else if (recieved instanceof ChannelUpdatePacket) {
-			ChannelUpdatePacket packet = (ChannelUpdatePacket) recieved;
+		else if (id == ChannelUpdatePacket.id) {
+			ChannelUpdatePacket packet = new ChannelUpdatePacket();
+			packet.read(in);
+			
 			ChatChannel chan = ChannelManager.getChannel(packet.channel.name);
 			if (chan != null)
 				ChannelManager.channels.remove(chan);
 			ChannelManager.channels.add(packet.channel);
 		}
-		else if (recieved instanceof PlayerChatPacket) {
-			PlayerChatPacket packet = (PlayerChatPacket) recieved;
-			if (!packet.serverShortCode.equals(MCNSAChat.shortCode))
-				if (packet.action.equals("CHAT"))
-					MessageSender.channelMessage(packet.Channel, packet.serverShortCode, packet.player.name, packet.message);
-				if (packet.action.equals("ACTION"))
-					MessageSender.actionMessage(packet.player, packet.message);
+		else if (id == PlayerChatPacket.id) {
+			PlayerChatPacket packet = new PlayerChatPacket();
+			packet.read(in);
+			if (!packet.server.equals(MCNSAChat.shortCode))
+				if (packet.type.equals("CHAT"))
+					MessageSender.channelMessage(packet.channel, packet.server, packet.player, packet.message);
+				if (packet.type.equals("ACTION"))
+					MessageSender.actionMessage(packet.player, packet.message, packet.channel, packet.server);
 		}
-		else if (recieved instanceof PlayerUpdatePacket) {
-			PlayerUpdatePacket packet = (PlayerUpdatePacket) recieved;
+		else if (id == PlayerUpdatePacket.id) {
+			PlayerUpdatePacket packet = new PlayerUpdatePacket();
+			packet.read(in);
 			//Update player
 			PlayerManager.updatePlayer(packet.player);
 			MCNSAChat.console.networkLogging(packet.player.name+" Updated from "+packet.player.server);
 			
 		}
-		else if (recieved instanceof PlayerListPacket) {
-			PlayerListPacket packet = (PlayerListPacket) recieved;
+		else if (id == PlayerListPacket.id) {
+			PlayerListPacket packet = new PlayerListPacket();
+			packet.read(in);
+			
 			//Update player
 			PlayerManager.players = packet.players;
-			MCNSAChat.console.networkLogging(" Updated playerlist from "+packet.server);
+			MCNSAChat.console.networkLogging(" Updated playerlist from network");
 			
 		}
-		else if (recieved instanceof TimeoutPacket) {
-			TimeoutPacket packet = (TimeoutPacket) recieved;
-			//inform players
-			MessageSender.timeoutPlayer(packet.player.name, String.valueOf(packet.time), packet.reason);
-
-			//Set timer just incase other servers go down
-			final String finalPlayerName = packet.player.name;
-			long timeleft = packet.time * 1210;
-			Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin, new Runnable() {
-				public void run() {
-						if (PlayerManager.getPlayer(finalPlayerName, MCNSAChat.shortCode) != null && PlayerManager.getPlayer(finalPlayerName).modes.get("MUTE")){
-							PlayerManager.unmutePlayer(finalPlayerName);
+		else if (id == PlayerTimeoutPacket.id) {
+			PlayerTimeoutPacket packet = new PlayerTimeoutPacket();
+			packet.read(in);
+			
+			if (packet.time == 0 && packet.reason == null) {
+				MessageSender.send("&6You have been removed from Timeout", packet.player.name);
+			}
+			else {
+				//inform players
+				MessageSender.timeoutPlayer(packet.player.name, String.valueOf(packet.time), packet.reason);
+	
+				//Set timer just incase other servers go down
+				final String finalPlayerName = packet.player.name;
+				long timeleft = packet.time * 1210;
+				Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin, new Runnable() {
+					public void run() {
+							if (PlayerManager.getPlayer(finalPlayerName, MCNSAChat.shortCode) != null && PlayerManager.getPlayer(finalPlayerName).modes.get("MUTE")){
+								PlayerManager.unmutePlayer(finalPlayerName);
+							}
 						}
-					}
-			}, timeleft);
-			
+				}, timeleft);
+			}
 		}
-		recieved = null;
+		id = 0;
 		return true;
 	}
-	public void write(Object packet) {
+	public void write(BasePacket packet) {
 		try {
-			out.writeUnshared(packet);
-			out.reset();
+			packet.write(out);
 		} catch (IOException e) {
-			FileLog.writeError("Error writing packet: "+packet.toString()+" : "+e.getMessage());
+			FileLog.writeError("Error writing packet: "+e.getMessage());
 			MCNSAChat.network = null;
 			//Log in error log
 			FileLog.writeError("Network: "+e.getMessage());

@@ -1,19 +1,38 @@
 package com.mcnsa.chat.networking.packets;
 
-import java.io.Serializable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.mcnsa.chat.type.ChatPlayer;
 
-public class PlayerListPacket implements Serializable{
-
-	private static final long serialVersionUID = 2141594001332880031L;
-	public ArrayList<ChatPlayer> players;
-	public String server;
+public class PlayerListPacket implements BasePacket {
+	public static int id = 12;
+	public ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 	
-	public PlayerListPacket(ArrayList<ChatPlayer> players, String server) {
+	public PlayerListPacket() {
+		
+	}
+	
+	public PlayerListPacket(ArrayList<ChatPlayer> players) {
 		this.players = players;
-		this.server = server;
+	}
+	
+	public void write(DataOutputStream out) throws IOException {
+		out.writeInt(id);
+		out.writeInt(players.size());
+		for (ChatPlayer player: players) {
+			player.write(out);
+		}
+		out.flush();
+	}
+	
+	public void read(DataInputStream in) throws IOException {
+		int num = in.readInt();
+		for (int i = 0; i < num; i++) {
+			this.players.add(ChatPlayer.read(in));
+		}
 	}
 	
 }

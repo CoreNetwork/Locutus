@@ -8,17 +8,17 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 public class ConsoleLogging {
 	
 	public void info (String message) {
-		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[MCNSAChat] "+message));
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[INFO] "+message));
 	}
 	public void warning (String message) {
-		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&eMCNSAChat&f] "+message));
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[&6WARNING&f] "+message));
 	}
 	public void severe (String message) {
-		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&cMCNSAChat&f] "+message));
+		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[&4SEVERE&f] "+message));
 	}
 	public void networkLogging(String message) {
 		if (MCNSAChat.plugin.getConfig().getBoolean("consoleLogServerInfo")) {
-			Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&bMCNSAChat&f] "+message));
+			Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[NET] "+message));
 		}
 	}
 	public static String processColours(String str) {

@@ -28,12 +28,10 @@ public class Permissions {
 		return false;
 	}
 	public static boolean checkPermission (String permission, String playerName) {
-		String checkPermission = corePermission+permission;
 		//MCNSAChat.console.info("Checking for permission: "+checkPermission);
 		if (MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").permission(playerName, corePermission+permission)) {
 			return true;
 		}
-		MCNSAChat.console.info("has permission: "+checkPermission);
 		return false;
 	}
 	public static Boolean useColours(String playerName) {

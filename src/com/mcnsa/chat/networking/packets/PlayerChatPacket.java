@@ -1,23 +1,43 @@
 package com.mcnsa.chat.networking.packets;
 
-import java.io.Serializable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-import com.mcnsa.chat.type.ChatPlayer;
-
-public class PlayerChatPacket implements Serializable {
-
-	private static final long serialVersionUID = -4334247452705226826L;
-	public ChatPlayer player;
-	public String serverShortCode;
-	public String Channel;
+public class PlayerChatPacket implements BasePacket {
+	public static int id = 7;
+	public String player;
+	public String channel;
 	public String message;
-	public String action;
+	public String type;
+	public String server;
 	
-	public PlayerChatPacket(ChatPlayer player, String serverSC, String channel, String message, String action){
+	public PlayerChatPacket() {
+	}
+	
+	public PlayerChatPacket(String player, String channel, String message, String type, String server) {
 		this.player = player;
-		this.serverShortCode = serverSC;
-		this.Channel = channel;
+		this.channel = channel;
 		this.message = message;
-		this.action = action;
+		this.type = type;
+		this.server = server;
+	}
+	
+	public void write(DataOutputStream out) throws IOException {
+		out.writeInt(id);
+		out.writeUTF(player);
+		out.writeUTF(channel);
+		out.writeUTF(message);
+		out.writeUTF(type);
+		out.writeUTF(server);
+		out.flush();
+	}
+	
+	public void read(DataInputStream in) throws IOException{
+		this.player = in.readUTF();
+		this.channel = in.readUTF();
+		this.message = in.readUTF();
+		this.type = in.readUTF();
+		this.server = in.readUTF();
 	}
 }

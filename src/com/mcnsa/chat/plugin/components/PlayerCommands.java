@@ -284,7 +284,7 @@ public class PlayerCommands {
 		}
 		
 		//Send it to relevent players
-		MessageSender.actionMessage(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), messageString.toString());
+		MessageSender.actionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
 
 		return true;
 	}

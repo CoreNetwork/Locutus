@@ -1,25 +1,55 @@
 package com.mcnsa.chat.networking.packets;
 
-import java.io.Serializable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
-import com.mcnsa.chat.plugin.MCNSAChat;
-import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.type.ChatPlayer;
 
-public class ServerJoinedPacket implements Serializable{
-
-	private static final long serialVersionUID = 5049728612844186804L;
-	public int id = 001;
+public class ServerJoinedPacket implements BasePacket {
+	public static int id = 1;
 	public String serverName;
-	public String shortCode;
+	public String serverShortCode;
 	public String passcode;
-	public ArrayList<ChatPlayer> players;
+	public ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 	
 	public ServerJoinedPacket() {
-		this.serverName = MCNSAChat.serverName;
-		this.shortCode = MCNSAChat.shortCode;
-		this.passcode = MCNSAChat.plugin.getConfig().getString("chatServerPassword");
-		this.players = PlayerManager.players;
+	}
+	
+	public ServerJoinedPacket(String ServerName, String shortCode, String passcode, ArrayList<ChatPlayer> players) {
+		this.serverName = ServerName;
+		this.serverShortCode = shortCode;
+		this.passcode = passcode;
+		this.players = players;
+	}
+	
+	public void write(DataOutputStream out) throws IOException{
+		out.writeInt(id);
+		out.writeUTF(this.serverName);
+		out.writeUTF(this.serverShortCode);
+		out.writeUTF(this.passcode);
+		if (players == null) {
+			out.writeInt(0);
+		}
+		else {
+			out.writeInt(players.size());
+			for (ChatPlayer player: players){
+				player.write(out);
+			}
+		}
+		
+		out.flush();
+	}
+	
+	public void read(DataInputStream in) throws IOException{
+		this.serverName = in.readUTF();
+		this.serverShortCode = in.readUTF();
+		this.passcode = in.readUTF();
+		int playerNumbers = in.readInt();
+		
+		for (int i = 0; i < playerNumbers; i++){
+			players.add(ChatPlayer.read(in));
+		}
 	}
 }
