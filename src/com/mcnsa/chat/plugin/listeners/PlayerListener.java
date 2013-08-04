@@ -119,7 +119,7 @@ public class PlayerListener implements Listener{
 	//Handles chat events
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void playerChat(AsyncPlayerChatEvent event){
-	  if (event.isCancelled) { return; }
+	  if (event.isCancelled(true)) { return; }
 		//Get chatplayer
 		ChatPlayer player = PlayerManager.getPlayer(event.getPlayer().getName(), MCNSAChat.shortCode);
 		if (!player.modes.get("MUTE")) { 
