@@ -59,5 +59,5 @@ public class Permissions {
 		String suffix = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getUserSuffix(player);
 		return suffix;
 	}
-	
+
 }
