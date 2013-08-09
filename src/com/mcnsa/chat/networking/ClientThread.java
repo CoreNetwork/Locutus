@@ -104,10 +104,17 @@ public class ClientThread extends Thread{
 				FileLog.writeError("Network: "+e.getMessage());
 			}
 			
+		} catch (Exception e) {
+			MCNSAChat.console.warning("Chatserver Connection Closed:"+e.getMessage());
+			FileLog.writeError("Generic exception: "+e.getMessage());
+			//reset the connection
+			MCNSAChat.network = null;
+			//Remove any unneeded players
+			PlayerManager.removeNonServerPlayers();
 		}
 	}
 	
-	public Boolean loop(DataInputStream in, DataOutputStream out) throws IOException {
+	public Boolean loop(DataInputStream in, DataOutputStream out) throws Exception {
 		//Get the packet id
 		int id = in.readInt();
 
