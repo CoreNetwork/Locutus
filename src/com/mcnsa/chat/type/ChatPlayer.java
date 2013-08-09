@@ -39,6 +39,12 @@ public class ChatPlayer implements Serializable{
 		//Player server
 		this.server = MCNSAChat.shortCode;
 		
+		//Set default modes here
+		this.modes.put("SEEALL", false);
+		this.modes.put("MUTE", false);
+		this.modes.put("POOF", false);
+		this.modes.put("LOCKED", false);
+		
 		//check to see if there is actually a player file there
 		File playerFile = new File("plugins/MCNSAChat/Players/", username+".yml");
 		playersFile = new Players(this.name);
@@ -46,10 +52,7 @@ public class ChatPlayer implements Serializable{
 			//Player is new to the server. Set the defaults
 			this.channel = MCNSAChat.plugin.getConfig().getString("defaultChannel");
 			this.listening = (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen");
-			this.modes.put("SEEALL", false);
-			this.modes.put("MUTE", false);
-			this.modes.put("POOF", false);
-			this.modes.put("LOCKED", false);
+			
 			this.lastPm = null;
 		}
 		else {
