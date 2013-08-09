@@ -112,17 +112,6 @@ public class ClientThread extends Thread{
 			//Remove any unneeded players
 			PlayerManager.removeNonServerPlayers();
 		}
-		finally {
-			try {
-				if (out != null) { out.close(); }
-				if (in != null) { in.close(); }
-				socket.close();
-				MCNSAChat.console.warning("Chatserver Connection Closed");
-			} catch (IOException e) {
-				MCNSAChat.console.severe("Error closing socket");
-				FileLog.writeError("Error Closing Socket: "+e.getMessage());
-			}
-		}
 	}
 	
 	public Boolean loop(DataInputStream in, DataOutputStream out) throws Exception {
