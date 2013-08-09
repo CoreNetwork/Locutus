@@ -107,8 +107,10 @@ public class ClientThread extends Thread{
 			ServerAuthPacket packet = new ServerAuthPacket();
 			packet.read(in);
 			
-			if (packet.status.equalsIgnoreCase("pass"))
+			if (packet.status.equalsIgnoreCase("pass")) {
 				MCNSAChat.console.info("Chatserver authed");
+				return true;
+			}
 			else
 				MCNSAChat.console.warning("ChatServer authentication Failed. Please check passcode");
 				MCNSAChat.multiServer = false;
@@ -124,7 +126,7 @@ public class ClientThread extends Thread{
 			String message = MCNSAChat.plugin.getConfig().getString("strings.networkMessage");
 			message = message.replaceAll("%message%", packet.message);
 			MessageSender.broadcast(message);
-			
+			return true;
 		}
 		else if (id == PmPacket.id) {
 			PmPacket packet = new PmPacket();
@@ -133,6 +135,8 @@ public class ClientThread extends Thread{
 			//Check if target is on this server
 			if (Bukkit.getPlayer(packet.reciever) != null)
 				MessageSender.recievePM(packet.message, packet.sender, packet.reciever);
+			
+			return true;
 		}
 		else if (id == PlayerJoinedPacket.id) {
 			PlayerJoinedPacket packet = new PlayerJoinedPacket();
@@ -144,7 +148,8 @@ public class ClientThread extends Thread{
 			PlayerManager.updatePlayer(packet.player);
 			//Log to console
 			MCNSAChat.console.networkLogging(packet.player.name+" Joined "+packet.server);
-
+			
+			return true;
 		}
 		else if (id == PlayerQuitPacket.id) {
 			PlayerQuitPacket packet = new PlayerQuitPacket();
@@ -155,6 +160,8 @@ public class ClientThread extends Thread{
 			packet.player.savePlayer();
 			PlayerManager.players.remove(packet.player);
 			MCNSAChat.console.networkLogging(packet.player.name+" Left "+packet.server);
+			
+			return true;
 		}
 		else if (id == ChannelListingPacket.id) {
 			ChannelListingPacket packet = new ChannelListingPacket();
@@ -172,6 +179,8 @@ public class ClientThread extends Thread{
 					ChannelManager.channelAlias.put(chan.alias, chan.name);
 				}
 			}
+			
+			return true;
 		}
 		else if (id == ChannelUpdatePacket.id) {
 			ChannelUpdatePacket packet = new ChannelUpdatePacket();
@@ -181,15 +190,20 @@ public class ClientThread extends Thread{
 			if (chan != null)
 				ChannelManager.channels.remove(chan);
 			ChannelManager.channels.add(packet.channel);
+			
+			return true;
 		}
 		else if (id == PlayerChatPacket.id) {
 			PlayerChatPacket packet = new PlayerChatPacket();
 			packet.read(in);
-			if (!packet.server.equals(MCNSAChat.shortCode))
+			if (!packet.server.equals(MCNSAChat.shortCode)) {
 				if (packet.type.equals("CHAT"))
 					MessageSender.channelMessage(packet.channel, packet.server, packet.player, packet.message);
 				if (packet.type.equals("ACTION"))
 					MessageSender.actionMessage(packet.player, packet.message, packet.channel, packet.server);
+			}
+				
+			return true;
 		}
 		else if (id == PlayerUpdatePacket.id) {
 			PlayerUpdatePacket packet = new PlayerUpdatePacket();
@@ -198,6 +212,7 @@ public class ClientThread extends Thread{
 			PlayerManager.updatePlayer(packet.player);
 			MCNSAChat.console.networkLogging(packet.player.name+" Updated from "+packet.player.server);
 			
+			return true;
 		}
 		else if (id == PlayerListPacket.id) {
 			PlayerListPacket packet = new PlayerListPacket();
@@ -207,6 +222,7 @@ public class ClientThread extends Thread{
 			PlayerManager.players = packet.players;
 			MCNSAChat.console.networkLogging(" Updated playerlist from network");
 			
+			return true;
 		}
 		else if (id == PlayerTimeoutPacket.id) {
 			PlayerTimeoutPacket packet = new PlayerTimeoutPacket();
@@ -230,9 +246,9 @@ public class ClientThread extends Thread{
 						}
 				}, timeleft);
 			}
+			return true;
 		}
-		id = 0;
-		return true;
+		return false;
 	}
 	public void write(BasePacket packet) {
 		try {
