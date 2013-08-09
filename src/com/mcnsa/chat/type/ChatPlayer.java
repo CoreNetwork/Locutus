@@ -65,7 +65,7 @@ public class ChatPlayer implements Serializable{
 			this.listening = (ArrayList<String>) this.playersFile.get().getList("listening");
 			for (String defaultListen: (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen")) {
 				if (!this.listening.contains(defaultListen.toLowerCase())) {
-					addListen(defaultListen.toLowerCase());
+					this.listening.add(defaultListen.toLowerCase());
 				}
 			}
 			ArrayList<String> newListen = new ArrayList<String>();
