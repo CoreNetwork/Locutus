@@ -2,6 +2,7 @@ package com.mcnsa.chat.networking;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -60,6 +61,14 @@ public class ClientThread extends Thread{
 			MCNSAChat.console.warning("Unable to connect to chatserver: Unknown host");
 			//Set server to single server mode
 			MCNSAChat.multiServer = false;
+		}
+		catch (EOFException e) {
+			MCNSAChat.console.warning("Lost Connection with chatserver");
+			FileLog.writeError("Network: "+e.getMessage());
+			//Remove other server players
+			PlayerManager.removeNonServerPlayers();
+			//Reset connection
+			MCNSAChat.network = null;
 		}
 		catch (IOException e) {
 			//Check for connection refused
