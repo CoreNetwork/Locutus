@@ -252,6 +252,7 @@ public class ClientThread extends Thread{
 	}
 	public void write(BasePacket packet) {
 		try {
+			MCNSAChat.console.info("Writing packet");
 			packet.write(out);
 		} catch (IOException e) {
 			FileLog.writeError("Error writing packet: "+e.getMessage());

@@ -14,6 +14,8 @@ import com.mcnsa.chat.type.ChatPlayer;
 public class Network {
 	public static void chatMessage(String player, String channel, String message, String action) {
 		if (MCNSAChat.network != null) {
+			//debug
+			MCNSAChat.console.info("Wrote player chat message");
 			PlayerChatPacket packet = new PlayerChatPacket(player, channel, message, action, MCNSAChat.shortCode);
 			MCNSAChat.network.write(packet);
 		}
