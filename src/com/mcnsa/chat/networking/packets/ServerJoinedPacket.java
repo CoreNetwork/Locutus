@@ -29,7 +29,7 @@ public class ServerJoinedPacket implements BasePacket {
 		out.writeUTF(this.serverName);
 		out.writeUTF(this.serverShortCode);
 		out.writeUTF(this.passcode);
-		if (players == null) {
+		if (players == null || players.size() < 1) {
 			out.writeInt(0);
 		}
 		else {
