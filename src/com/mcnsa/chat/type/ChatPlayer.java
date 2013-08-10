@@ -144,6 +144,7 @@ public class ChatPlayer implements Serializable{
 		out.writeUTF(this.name);
 		out.writeUTF(this.server);
 		out.writeUTF(this.channel);
+		out.writeUTF(this.formatted);
 		if (this.lastPm == null)
 			out.writeUTF("null");
 		else
@@ -166,12 +167,14 @@ public class ChatPlayer implements Serializable{
 		String name = in.readUTF();
 		String server = in.readUTF();
 		String channel = in.readUTF();
+		String formatted = in.readUTF();
 		String lastPm = in.readUTF();
+		
 		HashMap<String, Boolean> modes = new HashMap<String, Boolean>();
-		modes.put("SEEALL", in.readBoolean());
-		modes.put("MUTE", in.readBoolean());
-		modes.put("POOF", in.readBoolean());
-		modes.put("LOCKED", in.readBoolean());
+		if (in.readInt() == 1) { modes.put("SEEALL", true); } else { modes.put("SEEALL", false);}
+		if (in.readInt() == 1) { modes.put("MUTE", true); } else { modes.put("MUTE", false);}
+		if (in.readInt() == 1) { modes.put("POOF", true); } else { modes.put("POOF", false);}
+		if (in.readInt() == 1) { modes.put("LOCKED", true); } else { modes.put("LOCKED", false);}
 		
 		ArrayList <String> listening = new ArrayList<String>();
 		ArrayList <String> serversVisited = new ArrayList<String>();
