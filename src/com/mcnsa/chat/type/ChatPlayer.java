@@ -153,12 +153,16 @@ public class ChatPlayer implements Serializable{
 		out.writeBoolean(this.modes.get("POOF"));
 		out.writeBoolean(this.modes.get("LOCKED"));
 		out.writeInt(this.listening.size());
-		for (String listen: this.listening) {
-			out.writeUTF(listen);
+		if (!this.listening.isEmpty()) {
+			for (String listen: this.listening) {
+				out.writeUTF(listen);
+			}
 		}
 		out.writeInt(this.serversVisited.size());
-		for (String visited: this.serversVisited){
-			out.writeUTF(visited);
+		if (!this.serversVisited.isEmpty()) {
+			for (String visited: this.serversVisited){
+				out.writeUTF(visited);
+			}
 		}
 	}
 	
@@ -175,13 +179,17 @@ public class ChatPlayer implements Serializable{
 		
 		ArrayList <String> listening = new ArrayList<String>();
 		int size = in.readInt();
-		for (int i = 0; i < size; i++) {
-			listening.add(in.readUTF());
+		if (size > 0) {
+			for (int i = 0; i < size; i++) {
+				listening.add(in.readUTF());
+			}
 		}
 		ArrayList <String> serversVisited = new ArrayList<String>();
 		int size2 = in.readInt();
-		for (int i = 0; i < size2; i++) {
-			serversVisited.add(in.readUTF());
+		if (size2 > 0) {
+			for (int i = 0; i < size2; i++) {
+				serversVisited.add(in.readUTF());
+			}
 		}
 		if (lastPm.equals("null"))
 			lastPm = null;

@@ -47,9 +47,10 @@ public class ServerJoinedPacket implements BasePacket {
 		this.serverShortCode = in.readUTF();
 		this.passcode = in.readUTF();
 		int playerNumbers = in.readInt();
-		
-		for (int i = 0; i < playerNumbers; i++){
-			players.add(ChatPlayer.read(in));
+		if (playerNumbers > 0) {
+			for (int i = 0; i < playerNumbers; i++){
+				players.add(ChatPlayer.read(in));
+			}
 		}
 	}
 }

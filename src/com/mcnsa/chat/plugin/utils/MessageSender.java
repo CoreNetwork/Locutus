@@ -227,6 +227,7 @@ public class MessageSender {
 		//See if need to send to other servers
 		if (serverCode.equals(MCNSAChat.shortCode)) {
 			if (ChannelManager.getChannel(channel) != null && !ChannelManager.getChannel(channel).modes.get("LOCAL") || ChannelManager.getChannel(channel) == null)
+				MCNSAChat.console.info("Network message");
 				Network.chatMessage(player, channel, rawMessage, "CHAT");
 		}
 	}
