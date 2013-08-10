@@ -100,7 +100,7 @@ public class ClientThread extends Thread{
 	
 	public Boolean loop(DataInputStream in, DataOutputStream out) throws IOException {
 		//Get the packet id
-		int id = in.readInt();
+		short id = in.readShort();
 
 		if (id == ServerAuthPacket.id) {
 			//Get packet

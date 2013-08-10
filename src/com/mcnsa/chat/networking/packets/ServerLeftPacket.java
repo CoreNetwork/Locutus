@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class ServerLeftPacket implements BasePacket {
-	public static int id = 2;
+	public static short id = 2;
 	public String serverName = null;
 	
 	public ServerLeftPacket() {

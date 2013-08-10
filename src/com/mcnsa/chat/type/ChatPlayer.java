@@ -191,6 +191,7 @@ public class ChatPlayer implements Serializable{
 		if (lastPm.equals("null"))
 			lastPm = null;
 		ChatPlayer cp = new ChatPlayer(name, server, channel, lastPm, modes, listening, serversVisited);
+		cp.formatted = formatted;
 		return cp;
 	}
 }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerListPacket implements BasePacket {
-	public static int id = 12;
+	public static short id = 12;
 	public ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 	
 	public PlayerListPacket() {

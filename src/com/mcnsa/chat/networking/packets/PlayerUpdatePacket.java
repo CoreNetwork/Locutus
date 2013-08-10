@@ -7,7 +7,7 @@ import java.io.IOException;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerUpdatePacket implements BasePacket {
-	public static int id = 9;
+	public static short id = 9;
 	public ChatPlayer player = null;
 	public String server;
 	

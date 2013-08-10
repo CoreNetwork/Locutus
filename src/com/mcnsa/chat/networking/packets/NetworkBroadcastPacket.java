@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class NetworkBroadcastPacket implements BasePacket {
-	public static int id = 4;
+	public static short id = 4;
 	public String message = null;
 	
 	public NetworkBroadcastPacket() {

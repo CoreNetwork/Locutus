@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class PlayerChatPacket implements BasePacket {
-	public static int id = 7;
+	public static short id = 7;
 	public String player;
 	public String channel;
 	public String message;

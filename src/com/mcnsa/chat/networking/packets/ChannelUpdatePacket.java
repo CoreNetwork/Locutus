@@ -8,7 +8,7 @@ import com.mcnsa.chat.type.ChatChannel;
 
 public class ChannelUpdatePacket implements BasePacket {
 	
-	public static int id = 8;
+	public static short id = 8;
 	public ChatChannel channel;
 	
 	public ChannelUpdatePacket(){

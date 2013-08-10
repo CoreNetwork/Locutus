@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.mcnsa.chat.type.ChatChannel;
 
 public class ChannelListingPacket implements BasePacket {
-	public static int id = 3;
+	public static short id = 3;
 	public ArrayList<ChatChannel> channels;
 	
 	public ChannelListingPacket() {

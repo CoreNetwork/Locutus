@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class ServerAuthPacket implements BasePacket {
-	public static int id = 13;
+	public static short id = 13;
 	public String status;
 	
 	public ServerAuthPacket() {

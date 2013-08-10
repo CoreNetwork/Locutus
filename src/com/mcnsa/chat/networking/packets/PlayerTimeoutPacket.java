@@ -7,7 +7,7 @@ import java.io.IOException;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerTimeoutPacket implements BasePacket {
-	public static int id = 11;
+	public static short id = 11;
 	public ChatPlayer player;
 	public long time = 0;
 	public String reason = null;

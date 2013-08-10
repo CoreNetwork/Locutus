@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class PmPacket implements BasePacket {
-	public static int id = 10;
+	public static short id = 10;
 	public String sender;
 	public String reciever;
 	public String message;

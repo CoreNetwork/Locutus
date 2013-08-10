@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class ServerJoinedPacket implements BasePacket {
-	public static int id = 1;
+	public static short id = 1;
 	public String serverName;
 	public String serverShortCode;
 	public String passcode;
