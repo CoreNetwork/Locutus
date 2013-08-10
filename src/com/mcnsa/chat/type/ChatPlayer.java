@@ -148,10 +148,10 @@ public class ChatPlayer implements Serializable{
 			out.writeUTF("null");
 		else
 			out.writeUTF(this.lastPm);
-		out.writeBoolean(this.modes.get("SEEALL"));
-		out.writeBoolean(this.modes.get("MUTE"));
-		out.writeBoolean(this.modes.get("POOF"));
-		out.writeBoolean(this.modes.get("LOCKED"));
+		if (this.modes.get("SEEALL")) {out.writeInt(1); } else { out.writeInt(0); }
+		if (this.modes.get("MUTE")) {out.writeInt(1); } else { out.writeInt(0); }
+		if (this.modes.get("POOF")) {out.writeInt(1); } else { out.writeInt(0); }
+		if (this.modes.get("LOCKED")) {out.writeInt(1); } else { out.writeInt(0); }
 		out.writeInt(this.listening.size());
 		for (String listen: this.listening) {
 			out.writeUTF(listen);
