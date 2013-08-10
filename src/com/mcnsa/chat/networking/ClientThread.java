@@ -29,21 +29,18 @@ import com.mcnsa.chat.type.ChatChannel;
 
 public class ClientThread extends Thread{
 	
-	private String chatserver;
 	private Socket socket;
-	private int port;
 	private DataOutputStream out;
 	private DataInputStream in;
-	public ClientThread(MCNSAChat plugin) {
-		this.chatserver = MCNSAChat.plugin.getConfig().getString("chatServer");
-		this.port = MCNSAChat.plugin.getConfig().getInt("chatServerPort");
+	public ClientThread() {
+
 	}
 
 	@Override
 	public void run() {
 		//This is where we handle networking Such as connecting and transfering of data	
 		try {
-			this.socket = new Socket(this.chatserver, this.port);
+			this.socket = new Socket(MCNSAChat.plugin.getConfig().getString("chatServer"), MCNSAChat.plugin.getConfig().getInt("chatServerPort"));
 			this.out = new DataOutputStream(this.socket.getOutputStream());
 			this.in = new DataInputStream(this.socket.getInputStream());
 			
@@ -261,6 +258,8 @@ public class ClientThread extends Thread{
 			FileLog.writeError("Network: "+e.getMessage());
 			//Remove other server players
 			PlayerManager.removeNonServerPlayers();
+			//Close socket
+			close();
 		}
 	}
 

@@ -99,12 +99,10 @@ public class MCNSAChat extends JavaPlugin{
 		//Start up the player listener
 		new PlayerListener();
 		
-		//See if multiserver is enabled
-		final MCNSAChat finalthis = this;
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
 				if (network == null && MCNSAChat.multiServer) {
-					network = new ClientThread(finalthis);
+					network = new ClientThread();
 					network.start();
 				}
 			}
