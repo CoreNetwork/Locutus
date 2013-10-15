@@ -50,6 +50,15 @@ public class PlayerCommands {
 			channel = chan.name;
 		}
 		
+		String tempTargetChannel = ChannelManager.getTempChannel(channel);
+		if (tempTargetChannel != null)
+		{
+			channel = tempTargetChannel;
+		}
+		else
+		{
+			ChannelManager.addTempChannel(channel);
+		}
 		//Get players in channel
 		String playersInChannel = ChannelManager.playersInChannel(channel);
 		//We can say this player has the permissions. Lets welcome them
@@ -147,8 +156,17 @@ public class PlayerCommands {
 			}
 			channel = targetChannel.color+targetChannel.name;
 		}
+		String tempTargetChannel = ChannelManager.getTempChannel(Channel);
+		if (tempTargetChannel != null)
+		{
+			channel = tempTargetChannel;
+		}
+		else
+		{
+			ChannelManager.addTempChannel(channel);
+		}
 		//Change the channel
-		int result = player.channelListen(Channel);
+		int result = player.channelListen(channel);
 		if (result == 3) {
 			MessageSender.send("&6You are now listening to "+channel, player.name);
 			Network.updatePlayer(player);

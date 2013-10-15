@@ -9,16 +9,32 @@ import com.mcnsa.chat.type.ChatPlayer;
 
 public class ChannelManager {
 	public static ArrayList<ChatChannel> channels = new ArrayList<ChatChannel>();
+	public static ArrayList<String> tempChannels = new ArrayList<String>();
 	public static HashMap<String, String> channelAlias = new HashMap<String, String>();
 	public ChannelManager(){
 	}
 	public void removeChannel(String chan) {
 		channels.remove(getChannel(chan));
 	}
+	public void removeTempChannel(String chan) {
+		tempChannels.remove(chan);
+	}
+	public static void addTempChannel(String chan) {
+		tempChannels.add(chan);
+	}
 	public static ChatChannel getChannel(String chan){
 		for (int i = 0; i < channels.size(); i++){
 			ChatChannel channel = channels.get(i);
 			if (channel.name.equalsIgnoreCase(chan)) {
+				return channel;
+			}
+		}
+		return null;
+	}
+	public static String getTempChannel(String chan){
+		for (int i = 0; i < tempChannels.size(); i++){
+			String channel = tempChannels.get(i);
+			if (channel.equalsIgnoreCase(chan)) {
 				return channel;
 			}
 		}
