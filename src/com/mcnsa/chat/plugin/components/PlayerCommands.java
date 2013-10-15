@@ -178,6 +178,12 @@ public class PlayerCommands {
 		for (String message: Message) {
 			messageString.append(message+" ");
 		}
+		ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
+		if (playerSender.modes.get("MUTE"))
+		{
+			MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
+			return true;
+		}
 		//sending to console support
 		if (player.equalsIgnoreCase("console") || sender.getName().equalsIgnoreCase("console")) {
 			//Try and get player
@@ -233,6 +239,11 @@ public class PlayerCommands {
 		//Get the player
 		ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
 		
+		if (playerSender.modes.get("MUTE"))
+		{
+			MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
+			return true;
+		}
 		//check to see if the lastpm is actually filled in
 		if (playerSender.lastPm == null || playerSender.lastPm.length() < 1){
 			MessageSender.send("There is no one to reply to", playerSender.name);
@@ -278,9 +289,16 @@ public class PlayerCommands {
 			)
 	public static boolean cmdMe(CommandSender sender, String... rawMessage) {
 		//Build the chat message
+		ChatPlayer player = PlayerManager.getPlayer(sender.getName());
 		StringBuffer messageString = new StringBuffer();
 		for (String message: rawMessage) {
 			messageString.append(message+" ");
+		}
+		if (!player.modes.get("MUTE")) { 
+			MessageSender.actionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
+		}
+		else {
+			MessageSender.send("&c You are in timeout. Please try again later", player.name);
 		}
 		
 		//Send it to relevent players
