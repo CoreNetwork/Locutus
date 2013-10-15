@@ -110,12 +110,20 @@ public class PlayerCommands {
 			aliases = {"Channels"},
 			description = "Get a list of channels",
 			permissions = {"list"},
-			playerOnly = true)
+			playerOnly = false)
 	public static boolean channelList(CommandSender sender) {
 		//Get the player
 		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
+		ArrayList<String> channels;
+		if (sender instanceof Player)
+		{
+			channels = ChannelManager.getChannelList(player);
+		}
+		else
+		{
+			channels = ChannelManager.getChannelList();
+		}
 		//Get the channel list
-		ArrayList<String> channels = ChannelManager.getChannelList(player);
 		
 		StringBuffer message = new StringBuffer();
 		for (String channel: channels) {
@@ -130,7 +138,14 @@ public class PlayerCommands {
 				else 
 					message.append(", "+channel);
 		}
-		MessageSender.send("Channels: "+message.toString(), player.name);
+		if (sender instanceof Player)
+		{
+			MessageSender.send("Channels: "+message.toString(), player.name);
+		}
+		else
+		{
+			MessageSender.send("Channels: "+message.toString(), "console");
+		}
 		return true;
 	}
 	
