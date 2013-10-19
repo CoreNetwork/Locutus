@@ -52,7 +52,6 @@ public class ChatPlayer implements Serializable{
 		{
 			try {
 				//Check to see if they actually exist
-				ConsoleLogging.info(this.name);
 				ResultSet results = DatabaseManager.accessQuery("SELECT COUNT(*) FROM chat_players WHERE player = ?", this.name);
 				int size = results.getInt(1);
 				results = DatabaseManager.accessQuery("SELECT * FROM chat_players WHERE player = ?", this.name);//ArrayList<HashMap<String, Object>> results = DatabaseManager.accessQuery("SELECT * FROM chat_players WHERE player = ?", this.name);
@@ -106,14 +105,7 @@ public class ChatPlayer implements Serializable{
 							
 					}
 					
-					ConsoleLogging.info("Size is: " + String.valueOf(this.modes.size()));
-					for(Entry<String, Boolean> s :this.modes.entrySet())
-					{
-						if (s.getKey() == null)
-							continue;
-						ConsoleLogging.info(s.getKey() + String.valueOf(s.getValue()));
-						//DatabaseManager.updateQuery("INSERT INTO chat_Modes VALUES(?,?,?)", this.name, s.getKey(), s.getValue());
-					}
+					
 					//Load muted
 
 					this.muted = new ArrayList<String>();
@@ -234,8 +226,6 @@ public class ChatPlayer implements Serializable{
 				{
 					if (s.getKey() == null)
 						continue;
-					ConsoleLogging.info(s.getKey());
-					ConsoleLogging.info(String.valueOf(s.getValue()));
 					DatabaseManager.updateQuery("INSERT INTO chat_Modes VALUES(?,?,?)", this.name, s.getKey(), s.getValue());
 				}
 				
@@ -269,6 +259,7 @@ public class ChatPlayer implements Serializable{
 			this.playersFile.get().set("modes.SEEALL", this.modes.get("SEEALL"));
 			this.playersFile.get().set("modes.MUTE", this.modes.get("MUTE"));
 			this.playersFile.get().set("modes.POOF", this.modes.get("POOF"));
+			this.playersFile.get().set("modes.LOCKED", this.modes.get("LOCKED"));
 			
 			this.playersFile.get().set("muted", this.muted);
 			this.playersFile.get().set("serversVisited", this.serversVisited);

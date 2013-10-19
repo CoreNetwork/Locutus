@@ -59,6 +59,13 @@ public class MCNSAChat extends JavaPlugin{
 		MCNSAChat.shortCode = this.getConfig().getString("ShortCode");
 		MCNSAChat.multiServer = this.getConfig().getBoolean("multiServer");
 		MCNSAChat.isSQL = this.getConfig().getBoolean("database-isSQL");
+		boolean isTransitioning = this.getConfig().getBoolean("database-isTransitioning");
+		
+		if (isSQL && isTransitioning)
+		{
+			transition();
+				
+		}
 		
 		MCNSAChat.logs = new FileLog();
 		
@@ -117,6 +124,37 @@ public class MCNSAChat extends JavaPlugin{
 				}
 			}
 		}, 0L, 600L);
+	}
+	private void transition() {
+		try {
+			DatabaseManager db = new DatabaseManager();
+			db.enable();
+		} catch (Exception e) {
+			ConsoleLogging.severe("Could not connect to DB to transfer players");
+			e.printStackTrace();
+			return;
+		} 
+		File playerFolder = new File("plugins/MCNSAChat/Players");
+		if (!playerFolder.exists())
+		{
+			ConsoleLogging.severe("Cannot transition system, no player folder exists");
+			return;
+		}
+		File[] playerFiles = playerFolder.listFiles();
+		ConsoleLogging.info(String.valueOf(playerFiles.length) + " players to transfer");
+		long startTime = System.currentTimeMillis();
+		double i = 0;
+		for (File player : playerFiles)
+		{
+			String playerName = player.getName().substring(0, player.getName().length() - 4);
+			ChatPlayer cPlayer = new ChatPlayer(playerName);
+			ConsoleLogging.info(String.format("Transferring: %s \t %.2f%%", playerName, (i / playerFiles.length * 100)));
+			cPlayer.savePlayer();
+			i++;
+		}
+		ConsoleLogging.info("Finished transferring all files in " + String.valueOf((System.currentTimeMillis() - startTime)/1000) + "s");
+		DatabaseManager.disconnect();
+		
 	}
 	public void onDisable() {
 		if (multiServer && network != null) {

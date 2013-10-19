@@ -581,10 +581,13 @@ public class CommandManager implements TabExecutor {
 			if (registeredCommands.get(registrationToken).command.arguments()[argumentCount - 1].replaceAll("\\s+", "_").equalsIgnoreCase("channel")) {
 				//Get list of channels
 				for (ChatChannel channel: ChannelManager.channels) {
-					if (channel.read_permission.equals("") || Permissions.checkReadPerm(channel.read_permission, sender.getName())) {
-						if (channel.name.startsWith(args[argumentCount - 1].toLowerCase()) || channel.name.startsWith(args[argumentCount - 1].toUpperCase())) {
-							if (!possibleArguments.contains(channel.name))
-								possibleArguments.add(channel.name);
+					if (channel.read_permission != null)
+					{
+						if (channel.read_permission.equals("") || Permissions.checkReadPerm(channel.read_permission, sender.getName())) {
+							if (channel.name.startsWith(args[argumentCount - 1].toLowerCase()) || channel.name.startsWith(args[argumentCount - 1].toUpperCase())) {
+								if (!possibleArguments.contains(channel.name))
+									possibleArguments.add(channel.name);
+							}
 						}
 					}
 				}
