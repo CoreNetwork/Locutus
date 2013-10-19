@@ -18,6 +18,7 @@ import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.Colours;
+import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
@@ -57,6 +58,7 @@ public class PlayerListener implements Listener{
 			}
 		}
 		//Check timeout status
+		ConsoleLogging.info(String.valueOf(PlayerManager.getPlayer(playerName).modes.get("MUTE")));
 		if (PlayerManager.getPlayer(playerName).modes.get("MUTE")) {
 			//get current time
 			long timeNow = new Date().getTime();

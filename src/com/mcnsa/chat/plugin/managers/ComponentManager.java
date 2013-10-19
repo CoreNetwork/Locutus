@@ -12,6 +12,7 @@ import java.util.zip.ZipInputStream;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
+import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
 
 public class ComponentManager {
 	public class Component {
@@ -66,6 +67,14 @@ public class ComponentManager {
 						
 						// register an instance of it
 						registeredComponents.put(clazz.getSimpleName().toLowerCase(), component);
+						// if it does, add it to the list of tables to be created
+						if(clazz.isAnnotationPresent(DatabaseTableInfo.class)) {
+							// get our info
+							DatabaseTableInfo tableInfo = clazz.getAnnotation(DatabaseTableInfo.class);
+							
+							// register it with the database manager
+							DatabaseManager.addTableConstruct(tableInfo);
+						}
 					}
 				}
 			}

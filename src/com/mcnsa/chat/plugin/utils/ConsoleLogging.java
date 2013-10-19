@@ -7,13 +7,13 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 
 public class ConsoleLogging {
 	
-	public void info (String message) {
+	public static void info (String message) {
 		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[INFO] "+message));
 	}
-	public void warning (String message) {
+	public static void warning (String message) {
 		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[&6WARNING&f] "+message));
 	}
-	public void severe (String message) {
+	public static void severe (String message) {
 		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[&4SEVERE&f] "+message));
 	}
 	public void networkLogging(String message) {

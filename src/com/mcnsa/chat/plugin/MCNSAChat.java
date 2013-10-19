@@ -1,6 +1,7 @@
 package com.mcnsa.chat.plugin;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +17,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.mcnsa.chat.file.Channels;
 import com.mcnsa.chat.networking.ClientThread;
 import com.mcnsa.chat.plugin.managers.ComponentManager;
+import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
+import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.CommandManager;
+import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.FileLog;
@@ -31,6 +35,7 @@ public class MCNSAChat extends JavaPlugin{
 	public static Boolean multiServer;
 	public static PlayerManager playerManager;
 	public static ChannelManager channelManager;
+	public static Boolean isSQL;
 	public Channels channels;
 	public static FileLog logs;
 	public CommandManager commandManager;
@@ -53,6 +58,7 @@ public class MCNSAChat extends JavaPlugin{
 		MCNSAChat.serverName = this.getConfig().getString("ServerName");
 		MCNSAChat.shortCode = this.getConfig().getString("ShortCode");
 		MCNSAChat.multiServer = this.getConfig().getBoolean("multiServer");
+		MCNSAChat.isSQL = this.getConfig().getBoolean("database-isSQL");
 		
 		MCNSAChat.logs = new FileLog();
 		
@@ -93,11 +99,15 @@ public class MCNSAChat extends JavaPlugin{
 		this.channels.saveDefault();
 		console.info("Loading channels");
 		loadChannels();
-		
+
+		DatabaseManager dbManager = new DatabaseManager();
+		dbManager.enable();
 		//Support for /reload
 		addOnlinePlayers();
 		//Start up the player listener
 		new PlayerListener();
+
+		
 		
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
@@ -110,18 +120,20 @@ public class MCNSAChat extends JavaPlugin{
 	}
 	public void onDisable() {
 		if (multiServer && network != null) {
-			console.info("Closing network threads");
+			ConsoleLogging.info("Closing network threads");
 			MCNSAChat.network.close();
 			MCNSAChat.network = null;
 				
 		}
+		ConsoleLogging.info("Closing SQL connection");
+		DatabaseManager.disconnect();
 		//Clear players
 		PlayerManager.players = new ArrayList<ChatPlayer>();
 		
-		console.info("Saving Channels");
+		ConsoleLogging.info("Saving Channels");
 		saveChannels();
 		
-		console.info("Disabled");
+		ConsoleLogging.info("Disabled");
 	}
 	@SuppressWarnings("unchecked")
 	public void loadChannels() {
