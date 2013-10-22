@@ -212,49 +212,67 @@ public class PlayerCommands {
 		for (String message: Message) {
 			messageString.append(message+" ");
 		}
-		ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
-		if (playerSender.modes.get("MUTE"))
-		{
-			MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
-			return true;
-		}
+		
 		//sending to console support
-		if (player.equalsIgnoreCase("console") || sender.getName().equalsIgnoreCase("console")) {
+		if (player.equalsIgnoreCase("console")) {
 			//Try and get player
-			ArrayList<ChatPlayer> psearch = PlayerManager.playerSearch(player);
-			if (psearch.isEmpty()) {
-				MessageSender.send("&cCould not find Player", "Console");
+			ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
+			if (playerSender.modes.get("MUTE"))
+			{
+				MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
 				return true;
 			}
-			else if (Bukkit.getPlayer(psearch.get(0).name) != null) {
-				//Send the pm back to the sender
-				MessageSender.sendPM(messageString.toString(), sender.getName(), psearch.get(0).name);
-				
-				//Try sending the pm to the target
-				MessageSender.recievePM(messageString.toString(), sender.getName(), psearch.get(0).name);
-				return true;
-			}
-			else {
-				MessageSender.send("&cPlayer is not on this server", "Console");
-			}
+			MessageSender.sendPM(messageString.toString(), sender.getName(), player.toUpperCase());
+			MessageSender.recievePM(messageString.toString(), sender.getName(), player.toUpperCase());
+			
+			return true;
+			
+			
 		}
 		else {
-			//Get targetPlayer
-			ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
-			if (targetPlayers.isEmpty()) {
-				MessageSender.send("Could not find player: "+player, sender.getName());
-				return true;
+			if (sender instanceof Player)
+			{
+				ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
+				if (playerSender.modes.get("MUTE"))
+				{
+					MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
+					return true;
+				}
+				//Get targetPlayer
+				ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
+				if (targetPlayers.isEmpty()) {
+					MessageSender.send("Could not find player: "+player, sender.getName());
+					return true;
+				}
+				ChatPlayer targetPlayer = targetPlayers.get(0);
+				
+				//Send the pm back to the sender
+				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+				
+				//Try sending the pm to the target
+				MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+				
+				//Send it to network
+				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
 			}
-			ChatPlayer targetPlayer = targetPlayers.get(0);
-			
-			//Send the pm back to the sender
-			MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-			
-			//Try sending the pm to the target
-			MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
-			
-			//Send it to network
-			Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
+			else
+			{
+				ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
+				if (targetPlayers.isEmpty()) {
+					MessageSender.send("Could not find player: "+player, sender.getName());
+					return true;
+				}
+				ChatPlayer targetPlayer = targetPlayers.get(0);
+				
+				//Send the pm back to the sender
+				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+				
+				//Try sending the pm to the target
+				MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+				
+				//Send it to network
+				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
+			}
 		}
 		return true;
 	}
