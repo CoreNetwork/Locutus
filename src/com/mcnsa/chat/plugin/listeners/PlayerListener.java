@@ -58,7 +58,6 @@ public class PlayerListener implements Listener{
 			}
 		}
 		//Check timeout status
-		ConsoleLogging.info(String.valueOf(PlayerManager.getPlayer(playerName).modes.get("MUTE")));
 		if (PlayerManager.getPlayer(playerName).modes.get("MUTE")) {
 			//get current time
 			long timeNow = new Date().getTime();
