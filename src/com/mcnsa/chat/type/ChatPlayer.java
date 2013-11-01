@@ -30,6 +30,7 @@ public class ChatPlayer implements Serializable{
 	public String server = "";
 	public String channel = "";
 	public String lastPm = "";
+	public boolean firstTime = true;
 	public Map<String, Boolean> modes = new HashMap<String, Boolean>();
 	public ArrayList<String> listening;
 	public ArrayList<String> muted = new ArrayList<String>();
@@ -60,6 +61,7 @@ public class ChatPlayer implements Serializable{
 					this.channel = MCNSAChat.plugin.getConfig().getString("defaultChannel");
 					this.listening = (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen");
 					this.modes = new HashMap<String, Boolean>();
+					this.firstTime = true;
 					this.modes.put("SEEALL", false);
 					this.modes.put("MUTE", false);
 					this.modes.put("POOF", false);
@@ -74,7 +76,7 @@ public class ChatPlayer implements Serializable{
 					this.channel = results.getString("channel");
 					this.lastPm = results.getString("lastpm");
 					this.timeoutTill =  results.getLong("timeoutTill");
-					
+					this.firstTime = false;
 					//Load listening channels
 					this.listening = new ArrayList<String>();
 					results = DatabaseManager.accessQuery("SELECT * FROM chat_playerchannels WHERE playerName = ?", this.name);
@@ -133,6 +135,7 @@ public class ChatPlayer implements Serializable{
 				//Player is new to the server. Set the defaults
 				this.channel = MCNSAChat.plugin.getConfig().getString("defaultChannel");
 				this.listening = (ArrayList<String>) MCNSAChat.plugin.getConfig().getList("defaultListen");
+				this.firstTime = true;
 				this.modes.put("SEEALL", false);
 				this.modes.put("MUTE", false);
 				this.modes.put("POOF", false);
@@ -164,6 +167,7 @@ public class ChatPlayer implements Serializable{
 					}
 				}
 				this.listening = newListen;
+				this.firstTime = false;
 				this.lastPm = this.playersFile.get().getString("lastPm");
 				this.modes.put("SEEALL", this.playersFile.get().getBoolean("modes.SEELALL"));
 				this.modes.put("MUTE", this.playersFile.get().getBoolean("modes.MUTE"));

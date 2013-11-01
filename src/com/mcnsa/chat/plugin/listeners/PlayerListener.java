@@ -41,11 +41,11 @@ public class PlayerListener implements Listener{
 		PlayerManager.PlayerLogin(playerName);
 				
 		//Check if new player.
-		if (!PlayerManager.getPlayer(playerName).serversVisited.contains(MCNSAChat.serverName)) {
+		if (PlayerManager.getPlayer(playerName).firstTime) {
 			//Record that the player has been on the server
 			PlayerManager.getPlayer(playerName).serversVisited.add(MCNSAChat.serverName);
 			//Check if the welcome is to be displayed
-			if (plugin.getConfig().getBoolean("displayWelcome")) {
+			if (plugin.getConfig().getBoolean("displayWelcome")) {	
 				//Display the welcome message
 				String message = plugin.getConfig().getString("strings.player-welcome");
 				message = message.replaceAll("%player%", playerName);
