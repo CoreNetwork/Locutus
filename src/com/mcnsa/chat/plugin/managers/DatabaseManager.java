@@ -1,5 +1,6 @@
 package com.mcnsa.chat.plugin.managers;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -35,7 +36,7 @@ public class DatabaseManager {
 			connect();
 			
 			//chatPlayers, chatServers, and the foreign key table
-			String[] fields = { "player VARCHAR(100) NOT NULL PRIMARY KEY UNIQUE", "channel VARCHAR(100)", "lastPM VARCHAR(255)", "timeoutTill BIGINT"};
+			String[] fields = { "player VARCHAR(100) NOT NULL PRIMARY KEY UNIQUE", "channel VARCHAR(100)", "lastPM VARCHAR(255)", "timeoutTill BIGINT", "lastLogin BIGINT"};
 			addTableConstruct("chat_Players", fields);
 			fields = new String[]{"id INTEGER NOT NULL PRIMARY KEY UNIQUE", "name VARCHAR(100)"};
 			addTableConstruct("chat_Servers", fields);
@@ -80,11 +81,21 @@ public class DatabaseManager {
 					"select lastLogin from chat_Players;");
 			
 		}
-		catch(Exception e)
+		catch(DatabaseException e)
 		{
 			//Catching an exception means that the field doesn't exist, need to add it
 			try {
 				DatabaseManager.updateQuery("ALTER TABLE chat_Players ADD COLUMN lastLogin BIGINT");
+				//Lets load some timestamps shall we
+				String playerFolder = MCNSAChat.plugin.getConfig().getString("database-player-folder");
+				File folder = new File(playerFolder);
+				if (!folder.isDirectory() || !folder.exists())
+					ConsoleLogging.severe("Player folder is not a folder");
+				for (File file : folder.listFiles())
+				{
+					String username = file.getName().substring(0, file.getName().length()-4);
+					DatabaseManager.updateQuery("UPDATE chat_players SET lastlogin=? WHERE player=?", file.lastModified(), username);
+				}
 			} catch (DatabaseException e1) {
 				ConsoleLogging.severe("Could not add new column lastLogin");
 			}
@@ -250,7 +261,7 @@ public class DatabaseManager {
 			return ret;*/
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new DatabaseException("Failed to prepare query: (%s)!", e.getMessage());
 		}
 	}
@@ -260,7 +271,7 @@ public class DatabaseManager {
 			return updateQuery(prepareStatement(query, args));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new DatabaseException("Failed to prepare query: (%s)!", e.getMessage());
 		}
 		finally {
@@ -268,7 +279,7 @@ public class DatabaseManager {
 				preparedStatement.close();
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 				ConsoleLogging.severe("Failed to close prepared statement on query: "+e.getMessage()+"!");
 			}
 		}
@@ -285,7 +296,7 @@ public class DatabaseManager {
 			return preparedStatement.executeUpdate();
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new DatabaseException("Failed to prepare query: (%s)!", e.getMessage());
 		}
 		finally {
@@ -293,7 +304,7 @@ public class DatabaseManager {
 				preparedStatement.close();
 			}
 			catch(SQLException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 				ConsoleLogging.severe("Failed to close prepared statement on query: "+e.getMessage()+"!");
 			}
 		}
