@@ -56,8 +56,12 @@ public class DatabaseManager {
 			fields = new String[]{"playerName VARCHAR(100)", "modeName VARCHAR(100)", "modeStatus BOOL", "CONSTRAINT fk_playerName_Mode FOREIGN KEY (playerName) REFERENCES chat_Players(player)"};
 			addTableConstruct("chat_Modes", fields);
 
+			
+			
 			// build our tables
 			ensureTablesExist();
+			
+
 		}
 		catch(Exception e) {
 			//Cannot connect
@@ -67,6 +71,23 @@ public class DatabaseManager {
 			ConsoleLogging.severe("Failed to initialize database connection! Using url " + "jdbc:sqlite:" + url );
 			ConsoleLogging.warning("You won't be able to use any commands that utilize the database!");
 			disconnect();
+		}
+
+		//Very hacky way to see if the table has been updated to include last login
+		try
+		{
+			ResultSet results = DatabaseManager.accessQuery(
+					"select lastLogin from chat_Players;");
+			
+		}
+		catch(Exception e)
+		{
+			//Catching an exception means that the field doesn't exist, need to add it
+			try {
+				DatabaseManager.updateQuery("ALTER TABLE chat_Players ADD COLUMN lastLogin BIGINT");
+			} catch (DatabaseException e1) {
+				ConsoleLogging.severe("Could not add new column lastLogin");
+			}
 		}
 		
 	}

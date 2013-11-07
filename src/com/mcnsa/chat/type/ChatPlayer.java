@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,6 +38,7 @@ public class ChatPlayer implements Serializable{
 	public ArrayList<String> serversVisited = new ArrayList<String>();
 	transient Players playersFile;
 	public long timeoutTill = 0;
+	public long loginTime = 0;
 	public String formatted;
 	
 	@SuppressWarnings("unchecked")
@@ -47,7 +49,7 @@ public class ChatPlayer implements Serializable{
 		//Player server
 		this.server = MCNSAChat.shortCode;
 		
-		
+		this.loginTime = new Date().getTime();
 		
 		if (MCNSAChat.isSQL)
 		{
@@ -201,7 +203,7 @@ public class ChatPlayer implements Serializable{
 				if (this.lastPm == null)
 					this.lastPm = "";
 				DatabaseManager.updateQuery("DELETE FROM chat_Players where player = ?", this.name);
-				DatabaseManager.updateQuery("INSERT INTO chat_players (player, channel, lastpm, timeouttill) VALUES (?,?,?,?)", this.name, this.channel, this.lastPm, this.timeoutTill);
+				DatabaseManager.updateQuery("INSERT INTO chat_players (player, channel, lastpm, timeouttill, lastLogin) VALUES (?,?,?,?,?)", this.name, this.channel, this.lastPm, this.timeoutTill, this.loginTime);
 				
 				//Clear all chat_Playerchannels for that player
 				DatabaseManager.updateQuery("DELETE FROM chat_Playerchannels where playerName = ?", this.name);
