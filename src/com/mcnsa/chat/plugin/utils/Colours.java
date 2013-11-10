@@ -9,9 +9,14 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 public class Colours {
 	public static String PlayerPrefix(String playerName) {
 		String prefix = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getUserPrefix(playerName);
-		return prefix;
-		
+		return prefix;	
 	}
+	
+	public static String PlayerGroup(String playerName) {
+		String group = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getGroup(playerName);
+		return group;		
+	}
+	
 	public static String processConsoleColours(String str) {
 		str = str.replaceAll("&0", ChatColor.BLACK.toString());
 		str = str.replaceAll("&1", ChatColor.DARK_BLUE.toString());
