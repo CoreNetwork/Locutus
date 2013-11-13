@@ -1,6 +1,7 @@
 package com.mcnsa.chat.plugin.listeners;
 
 import java.util.Date;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -37,9 +38,9 @@ public class PlayerListener implements Listener{
 		Player player = event.getPlayer();
 		String playerName = player.getName();
 		
+		
 		//Add to playerManager
 		PlayerManager.PlayerLogin(playerName);
-				
 		//Check if new player.
 		if (PlayerManager.getPlayer(playerName).firstTime) {
 			//Record that the player has been on the server
@@ -101,6 +102,7 @@ public class PlayerListener implements Listener{
 		event.getPlayer().setPlayerListName(playerlistName);
 		
 		//Notify other players
+		
 		MessageSender.joinMessage(playerName, event);
 		
 		Network.playerJoined(PlayerManager.getPlayer(playerName));

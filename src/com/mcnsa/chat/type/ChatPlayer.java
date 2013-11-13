@@ -193,9 +193,6 @@ public class ChatPlayer implements Serializable{
 		this.serversVisited = serversVisited2;
 	}
 	public void savePlayer() {
-		if (this.playersFile == null) {
-			this.playersFile = new Players(this.name);
-		}
 		if (MCNSAChat.isSQL)
 		{
 			try {
@@ -256,6 +253,9 @@ public class ChatPlayer implements Serializable{
 		}
 		else
 		{
+			if (this.playersFile == null) {
+				this.playersFile = new Players(this.name);
+			}
 			this.playersFile.get().set(MCNSAChat.serverName+"-Channel", this.channel);
 			this.playersFile.get().set("channel", this.channel);
 			this.playersFile.get().set("lastPm", this.lastPm);
