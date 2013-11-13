@@ -74,15 +74,14 @@ public class MessageSender {
 		if (greetings.size() != 0)
 		{
 			int i;
-			for (i = 0; i < keys.length; i++)
+			for (i = keys.length - 1; i >= 0; i--)
 			{
 				long seconds = (Long) keys[i];
-				ConsoleLogging.info("Comparing " + String.valueOf(loginSince) + " to " + String.valueOf(seconds));
-				if (loginSince < seconds && i > 0)
+				if (loginSince > seconds)
 				{
 				
-					seconds = (Long) keys[i-1];
-					message = 	greetings.get(keys[i-1]);
+					seconds = (Long) keys[i];
+					message = 	greetings.get(keys[i]);
 					message = 	message.replace("%seconds%", String.valueOf(loginSince % 60));
 					message = 	message.replace("%minutes%", String.valueOf(loginSince / 60 % 60));
 					message = 	message.replace("%hours%", String.valueOf(loginSince / 60 / 60 % 24));
@@ -92,10 +91,10 @@ public class MessageSender {
 					break;
 				}
 			}
-			if (message == null && i == greetings.size() && greetings.size() > 1)
+			if (message == null && i == 0 && greetings.size() > 1)
 			{
 
-				message = 	greetings.get(keys[i-1]);
+				message = 	greetings.get(keys[0]);
 				message = 	message.replace("%seconds%", String.valueOf(loginSince % 60));
 				message = 	message.replace("%minutes%", String.valueOf(loginSince / 60 % 60));
 				message = 	message.replace("%hours%", String.valueOf(loginSince / 60 / 60 % 24));
