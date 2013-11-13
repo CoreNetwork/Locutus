@@ -40,6 +40,7 @@ public class MessageSender {
 		//Build the message
 		String message = MCNSAChat.plugin.getConfig().getString("strings.player-quit");
 		message = message.replace("%server%", MCNSAChat.serverName);
+		message = message.replace("%group%", Colours.PlayerGroup(playerName));
 		message = message.replace("%prefix%", Colours.PlayerPrefix(playerName));
 		message = message.replace("%player%", playerName);
 		message = message.replace("%suffix%", Colours.PlayerSuffix(playerName));
@@ -119,7 +120,8 @@ public class MessageSender {
 			message = message.replace("%server%", MCNSAChat.serverName);
 		else
 			message = message.replace("%server%", server);
-			
+
+		message = message.replace("%group%", Colours.PlayerGroup(playerName));
 		message = message.replace("%prefix%", Colours.PlayerPrefix(playerName));
 		message = message.replace("%player%", playerName);
 		message = message.replace("%suffix%", Colours.PlayerSuffix(playerName));
@@ -153,6 +155,7 @@ public class MessageSender {
 		//Build the message
 		String message = MCNSAChat.plugin.getConfig().getString("strings.player-quit");
 		message = message.replace("%server%", server);
+		message = message.replace("%group%", Colours.PlayerGroup(player.name));
 		message = message.replace("%prefix%", Colours.PlayerPrefix(player.name));
 		message = message.replace("%player%", player.name);
 		message = message.replace("%suffix%", Colours.PlayerSuffix(player.name));
@@ -279,6 +282,7 @@ public class MessageSender {
 			message = message.replace("%channel%", channel);
 		
 		message = message.replace("%prefix%", Colours.PlayerPrefix(player));
+		message = message.replace("%group%", Colours.PlayerGroup(player));
 		message = message.replace("%player%", player);
 		message = message.replace("%suffix%", Colours.PlayerSuffix(player));
 		message = message.replace("%message%", processedMessage);
@@ -328,6 +332,7 @@ public class MessageSender {
 			message = message.replace("%channel%", channel);
 		
 		message = message.replace("%prefix%", Colours.PlayerPrefix(player));
+		message = message.replace("%group%", Colours.PlayerGroup(player));
 		message = message.replace("%player%", player);
 		message = message.replace("%suffix%", Colours.PlayerSuffix(player));
 		message = message.replace("%message%", processedMessage);
