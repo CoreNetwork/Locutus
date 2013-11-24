@@ -1,29 +1,36 @@
 package com.mcnsa.chat.plugin.utils;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
+import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class MessageSender {
+	
 	public static void joinMessage(String playerName, PlayerJoinEvent event) {
-		//Build the message
-		String message = MCNSAChat.plugin.getConfig().getString("strings.player-join");
-		message = message.replace("%server%", MCNSAChat.serverName);
-		message = message.replace("%group%", Colours.PlayerGroup(playerName));
-		message = message.replace("%prefix%", Colours.PlayerPrefix(playerName));
-		message = message.replace("%player%", playerName);
-		message = message.replace("%suffix%", Colours.PlayerSuffix(playerName));
+
+		
+		String message = formJoinMessage(playerName, null);
+
 		//Notify console
 		MCNSAChat.console.info(Colours.processConsoleColours(message));
 		//Set the join message
@@ -43,14 +50,87 @@ public class MessageSender {
 		//Set quit message
 		event.setQuitMessage(Colours.processConsoleColours(message));
 	}
-	public static void joinMessage(ChatPlayer player, String server) {
+	public static String formJoinMessage(String playerName, String server)
+	{
+		String message = null;
+		long lastLogin;
+		try {
+			ResultSet result = DatabaseManager.accessQuery("SELECT lastLogin FROM chat_players WHERE player = ?;", playerName);
+			lastLogin = result.getLong("lastLogin");
+		} catch (Exception e) {
+			lastLogin = 0;
+			ConsoleLogging.warning("Could not find a players last login");
+			
+		} 
+		long loginSince = (new Date().getTime() - lastLogin) / 1000;	//Convert it to seconds
+		//Load our list of greetings
+		HashMap<Long, String> greetings = new HashMap<Long, String>();
+		ConfigurationSection configSet =MCNSAChat.plugin.getConfig().getConfigurationSection("greetings");
+		for (String key : configSet.getKeys(false))
+		{
+			greetings.put(Long.valueOf(key), configSet.getString(key));
+		}
+		Object[] keys =  greetings.keySet().toArray();
+		Arrays.sort(keys);
+		if (greetings.size() != 0)
+		{
+			int i;
+			for (i = keys.length - 1; i >= 0; i--)
+			{
+				long seconds = (Long) keys[i];
+				if (loginSince > seconds)
+				{
+				
+					seconds = (Long) keys[i];
+					message = 	greetings.get(keys[i]);
+					message = 	message.replace("%seconds%", String.valueOf(loginSince % 60));
+					message = 	message.replace("%minutes%", String.valueOf(loginSince / 60 % 60));
+					message = 	message.replace("%hours%", String.valueOf(loginSince / 60 / 60 % 24));
+					message = 	message.replace("%days%", String.valueOf(loginSince / 60 / 60 / 24 % 30));
+					message = 	message.replace("%months%", String.valueOf(loginSince / 60 / 60 / 24 / 30 % 12));	//Not exactly months, but close enough
+					message = 	message.replace("%years%", String.valueOf(loginSince / 60 / 60 / 24 / 30 / 12));	//Probably unneccessary
+					break;
+				}
+			}
+			if (message == null && i == 0 && greetings.size() > 1)
+			{
+
+				message = 	greetings.get(keys[0]);
+				message = 	message.replace("%seconds%", String.valueOf(loginSince % 60));
+				message = 	message.replace("%minutes%", String.valueOf(loginSince / 60 % 60));
+				message = 	message.replace("%hours%", String.valueOf(loginSince / 60 / 60 % 24));
+				message = 	message.replace("%days%", String.valueOf(loginSince / 60 / 60 / 24 % 30));
+				message = 	message.replace("%months%", String.valueOf(loginSince / 60 / 60 / 24 / 30 % 12));	//Not exactly months, but close enough
+				message = 	message.replace("%years%", String.valueOf(loginSince / 60 / 60 / 24 / 30 / 12));	//Probably unneccessary
+				
+			}
+		}
+		else
+		{
+			ConsoleLogging.warning("Could not load greetings from config");
+		}
+		if (message == null || lastLogin == 0)
+		{
+			ConsoleLogging.warning("Couldn't get a good message");
+			message = MCNSAChat.plugin.getConfig().getString("strings.player-join");
+		}
+		
 		//Build the message
-		String message = MCNSAChat.plugin.getConfig().getString("strings.player-join");
-		message = message.replace("%server%", server);
-		message = message.replace("%group%", Colours.PlayerGroup(player.name));
-		message = message.replace("%prefix%", Colours.PlayerPrefix(player.name));
-		message = message.replace("%player%", player.name);
-		message = message.replace("%suffix%", Colours.PlayerSuffix(player.name));
+		if (server == null)
+			message = message.replace("%server%", MCNSAChat.serverName);
+		else
+			message = message.replace("%server%", server);
+
+		message = message.replace("%group%", Colours.PlayerGroup(playerName));
+		message = message.replace("%prefix%", Colours.PlayerPrefix(playerName));
+		message = message.replace("%player%", playerName);
+		message = message.replace("%suffix%", Colours.PlayerSuffix(playerName));
+		
+		return message;
+	}
+	public static void joinMessage(ChatPlayer player, String server) {
+
+		String message = formJoinMessage(player.name, server);
 		
 		//Loop through players listening list and collect names
 		ArrayList<ChatPlayer> sendTo = new ArrayList<ChatPlayer>();

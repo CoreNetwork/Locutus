@@ -148,6 +148,7 @@ public class MCNSAChat extends JavaPlugin{
 		{
 			String playerName = player.getName().substring(0, player.getName().length() - 4);
 			ChatPlayer cPlayer = new ChatPlayer(playerName);
+			cPlayer.loginTime = player.lastModified();
 			ConsoleLogging.info(String.format("Transferring: %s \t %.2f%%", playerName, (i / playerFiles.length * 100)));
 			cPlayer.savePlayer();
 			i++;
