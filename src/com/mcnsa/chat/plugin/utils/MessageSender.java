@@ -287,7 +287,7 @@ public class MessageSender {
 	}
 	public static void timeoutPlayer(String player, String time, String reason) {
 		if (reason.length() < 1)
-			reason = "annoying a mod";
+			reason = "Breaking chat rules";
 		//Get base string
 		String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.timeout-player");
 		notifyMessage = notifyMessage.replace("%time%", time);
