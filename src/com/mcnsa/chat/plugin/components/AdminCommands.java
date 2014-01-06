@@ -491,4 +491,26 @@ public class AdminCommands {
 		return true;
 	}
 	
+	@Command(
+			command = "clockdown",
+			description = "Locks down the server, not letting any new players enter",
+			permissions = {"lockdown"}
+			)
+	public static boolean clockdown(CommandSender sender)
+	{
+		if (MCNSAChat.isLockdown)
+		{
+			String message = MCNSAChat.plugin.getConfig().getString("strings.lockdown-disable");
+			MessageSender.send(message, sender.getName());
+			MCNSAChat.isLockdown = false;
+		}
+		else
+		{
+			String message = MCNSAChat.plugin.getConfig().getString("strings.lockdown-enable");
+			MessageSender.send(message, sender.getName());
+			MCNSAChat.isLockdown = true;
+		}
+		return true;
+	}
+	
 }

@@ -44,6 +44,7 @@ public class MCNSAChat extends JavaPlugin{
 	public static MCNSAChat plugin;
 	public static ConsoleLogging console;
 	public static ClientThread network;
+	public static boolean isLockdown;
 	public void onEnable() {
 		plugin = this;
 		console = new ConsoleLogging();
@@ -59,6 +60,7 @@ public class MCNSAChat extends JavaPlugin{
 		MCNSAChat.shortCode = this.getConfig().getString("ShortCode");
 		MCNSAChat.multiServer = this.getConfig().getBoolean("multiServer");
 		MCNSAChat.isSQL = this.getConfig().getBoolean("database-isSQL");
+		MCNSAChat.isLockdown = this.getConfig().getBoolean("Lockdown");
 		boolean isTransitioning = this.getConfig().getBoolean("database-isTransitioning");
 		
 		if (isSQL && isTransitioning)
@@ -171,7 +173,7 @@ public class MCNSAChat extends JavaPlugin{
 		
 		ConsoleLogging.info("Saving Channels");
 		saveChannels();
-		
+		this.getConfig().set("Lockdown", this.isLockdown);
 		ConsoleLogging.info("Disabled");
 	}
 	@SuppressWarnings("unchecked")

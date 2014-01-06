@@ -20,13 +20,23 @@ public class PlayerManager {
 	}
 	
 	public static void PlayerLogin(String player){
+		
 		if (PlayerManager.getPlayer(player, MCNSAChat.shortCode) == null) {
 			ChatPlayer newPlayer= new ChatPlayer(player);
+
+			if (MCNSAChat.isLockdown && newPlayer.firstTime)
+			{
+				String message = MCNSAChat.plugin.getConfig().getString("strings.lockdown-kick");
+				kickPlayer(newPlayer, message);
+				return;
+			}
 			players.add(newPlayer);
 		}
 	}
 	public static void PlayerLogout(String player){
 		ChatPlayer cplayer = getPlayer(player, MCNSAChat.shortCode);
+		if (cplayer == null)
+			return;
 		cplayer.savePlayer();
 		//Notify network
 		Network.playerQuit(cplayer);
@@ -117,7 +127,6 @@ public class PlayerManager {
 	}
 
 	public static void removeNonServerPlayers() {
-		// TODO Auto-generated method stub
 		ArrayList<ChatPlayer> newPlayers = new ArrayList<ChatPlayer>();
 		Player[] bukkitPlayers = Bukkit.getOnlinePlayers();
 		for (Player player: bukkitPlayers) {
@@ -125,4 +134,35 @@ public class PlayerManager {
 		}
 		players = newPlayers;
 	}
+	
+	public static void kickPlayer(String player)
+	{
+		kickPlayer(Bukkit.getServer().getPlayer(player));
+	}
+	
+	public static void kickPlayer(ChatPlayer player)
+	{
+		kickPlayer(player.name);
+	}
+
+	public static void kickPlayer(Player player)
+	{
+		player.kickPlayer("");
+	}
+	
+	public static void kickPlayer(String player, String message)
+	{
+		kickPlayer(Bukkit.getServer().getPlayer(player), message);
+	}
+	
+	public static void kickPlayer(ChatPlayer player, String message)
+	{
+		kickPlayer(player.name, message);
+	}
+	
+	public static void kickPlayer(Player player, String message)
+	{
+		player.kickPlayer(message);
+	}
+	
 }
