@@ -1,7 +1,11 @@
 package com.mcnsa.chat.plugin.components;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -14,7 +18,9 @@ import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
 import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
 import com.mcnsa.chat.plugin.exceptions.ChatCommandException;
+import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
+import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.Colours;
@@ -221,6 +227,11 @@ public class PlayerCommands {
 			{
 				MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
 				return true;
+			} else if (playerSender.modes.get("S-MUTE"))
+			{
+				MessageSender.sendPM(messageString.toString(), sender.getName(), player.toUpperCase());
+				
+				return true;
 			}
 			MessageSender.sendPM(messageString.toString(), sender.getName(), player.toUpperCase());
 			MessageSender.recievePM(messageString.toString(), sender.getName(), player.toUpperCase());
@@ -236,6 +247,24 @@ public class PlayerCommands {
 				if (playerSender.modes.get("MUTE"))
 				{
 					MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
+					return true;
+				}
+				else if(playerSender.modes.get("S-MUTE"))
+				{
+					ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
+					if (targetPlayers.isEmpty()) {
+						MessageSender.send("Could not find player: "+player, sender.getName());
+						return true;
+					}
+
+					ChatPlayer targetPlayer = targetPlayers.get(0);
+					//Send the pm back to the sender
+					
+					MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+					if (player.equalsIgnoreCase(playerSender.name))
+					{
+						MessageSender.recievePM(messageString.toString(), sender.getName(), player.toUpperCase());
+					}
 					return true;
 				}
 				//Get targetPlayer
@@ -295,6 +324,35 @@ public class PlayerCommands {
 		{
 			MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
 			return true;
+		} else if(playerSender.modes.get("S-MUTE"))
+		{
+			if (playerSender.lastPm == null || playerSender.lastPm.length() < 1){
+				MessageSender.send("There is no one to reply to", playerSender.name);
+				return true;
+			}
+			if (playerSender.lastPm.equalsIgnoreCase("console")) {
+				MessageSender.sendPM(messageString.toString(), sender.getName(), playerSender.lastPm);
+			}
+			else
+			{
+				ChatPlayer targetPlayer = PlayerManager.getPlayer(playerSender.lastPm);
+				
+				//See if target player is online
+				if (targetPlayer == null) {
+					MessageSender.send("That player is offline", playerSender.name);
+					return true;
+				}
+							
+				
+				//Send the pm back to the sender
+				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+				if (targetPlayer.name == sender.getName())
+				{
+					MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+				}
+				return true;
+			}
+			
 		}
 		//check to see if the lastpm is actually filled in
 		if (playerSender.lastPm == null || playerSender.lastPm.length() < 1){
@@ -346,11 +404,15 @@ public class PlayerCommands {
 		for (String message: rawMessage) {
 			messageString.append(message+" ");
 		}
-		if (!player.modes.get("MUTE")) { 
-			MessageSender.actionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
-		}
-		else {
+		if (player.modes.get("MUTE")) { 
 			MessageSender.send("&c You are in timeout. Please try again later", player.name);
+			}
+		else if(player.modes.get("S-MUTE")){
+			MessageSender.shadowActionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
+		}
+		else
+		{
+			MessageSender.actionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
 		}
 		
 		//Send it to relevent players
@@ -399,5 +461,51 @@ public class PlayerCommands {
 		//Now display
 		MessageSender.send("&6Players online ("+formattedPlayers.size()+"/"+Bukkit.getMaxPlayers()+"): "+players.toString() , sender.getName());
 		return true;
+	}
+	
+	@Command(
+			command = "seen",
+			arguments = {"Player name"},
+			description = "Displays the last time the person logged on",
+			permissions = {"seen"}
+			)
+		public static boolean seen(CommandSender sender, String playerName) {
+			if (PlayerManager.getPlayer(playerName) != null){
+				String message = MCNSAChat.plugin.getConfig().getString(
+				"strings.seen-online");
+				message = 	message.replace("%player%", playerName);
+				MessageSender.send(message, sender.getName());
+			} else {
+				try {
+					ResultSet rs = DatabaseManager.accessQuery("SELECT lastLogin FROM chat_Players WHERE player=?", playerName);
+					long last = rs.getLong(1);
+					Calendar c = Calendar.getInstance();
+					c.setTimeInMillis(last);
+					String message = MCNSAChat.plugin.getConfig().getString(
+					"strings.seen-last");
+					message = 	message.replace("%player%", playerName);
+					message = 	message.replace("%second%", String.valueOf(c.get(Calendar.SECOND)));
+					message = 	message.replace("%minute%", String.valueOf(c.get(Calendar.MINUTE)));
+					message = 	message.replace("%hour%", String.valueOf(c.get(Calendar.HOUR_OF_DAY)));
+					message = 	message.replace("%day%", String.valueOf(c.get(Calendar.DAY_OF_MONTH)));
+					message = 	message.replace("%month%", String.valueOf(c.get(Calendar.MONTH)+1));
+					message = 	message.replace("%year%", String.valueOf(c.get(Calendar.YEAR)));
+					MessageSender.send(message, sender.getName());
+				} catch (DatabaseException e) {
+					String message = MCNSAChat.plugin.getConfig().getString(
+					"strings.seen-never");
+					message = 	message.replace("%player%", playerName);
+					MessageSender.send(message, sender.getName());
+				} catch (SQLException e) {
+					String message = MCNSAChat.plugin.getConfig().getString(
+					"strings.seen-never");
+					message = 	message.replace("%player%", playerName);
+					MessageSender.send(message, sender.getName());
+					
+				}
+			}
+				
+			return true;
+		
 	}
 }

@@ -5,15 +5,15 @@ import java.util.Random;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.managers.Permissions;
 
 public class Colours {
 	public static String PlayerPrefix(String playerName) {
-		String prefix = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getUserPrefix(playerName);
-		return prefix;	
+		return MCNSAChat.chat.getPlayerPrefix("world", playerName);
 	}
 	
 	public static String PlayerGroup(String playerName) {
-		String group = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getGroup(playerName);
+		String group = Permissions.perms.getPrimaryGroup("world", playerName);
 		return group;		
 	}
 	
@@ -62,7 +62,6 @@ public class Colours {
 		return newStr;
 	}
 	public static String PlayerSuffix(String playerName) {
-		String suffix = MCNSAChat.groupManager.getWorldsHolder().getWorldPermissions("world").getUserSuffix(playerName);
-		return suffix;
+		return MCNSAChat.chat.getPlayerSuffix("world", playerName);
 	}
 }

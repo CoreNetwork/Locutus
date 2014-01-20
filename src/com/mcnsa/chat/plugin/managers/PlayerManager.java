@@ -3,12 +3,14 @@ package com.mcnsa.chat.plugin.managers;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatPlayer;
 
@@ -26,18 +28,40 @@ public class PlayerManager {
 
 			if (MCNSAChat.isLockdown && newPlayer.firstTime)
 			{
-				String message = MCNSAChat.plugin.getConfig().getString("strings.lockdown-kick");
-				kickPlayer(newPlayer, message);
 				return;
 			}
 			players.add(newPlayer);
+			if (Permissions.checkPermission("admin.notify", newPlayer.name) && MCNSAChat.isLockdown)
+			{
+				if (MCNSAChat.lockdownTimerID == 0)
+				{
+
+					String message = MCNSAChat.plugin.getConfig()
+					.getString("strings.lockdown-login-persist");
+					message.replace("%reason%", MCNSAChat.lockdownReason);
+					MessageSender.send(message,newPlayer.name );
+				}
+				else
+				{
+					String message = MCNSAChat.plugin.getConfig()
+					.getString("strings.lockdown-login-temp");
+					
+					long currentTime = new Date().getTime();
+					long timeLeft = MCNSAChat.lockdownUnlockTime - currentTime;
+					message = message.replace("%seconds%", String.valueOf(TimeUnit.MILLISECONDS.toSeconds(timeLeft) % 60));
+					message = message.replace("%minutes%", String.valueOf(TimeUnit.MILLISECONDS.toMinutes(timeLeft) % 60));
+					message = message.replace("%reason%", MCNSAChat.lockdownReason);
+					MessageSender.send(message, player );
+				}
+			}
 		}
 	}
 	public static void PlayerLogout(String player){
 		ChatPlayer cplayer = getPlayer(player, MCNSAChat.shortCode);
 		if (cplayer == null)
 			return;
-		cplayer.savePlayer();
+		if (!MCNSAChat.isLockdown)
+			cplayer.savePlayer();
 		//Notify network
 		Network.playerQuit(cplayer);
 		removePlayer(player, MCNSAChat.shortCode);
@@ -99,6 +123,25 @@ public class PlayerManager {
 			}
 		}
 	}
+	public static void shadowUnmutePlayer(String Player) {
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).name.equalsIgnoreCase(Player)) {
+				players.get(i).modes.put("S-MUTE", false);
+				
+				String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.shadow-unmute-notify");
+				for (ChatPlayer p : players)
+				{
+					if(Permissions.checkPermission("admin.shadow-notify", p.name))
+					{
+						MessageSender.send(notifyMessage.replace("%player%", players.get(i).name), p.name);
+					}
+				}
+				//UpdatePlayers on network
+				Network.updatePlayer(players.get(i));
+			}
+		}
+	}
+	
 	public static void mutePlayer(String Player, String time, String reason) {
 		for (int i = 0; i < players.size(); i++) {
 			if (players.get(i).name.equalsIgnoreCase(Player)) {
@@ -109,6 +152,28 @@ public class PlayerManager {
 					MessageSender.timeoutPlayer(Player, time, reason);
 				//UpdatePlayers on network
 				Network.updatePlayer(players.get(i));
+			}
+		}
+	}
+	
+	public static void shadowMutePlayer(String Player, String time, String reason) {
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).name.equalsIgnoreCase(Player)) {
+				players.get(i).modes.put("S-MUTE", true);
+				players.get(i).timeoutTill = new Date().getTime() + (Integer.valueOf(time) * 60000);
+				
+				
+				String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.shadow-mute-notify");
+				for (ChatPlayer p : players)
+				{
+					if(Permissions.checkPermission("admin.shadow-notify", p.name))
+					{
+						MessageSender.send(notifyMessage.replace("%player%", players.get(i).name), p.name);
+					}
+				}
+				//UpdatePlayers on network
+				Network.updatePlayer(players.get(i));
+				return;
 			}
 		}
 	}

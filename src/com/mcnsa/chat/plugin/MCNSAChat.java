@@ -7,11 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.anjocaido.groupmanager.GroupManager;
+import net.milkbowl.vault.chat.Chat;
+import net.milkbowl.vault.permission.Permission;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mcnsa.chat.file.Channels;
@@ -23,6 +26,7 @@ import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.CommandManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
+import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.FileLog;
@@ -39,18 +43,22 @@ public class MCNSAChat extends JavaPlugin{
 	public Channels channels;
 	public static FileLog logs;
 	public CommandManager commandManager;
+	public static Chat chat;
 	public ComponentManager componentManager;
-	public static GroupManager groupManager;
 	public static MCNSAChat plugin;
 	public static ConsoleLogging console;
 	public static ClientThread network;
 	public static boolean isLockdown;
+	public static int lockdownTimerID;
+	public static String lockdownReason;
+	public static long lockdownUnlockTime;
 	public void onEnable() {
 		plugin = this;
 		console = new ConsoleLogging();
-		final PluginManager pluginManager = plugin.getServer().getPluginManager();
-		final Plugin GMplugin = pluginManager.getPlugin("GroupManager");
-		groupManager = (GroupManager)GMplugin;
+		if(!Permissions.setupPermissions())
+			ConsoleLogging.severe("Could not load permissions, is Vault installed?");
+		if (!setupVaultChat())
+			ConsoleLogging.severe("Could not load permissions, is Vault installed?");
 		
 				
 		//Load the configs
@@ -127,6 +135,12 @@ public class MCNSAChat extends JavaPlugin{
 			}
 		}, 0L, 600L);
 	}
+	private boolean setupVaultChat() {
+
+		RegisteredServiceProvider<Chat> rsp = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
+		chat = rsp.getProvider();
+		return chat != null;
+	}
 	private void transition() {
 		try {
 			DatabaseManager db = new DatabaseManager();
@@ -160,20 +174,27 @@ public class MCNSAChat extends JavaPlugin{
 		
 	}
 	public void onDisable() {
+		this.reloadConfig();
 		if (multiServer && network != null) {
 			ConsoleLogging.info("Closing network threads");
 			MCNSAChat.network.close();
 			MCNSAChat.network = null;
 				
 		}
+		for (ChatPlayer player : PlayerManager.players)
+		{
+			player.savePlayer();
+		}
 		ConsoleLogging.info("Closing SQL connection");
 		DatabaseManager.disconnect();
+		
 		//Clear players
 		PlayerManager.players = new ArrayList<ChatPlayer>();
 		
 		ConsoleLogging.info("Saving Channels");
-		saveChannels();
-		this.getConfig().set("Lockdown", this.isLockdown);
+		saveChannels(); 
+		this.getConfig().set("Lockdown", isLockdown);
+		this.saveConfig();
 		ConsoleLogging.info("Disabled");
 	}
 	@SuppressWarnings("unchecked")

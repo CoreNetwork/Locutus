@@ -68,6 +68,7 @@ public class ChatPlayer implements Serializable{
 					this.modes.put("MUTE", false);
 					this.modes.put("POOF", false);
 					this.modes.put("LOCKED", false);
+					this.modes.put("S-MUTE", false);
 					this.lastPm = null;
 				}
 				else
@@ -98,6 +99,7 @@ public class ChatPlayer implements Serializable{
 					this.modes = new HashMap<String, Boolean>();
 					this.modes.put("SEEALL", false);
 					this.modes.put("MUTE", false);
+					this.modes.put("S-MUTE", false);
 					this.modes.put("POOF", false);
 					this.modes.put("LOCKED", false);
 					results = DatabaseManager.accessQuery("SELECT * FROM chat_modes WHERE playerName = ?", this.name);
@@ -141,6 +143,7 @@ public class ChatPlayer implements Serializable{
 				this.modes.put("SEEALL", false);
 				this.modes.put("MUTE", false);
 				this.modes.put("POOF", false);
+				this.modes.put("S-MUTE", false);
 				this.modes.put("LOCKED", false);
 				this.lastPm = null;
 			} else {
@@ -175,6 +178,7 @@ public class ChatPlayer implements Serializable{
 				this.modes.put("MUTE", this.playersFile.get().getBoolean("modes.MUTE"));
 				this.modes.put("POOF", this.playersFile.get().getBoolean("modes.POOF"));
 				this.modes.put("LOCKED", this.playersFile.get().getBoolean("modes.LOCKED"));
+				this.modes.put("S-MUTE", this.playersFile.get().getBoolean("modes.S-MUTE"));
 				this.muted = (ArrayList<String>) this.playersFile.get().getList("muted");
 				this.serversVisited = (ArrayList<String>) this.playersFile.get().getList("serversVisited");
 				this.timeoutTill = this.playersFile.get().getLong("timeoutTill");
@@ -266,6 +270,7 @@ public class ChatPlayer implements Serializable{
 			this.playersFile.get().set("modes.MUTE", this.modes.get("MUTE"));
 			this.playersFile.get().set("modes.POOF", this.modes.get("POOF"));
 			this.playersFile.get().set("modes.LOCKED", this.modes.get("LOCKED"));
+			this.playersFile.get().set("modes.S-MUTE", this.modes.get("S-MUTE"));
 			
 			this.playersFile.get().set("muted", this.muted);
 			this.playersFile.get().set("serversVisited", this.serversVisited);
@@ -311,6 +316,7 @@ public class ChatPlayer implements Serializable{
 		if (this.modes.get("MUTE")) {out.writeInt(1); } else { out.writeInt(0); }
 		if (this.modes.get("POOF")) {out.writeInt(1); } else { out.writeInt(0); }
 		if (this.modes.get("LOCKED")) {out.writeInt(1); } else { out.writeInt(0); }
+		if (this.modes.get("S-MUTE")) {out.writeInt(1); } else { out.writeInt(0); }
 		out.writeInt(this.listening.size());
 		for (String listen: this.listening) {
 			out.writeUTF(listen);
@@ -333,6 +339,7 @@ public class ChatPlayer implements Serializable{
 		if (in.readInt() == 1) { modes.put("MUTE", true); } else { modes.put("MUTE", false);}
 		if (in.readInt() == 1) { modes.put("POOF", true); } else { modes.put("POOF", false);}
 		if (in.readInt() == 1) { modes.put("LOCKED", true); } else { modes.put("LOCKED", false);}
+		if (in.readInt() == 1) { modes.put("S-MUTE", true); } else { modes.put("S-MUTE", false);}
 		
 		ArrayList <String> listening = new ArrayList<String>();
 		ArrayList <String> serversVisited = new ArrayList<String>();
