@@ -164,7 +164,7 @@ public class MCNSAChat extends JavaPlugin{
 			MCNSAChat.network = null;
 				
 		}
-		for (ChatPlayer : player : PlayerManager.players)
+		for (ChatPlayer player : PlayerManager.players)
 		{
 			player.savePlayer();
 		}
