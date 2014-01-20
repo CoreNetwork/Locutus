@@ -134,7 +134,7 @@ public class AdminCommands {
 		return true;
 	}
 
-	@Command(command = "csto", description = "Player chat timeout", arguments = { "Player" }, permissions = { "timeout" })
+	@Command(command = "csto", description = "Player chat timeout", arguments = { "Player" }, permissions = { "shadow-timeout" })
 	public static boolean cstoRemove(CommandSender sender, String target) {
 
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager

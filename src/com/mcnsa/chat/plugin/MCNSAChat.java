@@ -3,6 +3,7 @@ package com.mcnsa.chat.plugin;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,12 @@ public class MCNSAChat extends JavaPlugin{
 		MCNSAChat.multiServer = this.getConfig().getBoolean("multiServer");
 		MCNSAChat.isSQL = this.getConfig().getBoolean("database-isSQL");
 		MCNSAChat.isLockdown = this.getConfig().getBoolean("Lockdown");
+		MCNSAChat.lockdownReason = this.getConfig().getString("lockdown-reason");
+		MCNSAChat.lockdownUnlockTime = this.getConfig().getLong("lockdown-unlock-time");
+		if (new Date().getTime() > MCNSAChat.lockdownUnlockTime)
+		{
+			MCNSAChat.isLockdown = false;
+		}
 		boolean isTransitioning = this.getConfig().getBoolean("database-isTransitioning");
 		
 		if (isSQL && isTransitioning)
@@ -193,7 +200,10 @@ public class MCNSAChat extends JavaPlugin{
 		
 		ConsoleLogging.info("Saving Channels");
 		saveChannels(); 
-		this.getConfig().set("Lockdown", isLockdown);
+		this.getConfig().set("lockdown", isLockdown);
+		this.getConfig().set("lockdown-reason", lockdownReason);
+		this.getConfig().set("lockdown-unlock-time", lockdownUnlockTime);
+		
 		this.saveConfig();
 		ConsoleLogging.info("Disabled");
 	}
