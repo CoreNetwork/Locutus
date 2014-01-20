@@ -3,14 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.mcnsa</groupId>
-  <artifactId>MCNSAChat</artifactId>
-  <version>4.0</version>
+  <artifactId>Locutus</artifactId>
+  <version>1.0</version>
   <packaging>jar</packaging>
-  <name>MCNSAChat</name>
-  <url>https://github.com/MCNSA/MCNSAChat</url>
+  <name>Locutus</name>
+  <url>https://github.com/CoreNetwork/Locutus</url>
 
   <build>
-    <finalName>MCNSAChat</finalName>
+    <finalName>Locutus</finalName>
     <resources>
       <resource>
         <directory>resources</directory>
@@ -23,8 +23,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
     </plugins>
@@ -35,13 +35,17 @@
       <id>bukkit-repo</id>
       <url>http://repo.bukkit.org/content/groups/public</url>
     </repository>
+    <repository>
+      <id>Milkbowl-repo</id>
+      <url>http://ci.herocraftonline.com/plugin/repository/everything/</url>
+    </repository>
   </repositories>
 
   <dependencies>
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.5.2-R0.2-SNAPSHOT</version>
+      <version>1.7.2-R0.3-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -52,11 +56,10 @@
       <systemPath>${basedir}/lib/EssentialsGroupManager.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>net.milkbowl</groupId>
+      <groupId>net.milkbowl.vault</groupId>
       <artifactId>Vault</artifactId>
       <version>1.2.30</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/Vault.jar</systemPath>
+			<scope>compile</scope>
     </dependency>
   </dependencies>
 </project>
