@@ -164,6 +164,10 @@ public class MCNSAChat extends JavaPlugin{
 			MCNSAChat.network = null;
 				
 		}
+		for (ChatPlayer : player : PlayerManager.players)
+		{
+			player.savePlayer();
+		}
 		ConsoleLogging.info("Closing SQL connection");
 		DatabaseManager.disconnect();
 		//Clear players
