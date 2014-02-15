@@ -59,7 +59,7 @@ public class MCNSAChat extends JavaPlugin{
 	public static long lockdownUnlockTime;
 	public static String bannedWordsSilent;
 	public static String bannedWordsNotify;
-	public static List<String> ranking = (List<String>) Arrays.asList("&7", "&2", "&3", "&e", "&6", "&c", "&d", "&8", "&b");
+	public static List<String> ranking;
 	public static Random random;
 	public void onEnable() {
 		plugin = this;
@@ -82,6 +82,7 @@ public class MCNSAChat extends JavaPlugin{
 		MCNSAChat.lockdownUnlockTime = this.getConfig().getLong("lockdown-unlock-time");
 		bannedWordsNotify = this.getConfig().getString("banned-notify");
 		bannedWordsSilent = this.getConfig().getString("banned-silent");
+		ranking = Arrays.asList(((String)getConfig().get("ranking-string","&7 &2 &3 &e &6 &c &d &8 &b")).split(" "));
 		if (new Date().getTime() > MCNSAChat.lockdownUnlockTime)
 		{
 			MCNSAChat.isLockdown = false;
