@@ -1,5 +1,8 @@
 package com.mcnsa.chat.plugin.components;
 
+import java.security.DigestException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,7 +17,9 @@ import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
+import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
+import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.Colours;
@@ -67,7 +72,44 @@ public class AdminCommands {
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager
 				.playerSearch(target);
 		if (targetPlayers.isEmpty()) {
-			MessageSender.send("&cCould not find player", sender.getName());
+			try {
+
+				ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where player = ?", target);
+				if (!playerRS.next()){
+					MessageSender.send("&cCould not find player", sender.getName());
+					return true;
+				}
+				if (playerRS.getLong("timeouttill") == 0) {
+					MessageSender.send("&cThat player is not in timeout",
+							sender.getName());
+					return true;
+				}
+
+				ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes WHERE playerName = ? AND modeName = ?", target,"MUTE");
+				if (!chatRS.next()) {
+					MessageSender.send("&cCould not find player", sender.getName());
+					return true;
+				}
+				if (chatRS.getBoolean("modeStatus") == false)
+				{
+					MessageSender.send("&cThat player is not in timeout",
+							sender.getName());
+					return true;
+				}
+
+				DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE player = ?", 0, target);
+				DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=0 WHERE playerName = ? AND modeName= ?", target,"MUTE");
+				MessageSender.send("&6" + target
+						+ " has been removed from timeout", sender.getName());
+				return true;
+			}
+			catch (DatabaseException e) {
+				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				e.printStackTrace();
+			} catch (SQLException e) {
+				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				e.printStackTrace();
+			}
 			return true;
 		}
 
@@ -93,8 +135,42 @@ public class AdminCommands {
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager
 				.playerSearch(target);
 		if (targetPlayers.isEmpty()) {
-			MessageSender.send("&cCould not find player", sender.getName());
+			//Find offline player
+			try
+			{
+			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where player = ?", target);
+			if (!playerRS.next())
+			{
+				MessageSender.send("&cCould not find player", sender.getName());
+				return true;
+			}
+			if (playerRS.getLong("timeouttill") != 0)
+			{
+				MessageSender.send("&cThat player already in timeout",
+						sender.getName());
+				return true;
+			}
+			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where playerName = ?", target);
+			if (!chatRS.next())
+			{
+				MessageSender.send("&cCould not find player", sender.getName());
+				return true;
+			} 
+			long timeout = new Date().getTime() + (Integer.valueOf(time) * 60000);
+			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE player = ?", timeout, target);
+			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE playerName = ? AND modeName= ?", target,"MUTE");
+
+			MessageSender.send("&6" + target
+					+ " has been added to timeout", sender.getName());
 			return true;
+			}
+			catch (DatabaseException e) {
+				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				e.printStackTrace();
+			} catch (SQLException e) {
+				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				e.printStackTrace();
+			}
 		}
 		ChatPlayer targetPlayer = targetPlayers.get(0);
 
@@ -139,8 +215,44 @@ public class AdminCommands {
 
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager
 				.playerSearch(target);
-		if (targetPlayers.isEmpty()) {
-			MessageSender.send("&cCould not find player", sender.getName());
+		if (targetPlayers.isEmpty()) {try {
+
+			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where player = ?", target);
+			if (!playerRS.next()){
+				MessageSender.send("&cCould not find player", sender.getName());
+				return true;
+			}
+			if (playerRS.getLong("timeouttill") == 0) {
+				MessageSender.send("&cThat player is not in timeout",
+						sender.getName());
+				return true;
+			}
+
+			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where playerName = ? and modeName = ?", target,"S-MUTE");
+			if (!chatRS.next()) {
+				MessageSender.send("&cCould not find player", sender.getName());
+				return true;
+			}
+			if (chatRS.getBoolean("modeStatus") == false)
+			{
+				MessageSender.send("&cThat player is not in timeout",
+						sender.getName());
+				return true;
+			}
+
+			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE player = ?", 0, target);
+			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=0 WHERE playerName = ? AND  modeName= ?", "S-MUTE");
+			MessageSender.send("&6" + target
+					+ " has been removed from timeout", sender.getName());
+			return true;
+		}
+		catch (DatabaseException e) {
+			MessageSender.send("&4A DB Error has occurred", sender.getName());
+			e.printStackTrace();
+		} catch (SQLException e) {
+			MessageSender.send("&4A DB Error has occurred", sender.getName());
+			e.printStackTrace();
+		}
 			return true;
 		}
 
@@ -163,8 +275,41 @@ public class AdminCommands {
 			String time, String... reason) {
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager
 				.playerSearch(target);
-		if (targetPlayers.isEmpty()) {
-			MessageSender.send("&cCould not find player", sender.getName());
+		if (targetPlayers.isEmpty()) {try
+			{
+			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where player = ?", target);
+			if (!playerRS.next())
+			{
+				MessageSender.send("&cCould not find player", sender.getName());
+				return true;
+			}
+			if (playerRS.getLong("timeouttill") != 0)
+			{
+				MessageSender.send("&cThat player already in timeout",
+						sender.getName());
+				return true;
+			}
+			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where playerName = ?", target);
+			if (!chatRS.next())
+			{
+				MessageSender.send("&cCould not find player", sender.getName());
+				return true;
+			} 
+			long timeout = new Date().getTime() + (Integer.valueOf(time) * 60000);
+			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE player = ?", timeout, target);
+			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE playerName = ? AND  modeName= ?", target,"S-MUTE");
+
+			MessageSender.send("&6" + target
+					+ " has been added to timeout", sender.getName());
+			return true;
+			}
+			catch (DatabaseException e) {
+				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				e.printStackTrace();
+			} catch (SQLException e) {
+				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				e.printStackTrace();
+			}
 			return true;
 		}
 		ChatPlayer targetPlayer = targetPlayers.get(0);
@@ -542,11 +687,12 @@ public class AdminCommands {
 		if (!MCNSAChat.isLockdown) {
 			int time = MCNSAChat.plugin.getConfig().getInt("lockdown-time", 15);
 			lockdownTimed(sender, time, reason);
-			
+
 		} else {
 			String message = MCNSAChat.plugin.getConfig().getString(
 					"strings.lockdown-failed");
-			message = message.replace("%reason%", "Server already in temporary lockdown");
+			message = message.replace("%reason%",
+					"Server already in temporary lockdown");
 			MessageSender.send(message, sender.getName());
 		}
 		return true;
@@ -559,66 +705,61 @@ public class AdminCommands {
 			String message = MCNSAChat.plugin.getConfig().getString(
 					"strings.lockdown-disable");
 			MessageSender.sendToPerm(message, "admin.notify");
-			if (MCNSAChat.lockdownTimerID != 0)
-			{
+			if (MCNSAChat.lockdownTimerID != 0) {
 				Bukkit.getScheduler().cancelTask(MCNSAChat.lockdownTimerID);
 				MCNSAChat.lockdownTimerID = 0;
 				MCNSAChat.lockdownUnlockTime = 0;
 				MCNSAChat.lockdownReason = "";
 			}
 			MCNSAChat.isLockdown = false;
-		} else 
-		{
+		} else {
 
-			String message = MCNSAChat.plugin.getConfig()
-					.getString("strings.lockdown-failed");
+			String message = MCNSAChat.plugin.getConfig().getString(
+					"strings.lockdown-failed");
 			message = message.replace("%reason%", "Server not in lockdown");
 			MessageSender.send(message, sender.getName());
 		}
 		return true;
 	}
 
-	@Command(command = "lockdown", 
-			description = "Locks down the server, not letting any new players enter",
-			permissions = {"lockdown.timed"},
-			arguments = {"time","reason"}
-			)
-	public static boolean lockdownTimed(CommandSender sender, int time, String reason)
-	{
+	@Command(command = "lockdown", description = "Locks down the server, not letting any new players enter", permissions = { "lockdown.timed" }, arguments = {
+			"time", "reason" })
+	public static boolean lockdownTimed(CommandSender sender, int time,
+			String reason) {
 		if (!MCNSAChat.isLockdown) {
-		String message = MCNSAChat.plugin.getConfig().getString(
-				"strings.lockdown-enable-temp");
-		message = message.replace("%reason%", reason);
-		MCNSAChat.isLockdown = true;
-		message = message.replace("%minutes%", String.valueOf(time));
-		MessageSender.sendToPerm(message, "admin.notify");
-		long timeleft = time * 1200;
-		long currentTime = new Date().getTime();
-		MCNSAChat.lockdownUnlockTime = currentTime +  time * 60 * 1000;
-		MCNSAChat.lockdownReason = reason;
-		MCNSAChat.lockdownTimerID = Bukkit.getScheduler().scheduleSyncDelayedTask(
-				MCNSAChat.plugin, new Runnable() {
-					public void run() {
-						String message = MCNSAChat.plugin.getConfig()
-								.getString("strings.lockdown-disable");
-						MCNSAChat.isLockdown = false;
-						message = message.replace("%player%", "timer");
-						MCNSAChat.lockdownUnlockTime = 0;
-						MCNSAChat.lockdownReason = "";
-						MessageSender
-								.sendToPerm(message, "admin.notify");
-					}
-				}, timeleft);
+			String message = MCNSAChat.plugin.getConfig().getString(
+					"strings.lockdown-enable-temp");
+			message = message.replace("%reason%", reason);
+			MCNSAChat.isLockdown = true;
+			message = message.replace("%minutes%", String.valueOf(time));
+			MessageSender.sendToPerm(message, "admin.notify");
+			long timeleft = time * 1200;
+			long currentTime = new Date().getTime();
+			MCNSAChat.lockdownUnlockTime = currentTime + time * 60 * 1000;
+			MCNSAChat.lockdownReason = reason;
+			MCNSAChat.lockdownTimerID = Bukkit.getScheduler()
+					.scheduleSyncDelayedTask(MCNSAChat.plugin, new Runnable() {
+						public void run() {
+							String message = MCNSAChat.plugin.getConfig()
+									.getString("strings.lockdown-disable");
+							MCNSAChat.isLockdown = false;
+							message = message.replace("%player%", "timer");
+							MCNSAChat.lockdownUnlockTime = 0;
+							MCNSAChat.lockdownReason = "";
+							MessageSender.sendToPerm(message, "admin.notify");
+						}
+					}, timeleft);
 		} else {
 			String message = MCNSAChat.plugin.getConfig().getString(
 					"strings.lockdown-failed");
-			message = message.replace("%reason%", "Server already in temporary lockdown");
+			message = message.replace("%reason%",
+					"Server already in temporary lockdown");
 			MessageSender.send(message, sender.getName());
 		}
 		return true;
 	}
+
 	@Command(command = "lockdownpersist", description = "Locks down the server, not letting any new players enter", permissions = { "lockdown.persist" }, arguments = { "reason" }, playerOnly = false)
-	
 	public static boolean lockdownPersist(CommandSender sender, String reason) {
 		ConsoleLogging.info("done persist");
 		if (MCNSAChat.isLockdown && MCNSAChat.lockdownTimerID != 0) {
