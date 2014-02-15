@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -24,6 +25,7 @@ import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.Colours;
+import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
@@ -435,6 +437,48 @@ public class PlayerCommands {
 		}
 		return true;
 	}
+	private static List<String> quickSort(List<String> toSort)
+	{
+		if (toSort.size() <= 1){
+			return toSort;
+		}
+		String pivot = toSort.get(MCNSAChat.random.nextInt(toSort.size()));
+		toSort.remove(pivot);
+		List<String> lesser = new ArrayList<String>();
+		List<String> greater = new ArrayList<String>();
+		int pivotIndex = MCNSAChat.ranking.indexOf(pivot.substring(0, 2));
+		if (pivotIndex == -1)
+		{
+			//Invalid Ranking
+			ConsoleLogging.warning("Ranking not found for player: " + pivot);
+			return toSort;
+		}
+		for (String player : toSort)
+		{
+			int index = MCNSAChat.ranking.indexOf(player.substring(0, 2));
+			if (index == -1)
+			{
+				//Invalid Ranking
+				ConsoleLogging.warning("Ranking not found for player: " + player);
+				return toSort;
+			}
+			if (index <= pivotIndex)
+			{
+				lesser.add(player);
+			}
+			else
+			{
+				greater.add(player);
+			}
+		}
+		List<String> result = quickSort(lesser);
+		result.add(pivot);
+		result.addAll(quickSort(greater));
+		return result;
+
+		//Sort by rank (&7 (default), &2, &3, &e, &6, &c, &d, &8, &b (mod))
+	}
+	
 	@Command(
 			command = "list",
 			description = "Display list of online players",
@@ -449,7 +493,9 @@ public class PlayerCommands {
 			formattedPlayers.add(Colours.PlayerPrefix(player.getName())+player.getName());
 		}
 		
-		Collections.sort(formattedPlayers);
+		//Sort by rank (&7 (default), &2, &3, &e, &6, &c, &d, &8, &b (mod))
+		formattedPlayers = quickSort(formattedPlayers);
+		
 		
 		StringBuffer players = new StringBuffer();
 		for (String player: formattedPlayers) {

@@ -3,10 +3,13 @@ package com.mcnsa.chat.plugin;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Timer;
 
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
@@ -22,6 +25,7 @@ import com.mcnsa.chat.file.Channels;
 import com.mcnsa.chat.networking.ClientThread;
 import com.mcnsa.chat.plugin.managers.ComponentManager;
 import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
+import com.mcnsa.chat.plugin.components.PlayerCommands;
 import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
@@ -53,6 +57,10 @@ public class MCNSAChat extends JavaPlugin{
 	public static int lockdownTimerID;
 	public static String lockdownReason;
 	public static long lockdownUnlockTime;
+	public static String bannedWordsSilent;
+	public static String bannedWordsNotify;
+	public static List<String> ranking = (List<String>) Arrays.asList("&7", "&2", "&3", "&e", "&6", "&c", "&d", "&8", "&b");
+	public static Random random;
 	public void onEnable() {
 		plugin = this;
 		console = new ConsoleLogging();
@@ -72,6 +80,8 @@ public class MCNSAChat extends JavaPlugin{
 		MCNSAChat.isLockdown = this.getConfig().getBoolean("Lockdown");
 		MCNSAChat.lockdownReason = this.getConfig().getString("lockdown-reason");
 		MCNSAChat.lockdownUnlockTime = this.getConfig().getLong("lockdown-unlock-time");
+		bannedWordsNotify = this.getConfig().getString("banned-notify");
+		bannedWordsSilent = this.getConfig().getString("banned-silent");
 		if (new Date().getTime() > MCNSAChat.lockdownUnlockTime)
 		{
 			MCNSAChat.isLockdown = false;
@@ -130,8 +140,7 @@ public class MCNSAChat extends JavaPlugin{
 		addOnlinePlayers();
 		//Start up the player listener
 		new PlayerListener();
-
-		
+		random = new Random();
 		
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 			public void run() {
