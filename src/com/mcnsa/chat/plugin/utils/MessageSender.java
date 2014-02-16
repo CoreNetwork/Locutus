@@ -284,7 +284,7 @@ public class MessageSender {
 	}
 	public static void shadowChannelMessage(String channel, String serverCode, String player, String rawMessage)
 	{
-		if (!MCNSAChat.bannedWordsNotify.isEmpty() && rawMessage.matches(MCNSAChat.bannedWordsNotify)){
+		if (!MCNSAChat.bannedWordsNotify.isEmpty() && !Permissions.checkPermission("chat.banned-word-immunity", player) && rawMessage.matches(MCNSAChat.bannedWordsNotify)){
 			String playerMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-player", "That message contains banned words or characters");
 			playerMessage = playerMessage.replace("%player%", player);
 			playerMessage = playerMessage.replace("%message%", rawMessage);
@@ -292,7 +292,7 @@ public class MessageSender {
 
 			return;
 		}
-		if (!MCNSAChat.bannedWordsSilent.isEmpty() && rawMessage.matches(MCNSAChat.bannedWordsSilent)){
+		if (!MCNSAChat.bannedWordsSilent.isEmpty() && !Permissions.checkPermission("chat.banned-word-immunity", player) && rawMessage.matches(MCNSAChat.bannedWordsSilent)){
 			String playerMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-player", "That message contains banned words or characters");
 			playerMessage = playerMessage.replace("%player%", player);
 			playerMessage = playerMessage.replace("%message%", rawMessage);
@@ -353,7 +353,7 @@ public class MessageSender {
 		
 	}
 	public static void channelMessage(String channel, String serverCode, String player, String rawMessage) {
-		if (!MCNSAChat.bannedWordsNotify.isEmpty() && rawMessage.matches(MCNSAChat.bannedWordsNotify)){
+		if (!MCNSAChat.bannedWordsNotify.isEmpty() && !Permissions.checkPermission("chat.banned-word-immunity", player) && rawMessage.matches(MCNSAChat.bannedWordsNotify)){
 			String playerMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-player", "That message contains banned words or characters");
 			playerMessage = playerMessage.replace("%player%", player);
 			playerMessage = playerMessage.replace("%message%", rawMessage);
@@ -365,7 +365,7 @@ public class MessageSender {
 			sendToPerm(adminMessage,"admin.notify");
 			return;
 		}
-		if (!MCNSAChat.bannedWordsSilent.isEmpty() && rawMessage.matches(MCNSAChat.bannedWordsSilent)){
+		if (!MCNSAChat.bannedWordsSilent.isEmpty() && !Permissions.checkPermission("chat.banned-word-immunity", player) && rawMessage.matches(MCNSAChat.bannedWordsSilent)){
 			String playerMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-player", "That message contains banned words or characters");
 			playerMessage = playerMessage.replace("%player%", player);
 			playerMessage = playerMessage.replace("%message%", rawMessage);
