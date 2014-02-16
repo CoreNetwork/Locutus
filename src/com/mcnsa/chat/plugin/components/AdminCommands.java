@@ -74,7 +74,7 @@ public class AdminCommands {
 		if (targetPlayers.isEmpty()) {
 			try {
 
-				ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where player = ?", target);
+				ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where UPPER(player) = upper(?)", target);
 				if (!playerRS.next()){
 					MessageSender.send("&cCould not find player", sender.getName());
 					return true;
@@ -85,7 +85,7 @@ public class AdminCommands {
 					return true;
 				}
 
-				ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes WHERE playerName = ? AND modeName = ?", target,"MUTE");
+				ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes WHERE upper(playerName) = upper(?) AND modeName = ?", target,"MUTE");
 				if (!chatRS.next()) {
 					MessageSender.send("&cCould not find player", sender.getName());
 					return true;
@@ -97,8 +97,8 @@ public class AdminCommands {
 					return true;
 				}
 
-				DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE player = ?", 0, target);
-				DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=0 WHERE playerName = ? AND modeName= ?", target,"MUTE");
+				DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE upper(player) = upper(?)", 0, target);
+				DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=0 WHERE upper(playerName) = upper(?) AND modeName= ?", target,"MUTE");
 				MessageSender.send("&6" + target
 						+ " has been removed from timeout", sender.getName());
 				return true;
@@ -138,7 +138,7 @@ public class AdminCommands {
 			//Find offline player
 			try
 			{
-			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where player = ?", target);
+			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where upper(player) = upper(?)", target);
 			if (!playerRS.next())
 			{
 				MessageSender.send("&cCould not find player", sender.getName());
@@ -150,15 +150,15 @@ public class AdminCommands {
 						sender.getName());
 				return true;
 			}
-			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where playerName = ?", target);
+			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where upper(playerName) = upper(?)", target);
 			if (!chatRS.next())
 			{
 				MessageSender.send("&cCould not find player", sender.getName());
 				return true;
 			} 
 			long timeout = new Date().getTime() + (Integer.valueOf(time) * 60000);
-			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE player = ?", timeout, target);
-			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE playerName = ? AND modeName= ?", target,"MUTE");
+			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE upper(player) = upper(?)", timeout, target);
+			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE upper(playerName) = upper(?) AND modeName= ?", target,"MUTE");
 
 			MessageSender.send("&6" + target
 					+ " has been added to timeout", sender.getName());
@@ -217,7 +217,7 @@ public class AdminCommands {
 				.playerSearch(target);
 		if (targetPlayers.isEmpty()) {try {
 
-			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where player = ?", target);
+			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where upper(player) = upper(?)", target);
 			if (!playerRS.next()){
 				MessageSender.send("&cCould not find player", sender.getName());
 				return true;
@@ -228,7 +228,7 @@ public class AdminCommands {
 				return true;
 			}
 
-			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where playerName = ? and modeName = ?", target,"S-MUTE");
+			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where upper(playerName) = upper(?) and modeName = ?", target,"S-MUTE");
 			if (!chatRS.next()) {
 				MessageSender.send("&cCould not find player", sender.getName());
 				return true;
@@ -240,8 +240,8 @@ public class AdminCommands {
 				return true;
 			}
 
-			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE player = ?", 0, target);
-			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=0 WHERE playerName = ? AND  modeName= ?", "S-MUTE");
+			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE upper(player) = upper(?)", 0, target);
+			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=0 WHERE upper(playerName) = upper(?) AND  modeName= ?", "S-MUTE");
 			MessageSender.send("&6" + target
 					+ " has been removed from timeout", sender.getName());
 			return true;
@@ -277,7 +277,7 @@ public class AdminCommands {
 				.playerSearch(target);
 		if (targetPlayers.isEmpty()) {try
 			{
-			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where player = ?", target);
+			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where upper(player) = upper(?)", target);
 			if (!playerRS.next())
 			{
 				MessageSender.send("&cCould not find player", sender.getName());
@@ -289,15 +289,15 @@ public class AdminCommands {
 						sender.getName());
 				return true;
 			}
-			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where playerName = ?", target);
+			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where upper(playerName) = upper(?)", target);
 			if (!chatRS.next())
 			{
 				MessageSender.send("&cCould not find player", sender.getName());
 				return true;
 			} 
 			long timeout = new Date().getTime() + (Integer.valueOf(time) * 60000);
-			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE player = ?", timeout, target);
-			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE playerName = ? AND  modeName= ?", target,"S-MUTE");
+			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE upper(player) = upper(?)", timeout, target);
+			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE upper(playerName) = upper(?) AND  modeName= ?", target,"S-MUTE");
 
 			MessageSender.send("&6" + target
 					+ " has been added to timeout", sender.getName());

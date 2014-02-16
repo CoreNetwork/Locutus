@@ -523,7 +523,7 @@ public class PlayerCommands {
 				MessageSender.send(message, sender.getName());
 			} else {
 				try {
-					ResultSet rs = DatabaseManager.accessQuery("SELECT lastLogin FROM chat_Players WHERE player=?", playerName);
+					ResultSet rs = DatabaseManager.accessQuery("SELECT lastLogin FROM chat_Players WHERE UPPER(player)=UPPER(?)", playerName);
 					long last = rs.getLong(1);
 					Calendar c = Calendar.getInstance();
 					c.setTimeInMillis(last);
