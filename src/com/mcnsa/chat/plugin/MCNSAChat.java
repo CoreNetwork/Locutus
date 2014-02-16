@@ -80,8 +80,8 @@ public class MCNSAChat extends JavaPlugin{
 		MCNSAChat.isLockdown = this.getConfig().getBoolean("Lockdown");
 		MCNSAChat.lockdownReason = this.getConfig().getString("lockdown-reason");
 		MCNSAChat.lockdownUnlockTime = this.getConfig().getLong("lockdown-unlock-time");
-		bannedWordsNotify = this.getConfig().getString("banned-notify");
-		bannedWordsSilent = this.getConfig().getString("banned-silent");
+		bannedWordsNotify = this.getConfig().getString("banned-notify","");
+		bannedWordsSilent = this.getConfig().getString("banned-silent","");
 		ranking = Arrays.asList(((String)getConfig().get("ranking-string","&7 &2 &3 &e &6 &c &d &8 &b")).split(" "));
 		if (new Date().getTime() > MCNSAChat.lockdownUnlockTime)
 		{
