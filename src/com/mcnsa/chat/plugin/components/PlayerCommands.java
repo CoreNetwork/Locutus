@@ -510,6 +510,25 @@ public class PlayerCommands {
 	}
 	
 	@Command(
+			command = "crankreload",
+			arguments = {},
+			description = "Reloads players names",
+			permissions = {"crankreload"}
+			)
+		public static boolean crankreload(CommandSender sender) {
+
+		for (ChatPlayer player : PlayerManager.players)
+		{
+			String playerlistName = Colours.color(Colours.PlayerPrefix(player.name)
+					+ player.name);
+			if (playerlistName.length() > 16)
+				playerlistName = playerlistName.substring(0, 16);
+			Bukkit.getPlayer(player.name).setPlayerListName(playerlistName);
+		}
+		return true;
+	}
+	
+	@Command(
 			command = "seen",
 			arguments = {"Player name"},
 			description = "Displays the last time the person logged on",
