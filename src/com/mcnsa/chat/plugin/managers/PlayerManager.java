@@ -146,7 +146,7 @@ public class PlayerManager {
 		for (int i = 0; i < players.size(); i++) {
 			if (players.get(i).name.equalsIgnoreCase(Player)) {
 				players.get(i).modes.put("MUTE", true);
-				players.get(i).timeoutTill = new Date().getTime() + (Integer.valueOf(time) * 60000);
+				players.get(i).timeoutTill = (long) (new Date().getTime() + (Double.valueOf(time) * 60000));
 				//Inform the player
 				if (players.get(i).server.equals(MCNSAChat.shortCode))
 					MessageSender.timeoutPlayer(Player, time, reason);
@@ -160,7 +160,7 @@ public class PlayerManager {
 		for (int i = 0; i < players.size(); i++) {
 			if (players.get(i).name.equalsIgnoreCase(Player)) {
 				players.get(i).modes.put("S-MUTE", true);
-				players.get(i).timeoutTill = new Date().getTime() + (Integer.valueOf(time) * 60000);
+				players.get(i).timeoutTill = (long) (new Date().getTime() + (Double.valueOf(time) * 60000));
 				
 				
 				String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.shadow-mute-notify");

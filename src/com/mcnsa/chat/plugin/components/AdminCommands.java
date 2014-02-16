@@ -156,7 +156,7 @@ public class AdminCommands {
 				MessageSender.send("&cCould not find player", sender.getName());
 				return true;
 			} 
-			long timeout = new Date().getTime() + (Integer.valueOf(time) * 60000);
+			long timeout = (long) (new Date().getTime() + (Double.valueOf(time) * 60000));
 			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE upper(player) = upper(?)", timeout, target);
 			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE upper(playerName) = upper(?) AND modeName= ?", target,"MUTE");
 
@@ -192,7 +192,7 @@ public class AdminCommands {
 
 		// Start timer
 		final String finalPlayerName = targetPlayer.name;
-		long timeleft = Integer.valueOf(time) * 1200;
+		long timeleft = (long) (Double.valueOf(time) * 1200);
 		Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin,
 				new Runnable() {
 					public void run() {
@@ -206,7 +206,7 @@ public class AdminCommands {
 				}, timeleft);
 
 		// Send to network
-		Network.timeout(targetPlayer, sb.toString(), Integer.valueOf(time));
+		Network.timeout(targetPlayer, sb.toString(), (long) (Double.valueOf(time) * 1));
 		return true;
 	}
 
@@ -295,7 +295,7 @@ public class AdminCommands {
 				MessageSender.send("&cCould not find player", sender.getName());
 				return true;
 			} 
-			long timeout = new Date().getTime() + (Integer.valueOf(time) * 60000);
+			long timeout = (long) (new Date().getTime() + (Double.valueOf(time) * 60000));
 			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE upper(player) = upper(?)", timeout, target);
 			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE upper(playerName) = upper(?) AND  modeName= ?", target,"S-MUTE");
 
@@ -332,7 +332,7 @@ public class AdminCommands {
 
 		// Start timer
 		final String finalPlayerName = targetPlayer.name;
-		long timeleft = Integer.valueOf(time) * 1200;
+		long timeleft = (long) (Double.valueOf(time) * 1200);
 		Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin,
 				new Runnable() {
 					public void run() {
@@ -347,7 +347,7 @@ public class AdminCommands {
 				}, timeleft);
 
 		// Send to network
-		Network.timeout(targetPlayer, sb.toString(), Integer.valueOf(time));
+		Network.timeout(targetPlayer, sb.toString(), (long) (Double.valueOf(time) * 1));
 		return true;
 	}
 
