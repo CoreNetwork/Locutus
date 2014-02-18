@@ -7,6 +7,9 @@ import com.mcnsa.chat.plugin.MCNSAChat;
 
 public class ConsoleLogging {
 	
+	public static void debug(String message) {
+		Bukkit.getConsoleSender().sendMessage("["+ChatColor.GOLD+"MCNSAChat"+ChatColor.WHITE+"] " + message);
+	}
 	public static void info (String message) {
 		Bukkit.getConsoleSender().sendMessage(Colours.processConsoleColours("&f[&aMCNSAChat&f]&f[INFO] "+message));
 	}
