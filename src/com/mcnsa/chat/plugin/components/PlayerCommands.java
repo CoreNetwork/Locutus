@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -517,6 +518,7 @@ public class PlayerCommands {
 			)
 		public static boolean crankreload(CommandSender sender) {
 
+		Permissions.perms.getGroups();
 		for (ChatPlayer player : PlayerManager.players)
 		{
 			String playerlistName = Colours.color(Colours.PlayerPrefix(player.name)
@@ -544,17 +546,32 @@ public class PlayerCommands {
 				try {
 					ResultSet rs = DatabaseManager.accessQuery("SELECT lastLogin FROM chat_Players WHERE UPPER(player)=UPPER(?)", playerName);
 					long last = rs.getLong(1);
-					Calendar c = Calendar.getInstance();
-					c.setTimeInMillis(last);
-					String message = MCNSAChat.plugin.getConfig().getString(
-					"strings.seen-last");
+					long currentTime = System.currentTimeMillis();
+					long time = currentTime-last;
+					String message = "&%player% has been last seen ";
 					message = 	message.replace("%player%", playerName);
-					message = 	message.replace("%second%", String.valueOf(c.get(Calendar.SECOND)));
-					message = 	message.replace("%minute%", String.valueOf(c.get(Calendar.MINUTE)));
-					message = 	message.replace("%hour%", String.valueOf(c.get(Calendar.HOUR_OF_DAY)));
-					message = 	message.replace("%day%", String.valueOf(c.get(Calendar.DAY_OF_MONTH)));
-					message = 	message.replace("%month%", String.valueOf(c.get(Calendar.MONTH)+1));
-					message = 	message.replace("%year%", String.valueOf(c.get(Calendar.YEAR)));
+					
+					String seconds = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(time) % 60);
+					String minutes = String.valueOf(TimeUnit.MILLISECONDS.toMinutes(time) % 60);
+					String hours = String.valueOf(TimeUnit.MILLISECONDS.toHours(time) % 24);
+					String days = String.valueOf(TimeUnit.MILLISECONDS.toDays(time) % 30);
+					String months = String.valueOf((int)(TimeUnit.MILLISECONDS.toDays(time) / 30));
+					String years = String.valueOf((int)TimeUnit.MILLISECONDS.toDays(time) / 365);
+
+					ConsoleLogging.info(seconds);
+					ConsoleLogging.info(minutes);
+					ConsoleLogging.info(hours);
+					ConsoleLogging.info(days);
+					ConsoleLogging.info(months);
+					ConsoleLogging.info(years);
+					ConsoleLogging.info(String.valueOf(seconds.isEmpty()));
+					message += (!years.equals("0") ? years+" years " : "");
+					message += (!months.equals("0") ? months+" months " : "");
+					message += (!days.equals("0") ? days+"d " : "");
+					message += (!hours.equals("0") ? hours+"h " : "");
+					message += (!minutes.equals("0") ? minutes+"m " : "");
+					message += (!seconds.equals("0") ? seconds+"s " : "");
+					message += "ago";
 					MessageSender.send(message, sender.getName());
 				} catch (DatabaseException e) {
 					String message = MCNSAChat.plugin.getConfig().getString(
