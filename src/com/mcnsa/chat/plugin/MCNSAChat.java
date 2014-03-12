@@ -101,6 +101,7 @@ public class MCNSAChat extends JavaPlugin{
 		File playerFolder = new File("plugins/MCNSAChat/Players");
 		if (!playerFolder.exists())
 			playerFolder.mkdir();
+		
 		console.info("Config Loaded");
 		console.info("Server name is: "+MCNSAChat.serverName);
 		console.info("Server shortcode is: "+MCNSAChat.shortCode);

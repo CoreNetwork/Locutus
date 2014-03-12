@@ -126,7 +126,7 @@ public class DatabaseManager {
 	}
 
 	public static void connect() throws SQLException, DatabaseException {
-		connection = DriverManager.getConnection("jdbc:sqlite:" +  new File(MCNSAChat.plugin.getDataFolder().getPath(), "chat.db").getPath());
+		connection = DriverManager.getConnection("jdbc:sqlite:" + url);
 		
 		if(connection != null) {
 			ConsoleLogging.info("&aDatabase connected!");
