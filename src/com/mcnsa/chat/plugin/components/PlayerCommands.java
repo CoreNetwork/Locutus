@@ -558,13 +558,6 @@ public class PlayerCommands {
 					String months = String.valueOf((int)(TimeUnit.MILLISECONDS.toDays(time) / 30));
 					String years = String.valueOf((int)TimeUnit.MILLISECONDS.toDays(time) / 365);
 
-					ConsoleLogging.info(seconds);
-					ConsoleLogging.info(minutes);
-					ConsoleLogging.info(hours);
-					ConsoleLogging.info(days);
-					ConsoleLogging.info(months);
-					ConsoleLogging.info(years);
-					ConsoleLogging.info(String.valueOf(seconds.isEmpty()));
 					message += (!years.equals("0") ? years+" years " : "");
 					message += (!months.equals("0") ? months+" months " : "");
 					message += (!days.equals("0") ? days+"d " : "");
