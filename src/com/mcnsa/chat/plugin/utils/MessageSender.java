@@ -83,7 +83,7 @@ public class MessageSender {
 				long seconds = (Long) keys[i];
 				if (loginSince > seconds)
 				{
-					ConsoleLogging.info("Found a matching time: " + seconds + " for time: " + loginSince);
+					// ConsoleLogging.info("Found a matching time: " + seconds + " for time: " + loginSince);
 					seconds = (Long) keys[i];
 					message = 	greetings.get(keys[i]);
 					message = 	message.replace("%seconds%", String.valueOf(loginSince % 60));
@@ -92,7 +92,7 @@ public class MessageSender {
 					message = 	message.replace("%days%", String.valueOf(loginSince / 60 / 60 / 24 % 30));
 					message = 	message.replace("%months%", String.valueOf(loginSince / 60 / 60 / 24 / 30 % 12));	//Not exactly months, but close enough
 					message = 	message.replace("%years%", String.valueOf(loginSince / 60 / 60 / 24 / 30 / 12));	//Probably unneccessary
-					ConsoleLogging.info("Message to do is: " + message);
+					// ConsoleLogging.info("Message to do is: " + message);
 					break;
 				}
 			}
