@@ -548,7 +548,7 @@ public class PlayerCommands {
 					long last = rs.getLong(1);
 					long currentTime = System.currentTimeMillis();
 					long time = currentTime-last;
-					String message = "&3%player% has been last seen ";
+					String message = "&6%player% has been last seen ";
 					message = 	message.replace("%player%", playerName);
 					
 					String seconds = String.valueOf(TimeUnit.MILLISECONDS.toSeconds(time) % 60);
