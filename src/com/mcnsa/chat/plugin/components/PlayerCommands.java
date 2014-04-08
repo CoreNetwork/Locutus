@@ -41,6 +41,8 @@ public class PlayerCommands {
 			permissions = {"move"},
 			playerOnly = true)
 	public static boolean channelChange(CommandSender sender, String channel) throws ChatCommandException{
+		
+		channel = Colours.stripColor(channel);
 		//Get the player
 		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
 		//Check to see if the Player is locked in channel
@@ -537,6 +539,7 @@ public class PlayerCommands {
 			permissions = {"seen"}
 			)
 		public static boolean seen(CommandSender sender, String playerName) {
+			playerName = Colours.stripColor(playerName);
 			if (PlayerManager.getPlayer(playerName) != null){
 				String message = MCNSAChat.plugin.getConfig().getString(
 				"strings.seen-online");
