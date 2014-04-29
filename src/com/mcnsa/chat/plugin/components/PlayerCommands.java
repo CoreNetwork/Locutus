@@ -282,9 +282,10 @@ public class PlayerCommands {
 				
 				//Send the pm back to the sender
 				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-				
-				//Try sending the pm to the target
-				MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+				ChatPlayer target = PlayerManager.getPlayer(targetPlayer.name);
+				if(!target.modes.get("S-MUTE"))
+					//Try sending the pm to the target
+					MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
 				
 				//Send it to network
 				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
@@ -386,8 +387,10 @@ public class PlayerCommands {
 			//Send the pm back to the sender
 			MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
 			
-			//Try sending the pm to the target
-			MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+			ChatPlayer target = PlayerManager.getPlayer(targetPlayer.name);
+			if(!target.modes.get("S-MUTE"))
+				//Try sending the pm to the target
+				MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
 			
 			//Send it to network
 			Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
