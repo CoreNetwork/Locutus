@@ -223,9 +223,9 @@ public class PlayerCommands {
 		for (String message: Message) {
 			messageString.append(message+" ");
 		}
-		
+		String formattedString = messageString.toString();
 		if (!Permissions.useColours(sender.getName()))
-			messageString = Colours.stripColor(messageString.toString());
+			messageString = Colours.stripColor(formattedString);
 		//sending to console support
 		if (player.equalsIgnoreCase("console")) {
 			//Try and get player
@@ -236,12 +236,12 @@ public class PlayerCommands {
 				return true;
 			} else if (playerSender.modes.get("S-MUTE"))
 			{
-				MessageSender.sendPM(messageString.toString(), sender.getName(), player.toUpperCase());
+				MessageSender.sendPM(formattedString, sender.getName(), player.toUpperCase());
 				
 				return true;
 			}
-			MessageSender.sendPM(messageString.toString(), sender.getName(), player.toUpperCase());
-			MessageSender.recievePM(messageString.toString(), sender.getName(), player.toUpperCase());
+			MessageSender.sendPM(formattedString, sender.getName(), player.toUpperCase());
+			MessageSender.recievePM(formattedString, sender.getName(), player.toUpperCase());
 			
 			return true;
 			
@@ -267,10 +267,10 @@ public class PlayerCommands {
 					ChatPlayer targetPlayer = targetPlayers.get(0);
 					//Send the pm back to the sender
 					
-					MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+					MessageSender.sendPM(formattedString, sender.getName(), targetPlayer.name);
 					if (player.equalsIgnoreCase(playerSender.name))
 					{
-						MessageSender.recievePM(messageString.toString(), sender.getName(), player.toUpperCase());
+						MessageSender.recievePM(formattedString, sender.getName(), player.toUpperCase());
 					}
 					return true;
 				}
@@ -283,14 +283,14 @@ public class PlayerCommands {
 				ChatPlayer targetPlayer = targetPlayers.get(0);
 				
 				//Send the pm back to the sender
-				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+				MessageSender.sendPM(formattedString, sender.getName(), targetPlayer.name);
 				ChatPlayer target = PlayerManager.getPlayer(targetPlayer.name);
 				if(!target.modes.get("S-MUTE"))
 					//Try sending the pm to the target
-					MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+					MessageSender.recievePM(formattedString, sender.getName(), targetPlayer.name);
 				
 				//Send it to network
-				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
+				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, formattedString);
 			}
 			else
 			{
@@ -302,13 +302,13 @@ public class PlayerCommands {
 				ChatPlayer targetPlayer = targetPlayers.get(0);
 				
 				//Send the pm back to the sender
-				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+				MessageSender.sendPM(formattedString, sender.getName(), targetPlayer.name);
 				
 				//Try sending the pm to the target
-				MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+				MessageSender.recievePM(formattedString, sender.getName(), targetPlayer.name);
 				
 				//Send it to network
-				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
+				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, formattedString);
 			}
 		}
 		return true;
@@ -326,11 +326,12 @@ public class PlayerCommands {
 			messageString.append(message+" ");
 		}
 		
+		String formattedString = messageString.toString();
 		//Get the player
 		ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
 		
 		if (!Permissions.useColours(playerSender.name))
-			messageString = Colours.stripColor(messageString.toString());
+			messageString = Colours.stripColor(formattedString);
 		
 		if (playerSender.modes.get("MUTE"))
 		{
@@ -343,7 +344,7 @@ public class PlayerCommands {
 				return true;
 			}
 			if (playerSender.lastPm.equalsIgnoreCase("console")) {
-				MessageSender.sendPM(messageString.toString(), sender.getName(), playerSender.lastPm);
+				MessageSender.sendPM(formattedString, sender.getName(), playerSender.lastPm);
 			}
 			else
 			{
@@ -357,10 +358,10 @@ public class PlayerCommands {
 							
 				
 				//Send the pm back to the sender
-				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+				MessageSender.sendPM(formattedString, sender.getName(), targetPlayer.name);
 				if (targetPlayer.name == sender.getName())
 				{
-					MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+					MessageSender.recievePM(formattedString, sender.getName(), targetPlayer.name);
 				}
 				return true;
 			}
@@ -374,10 +375,10 @@ public class PlayerCommands {
 		//sending to console support
 		if (playerSender.lastPm.equalsIgnoreCase("console")) {
 			//Send the pm back to the sender
-			MessageSender.sendPM(messageString.toString(), sender.getName(), playerSender.lastPm);
+			MessageSender.sendPM(formattedString, sender.getName(), playerSender.lastPm);
 			
 			//Try sending the pm to the target
-			MessageSender.recievePM(messageString.toString(), sender.getName(), playerSender.lastPm);
+			MessageSender.recievePM(formattedString, sender.getName(), playerSender.lastPm);
 			return true;
 		}
 		else {
@@ -391,15 +392,15 @@ public class PlayerCommands {
 			}
 						
 			//Send the pm back to the sender
-			MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
+			MessageSender.sendPM(formattedString, sender.getName(), targetPlayer.name);
 			
 			ChatPlayer target = PlayerManager.getPlayer(targetPlayer.name);
 			if(!target.modes.get("S-MUTE"))
 				//Try sending the pm to the target
-				MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
+				MessageSender.recievePM(formattedString, sender.getName(), targetPlayer.name);
 			
 			//Send it to network
-			Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
+			Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, formattedString);
 		}
 		return true;
 	}
@@ -418,18 +419,18 @@ public class PlayerCommands {
 		for (String message: rawMessage) {
 			messageString.append(message+" ");
 		}
-		
+		String formattedString = messageString.toString();
 		if (!Permissions.useColours(player.name))
-			messageString = Colours.stripColor(messageString.toString());
+			messageString = Colours.stripColor(formattedString);
 		if (player.modes.get("MUTE")) { 
 			MessageSender.send("&c You are in timeout. Please try again later", player.name);
 			}
 		else if(player.modes.get("S-MUTE")){
-			MessageSender.shadowActionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
+			MessageSender.shadowActionMessage(sender.getName(), formattedString, MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
 		}
 		else
 		{
-			MessageSender.actionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
+			MessageSender.actionMessage(sender.getName(), formattedString, MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
 		}
 		
 		//Send it to relevent players
