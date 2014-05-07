@@ -225,7 +225,7 @@ public class PlayerCommands {
 		}
 		String formattedString = messageString.toString();
 		if (!Permissions.useColours(sender.getName()))
-			messageString = Colours.stripColor(formattedString);
+			formattedString = Colours.stripColor(formattedString);
 		//sending to console support
 		if (player.equalsIgnoreCase("console")) {
 			//Try and get player
@@ -331,7 +331,7 @@ public class PlayerCommands {
 		ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
 		
 		if (!Permissions.useColours(playerSender.name))
-			messageString = Colours.stripColor(formattedString);
+			formattedString = Colours.stripColor(formattedString);
 		
 		if (playerSender.modes.get("MUTE"))
 		{
@@ -421,7 +421,7 @@ public class PlayerCommands {
 		}
 		String formattedString = messageString.toString();
 		if (!Permissions.useColours(player.name))
-			messageString = Colours.stripColor(formattedString);
+			formattedString = Colours.stripColor(formattedString);
 		if (player.modes.get("MUTE")) { 
 			MessageSender.send("&c You are in timeout. Please try again later", player.name);
 			}
