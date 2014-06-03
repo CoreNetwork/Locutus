@@ -5,19 +5,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
-import com.mcnsa.chat.plugin.annotations.Setting;
 import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
-
+//TODO Need huge rewrite to efficient and clean code
 public class DatabaseManager {
 	// our connection settings
 
@@ -77,7 +74,7 @@ public class DatabaseManager {
 		//Very hacky way to see if the table has been updated to include last login
 		try
 		{
-			ResultSet results = DatabaseManager.accessQuery(
+			DatabaseManager.accessQuery(
 					"select lastLogin from chat_Players;");
 			
 		}

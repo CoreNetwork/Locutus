@@ -1,26 +1,63 @@
-ShortCode: 'S'
-ServerName: 'Survival'
-defaultChannel: 'S'
-defaultListen: [S, Server, Global]
-
+ShortCode: S
+ServerName: Survival
+Lockdown: false
+lockdown-time: 2
+defaultChannel: S
+defaultListen:
+- S
+- Server
+- Global
+- e
+- f
+- server
+- network
+- mod
+- admin
+- protest
+- boringtest
 multiServer: false
 chatServer: ''
 chatServerPassword: ''
-
+database-isSQL: true
+database-url: crazyname.db
+database-player-folder: plugins/MCNSAChat/Players
+database-isTransitioning: false
 consoleLogChat: true
 consoleLogServers: true
-
+consoleLogServerInfo: true
 hideJoinPlayerList: false
-
+displayWelcome: true
+consoleSender-colour: '&4'
+consoleSender: CONSOLE
+greetings:
+  '0': Welcome %group%%player% to the server! He has been gone for %seconds% seconds
+  '60': Welcome back %group%%player% who has been gone for more than a minute, %minutes% minutes and %seconds% seconds!
+  '600': Welcome back %group%%player% who has been gone more than ten minutes, precisely, %minutes% minutes and %seconds% seconds
+  '86400': Welcome %group%%player% who hasnt joined the server in the last 24 hours, %days% days and %hours% hours ago
 strings:
   player-welcome: '&aWelcome &e%player% &ato the server!'
   player-join: '%prefix%%player% &ehas joined %server%!'
-  player-quit: '%prefix%%player% &ehas left %server%!'
+  player-quit: '&7%prefix%%player% has left %server%!'
   message: '&f<&3%server%&7%channel%&f>%prefix% %player%: &7%message%'
   action: '&f<&3%server%&7%channel%&f> * %prefix%%player% &f%message%'
-  pm_send: '&7(to %to%) %message%' # you can also use %from%
-  pm_receive: '&7(from %from%) %message%' # you can also use %to%
-  timeout-mod: '%prefix%%player% %fHas been put in timeout for %time% seconds'
-  timeout-player: 'You have been placed in timeout for %time% seconds'
-  timeout-players: '%prefix%%player% &fHas been put in timeout for %time% seconds'
-  timeout-reason: 'For %reason%'
+  pm_send: '&7(to %to%) %message%'
+  pm_receive: '&7(from %from%) %message%'
+  timeout-mod: '%prefix%%player% %fHas been put in timeout for %time% minutes'
+  timeout-player: You have been placed in timeout for %time% seconds
+  timeout-players: '%prefix%%player% &fHas been put in timeout for %time% minutes'
+  timeout-reason: For %reason%
+  networkMessage: '&cNetwork Message: %message%'
+  lockdown-kick: Sorry, this server is currently in lockdown
+  lockdown-enable-temp: Lockdown is enabled because %reason% for %minutes%m
+  lockdown-enable-persist: Lockdown is enabled indefinetly because %reason%
+  lockdown-login-persist: 'Warning: The server is currently in persistent lockdown
+    because %reason%'
+  lockdown-login-temp: 'Warning: the server is currently in temporary lockdown because
+    %reason% for %minutes%m %seconds%s'
+  lockdown-disable: Lockdown is disabled
+  lockdown-failed: Lockdown failed because %reason%
+  shadow-mute-notify: Shadow muted %player%
+  shadow-unmute-notify: Un-shadow-muted %player%
+  seen-never: '%player% hasnt joined the server before'
+  seen-online: '%player% is online right now'
+  seen-last: '%player% was last on at %minute%:%hour% %day%/%month%/%year%'

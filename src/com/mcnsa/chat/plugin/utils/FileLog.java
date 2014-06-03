@@ -7,19 +7,19 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.mcnsa.chat.plugin.MCNSAChat;
 
 public class FileLog {
 	private static BufferedWriter chatLog;
 	private static BufferedWriter errorLog;
-	
+	//TODO Change output logs to static references.
+	///TODO Is this used?
 	public FileLog() {
 		try {
 			chatLog = new BufferedWriter(new FileWriter(new File("plugins/MCNSAChat/chatLog.txt"), true));
 			errorLog = new BufferedWriter(new FileWriter(new File("plugins/MCNSAChat/errorLog.txt"), true));
 		}
 		catch (Exception e) {
-			MCNSAChat.console.severe("Error creating log file: "+e.getMessage());
+			ConsoleLogging.severe("Error creating log file: "+e.getMessage());
 		}
 		
 		//Check if the files already exist
@@ -32,7 +32,7 @@ public class FileLog {
 				chatLog.newLine();
 				chatLog.flush();
 			} catch (IOException e) {
-				MCNSAChat.console.severe("Could not write to chatLog: "+e.getMessage());
+				ConsoleLogging.severe("Could not write to chatLog: "+e.getMessage());
 			}
 		}
 		if (!errorLogExists) {
@@ -41,7 +41,7 @@ public class FileLog {
 				errorLog.newLine();
 				errorLog.flush();
 			} catch (IOException e) {
-				MCNSAChat.console.severe("Could not write to errorLog: "+e.getMessage());
+				ConsoleLogging.severe("Could not write to errorLog: "+e.getMessage());
 			}
 		}
 	}
@@ -54,7 +54,7 @@ public class FileLog {
 			chatLog.newLine();
 			chatLog.flush();
 		} catch (IOException e) {
-			MCNSAChat.console.severe("Could not write to chatLog: "+e.getMessage());
+			ConsoleLogging.severe("Could not write to chatLog: "+e.getMessage());
 		}
 	}
 	public static void writeError(String message) {
@@ -65,7 +65,7 @@ public class FileLog {
 			errorLog.newLine();
 			errorLog.flush();
 		} catch (IOException e) {
-			MCNSAChat.console.severe("Could not write to errorLog: "+e.getMessage());
+			ConsoleLogging.severe("Could not write to errorLog: "+e.getMessage());
 		}
 	}
 	public static void closeFiles() {
@@ -73,7 +73,7 @@ public class FileLog {
 			chatLog.close();
 			errorLog.close();
 		} catch (IOException e) {
-			MCNSAChat.console.severe("Could not close log files: "+e.getMessage());
+			ConsoleLogging.severe("Could not close log files: "+e.getMessage());
 		}
 	}
 }

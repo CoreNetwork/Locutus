@@ -3,20 +3,20 @@ package com.mcnsa.chat.plugin.managers;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.mcnsa.chat.plugin.utils.Colours;
+import com.mcnsa.chat.plugin.utils.Colors;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class ChannelManager {
-	public static ArrayList<ChatChannel> channels = new ArrayList<ChatChannel>();
-	public static ArrayList<String> tempChannels = new ArrayList<String>();
+	private static ArrayList<ChatChannel> channels = new ArrayList<ChatChannel>();
+	private static ArrayList<String> tempChannels = new ArrayList<String>();
 	public static HashMap<String, String> channelAlias = new HashMap<String, String>();
 	public ChannelManager(){
 	}
-	public void removeChannel(String chan) {
+	public static void removeChannel(String chan) {
 		channels.remove(getChannel(chan));
 	}
-	public void removeTempChannel(String chan) {
+	public static void removeTempChannel(String chan) {
 		tempChannels.remove(chan);
 	}
 	public static void addTempChannel(String chan) {
@@ -43,7 +43,7 @@ public class ChannelManager {
 	public static ArrayList<ChatPlayer> getPlayersListening(String channel){
 		ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 		for (ChatPlayer player: PlayerManager.players) {
-			if (player.channel.equalsIgnoreCase(channel)|| player.listening.contains(channel.toLowerCase()) || player.modes.get("SEEALL")) {
+			if (player.channel.equalsIgnoreCase(channel)|| player.isListening(channel.toLowerCase()) || player.modes.get("SEEALL")) {
 				players.add(player);
 			}
 		}
@@ -58,7 +58,7 @@ public class ChannelManager {
 		ArrayList<ChatPlayer> players = new ArrayList<ChatPlayer>();
 		for (int i = 0; i< players.size(); i++) {
 			ChatPlayer player = PlayerManager.players.get(i);
-			if (player.channel.equalsIgnoreCase(channel) || player.listening.contains(channel.toLowerCase())) {
+			if (player.channel.equalsIgnoreCase(channel) || player.isListening(channel.toLowerCase())) {
 				players.add(player);
 			}
 		}
@@ -90,7 +90,7 @@ public class ChannelManager {
 		//Get the channels in the channel list
 		for (int i = 0; i< channels.size(); i++) {
 			ChatChannel chan = channels.get(i);
-			if (Permissions.checkReadPerm(chan.read_permission, player.name) && Permissions.checkWritePerm(chan.write_permission, player.name)) {
+			if (PermissionManager.checkPermission(chan.readPermission, player.name) && PermissionManager.checkPermission(chan.writePermission, player.name)) {
 				if (!channelList.contains(chan.name))	
 					channelList.add(chan.name);
 			}
@@ -129,14 +129,36 @@ public class ChannelManager {
 			for(ChatPlayer player: getPlayersListening(channel)){
 				if (!playerList.toString().contains(player.name) || !player.modes.get("SEEALL") && player.channel.equalsIgnoreCase(channel)){
 					if (playerList.length() < 1)
-						playerList.append(Colours.PlayerPrefix(player.name)+player.name);
+						playerList.append(Colors.PlayerPrefix(player)+player.name);
 					else
-						playerList.append(", "+Colours.PlayerPrefix(player.name)+player.name);
+						playerList.append(", "+Colors.PlayerPrefix(player)+player.name);
 				}
 			}
 		}
 		if (playerList.length() == 0)
 			return "No-one";
 		return playerList.toString();
+	}
+	public static ArrayList<ChatChannel> getChatChannelList() {
+		ArrayList<ChatChannel> chanClone = new ArrayList<ChatChannel>();
+		for (ChatChannel chan : channels)
+			chanClone.add(chan);
+		return chanClone;
+	}
+	
+	public static int getChannelListSize(){
+		return channels.size();
+	}
+	public static void addChannel(ChatChannel chatChannel) {
+		channels.add(chatChannel);
+		
+	}
+	public static void setChannels(ArrayList<ChatChannel> channels2) {
+		channels = channels2;
+		
+	}
+	public static void removeChannel(ChatChannel chan) {
+		removeChannel(chan.name);
+		
 	}
 }

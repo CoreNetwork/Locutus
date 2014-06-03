@@ -7,7 +7,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
-
+import com.mcnsa.chat.plugin.utils.ConsoleLogging;
+//TODO Recheck if this is how we want it
 public class Channels {
 	private FileConfiguration customConfig = null;
 	  private File customConfigFile = null;
@@ -39,7 +40,7 @@ public class Channels {
 	    try {
 	      get().save(this.customConfigFile);
 	    } catch (IOException ex) {
-	      MCNSAChat.console.warning("Could not save config to " + this.customConfigFile);
+	     ConsoleLogging.warning("Could not save config to " + this.customConfigFile);
 	    }
 	  }
 

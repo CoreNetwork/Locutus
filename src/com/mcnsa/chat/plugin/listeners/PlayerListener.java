@@ -2,7 +2,7 @@ package com.mcnsa.chat.plugin.listeners;
 
 import java.sql.ResultSet;
 import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,18 +17,17 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
-import com.mcnsa.chat.plugin.managers.Permissions;
+import com.mcnsa.chat.plugin.managers.PermissionManager;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
-import com.mcnsa.chat.plugin.utils.Colours;
-import com.mcnsa.chat.plugin.utils.ConsoleLogging;
+import com.mcnsa.chat.plugin.utils.Colors;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
-
+//TODO what is channelalias?
+//TODO Fix player join-rejoin
 public class PlayerListener implements Listener {
 	private MCNSAChat plugin;
 
@@ -69,16 +68,24 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void playerJoin(PlayerJoinEvent event){
+	public void onPlayerJoin(PlayerJoinEvent event){
 		Player player = event.getPlayer();
 		String playerName = player.getName();
-
+		//First check if they're returning from a login
+		if (PlayerManager.getPlayer(player) != null) {
+			ChatPlayer cplayer = PlayerManager.getPlayer(player);
+			Bukkit.getScheduler().cancelTask(cplayer.timeoutID);
+			cplayer.timeoutID = 0;
+			cplayer.isOnline = true;
+			cplayer.leaveMessage = "";
+			return;
+		}
+		
 		// Add to playerManager
-		PlayerManager.PlayerLogin(playerName);
-		if (PlayerManager.getPlayer(playerName).firstTime) {
+		PlayerManager.PlayerLogin(player.getUniqueId());
+		if (PlayerManager.getPlayer(player).firstTime) {
 			// Record that the player has been on the server
-			PlayerManager.getPlayer(playerName).serversVisited
-					.add(MCNSAChat.serverName);
+			PlayerManager.getPlayer(player).visitServer(MCNSAChat.serverName);
 			// Check if the welcome is to be displayed
 			if (plugin.getConfig().getBoolean("displayWelcome")) {
 				// Display the welcome message
@@ -91,44 +98,42 @@ public class PlayerListener implements Listener {
 					ChatPlayer otherPlayer = PlayerManager.players.get(i);
 					if (!otherPlayer.name.equalsIgnoreCase(playerName)
 							&& otherPlayer.server.equals(MCNSAChat.shortCode)) {
-						MessageSender.send(message, otherPlayer.name);
+						MessageSender.send(message, otherPlayer);
 					}
 				}
-				MessageSender.send(ChatColor.YELLOW + playerName+ " has joined the game.", playerName);
+				MessageSender.send(ChatColor.YELLOW + playerName+ " has joined the game.", player);
 			}
 		}
 		else
 		{
-			MessageSender.joinMessage(playerName, event);
+			MessageSender.joinMessage(player, event);
 		}
 		// Check timeout status
-		if (PlayerManager.getPlayer(playerName).modes.get("MUTE")) {
+		if (PlayerManager.getPlayer(player).modes.get("MUTE")) {
 			// get current time
 			long timeNow = new Date().getTime();
 
-			if (PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).timeoutTill < timeNow) {
+			if (PlayerManager.getPlayer(player, MCNSAChat.shortCode).timeoutTill < timeNow) {
 				// Player has finished their timeout
-				PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).modes
+				PlayerManager.getPlayer(player, MCNSAChat.shortCode).modes
 						.put("MUTE", false);
-				Network.updatePlayer(PlayerManager.getPlayer(playerName,
-						MCNSAChat.shortCode));
 			} else {
 				// get time left
-				long timeLeft = ((PlayerManager.getPlayer(playerName,
+				long timeLeft = ((PlayerManager.getPlayer(player,
 						MCNSAChat.shortCode).timeoutTill - timeNow) / 1000) * 20;
 
 				// Schedule the untimeout
-				final String finalPlayerName = playerName;
+				final UUID uuid = player.getUniqueId();
 				Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin,
 						new Runnable() {
 							public void run() {
-								if (PlayerManager.getPlayer(finalPlayerName,
+								if (PlayerManager.getPlayer(uuid,
 										MCNSAChat.shortCode) != null
 										&& PlayerManager.getPlayer(
-												finalPlayerName,
+												uuid,
 												MCNSAChat.shortCode).modes
 												.get("MUTE")) {
-									PlayerManager.unmutePlayer(finalPlayerName);
+									PlayerManager.unmutePlayer(uuid);
 								}
 							}
 						}, timeLeft);
@@ -137,53 +142,49 @@ public class PlayerListener implements Listener {
 		}
 		
 		//Handle S-MUTEs
-		if (PlayerManager.getPlayer(playerName).modes.get("S-MUTE")) {
+		if (PlayerManager.getPlayer(player).modes.get("S-MUTE")) {
 			// get current time
 			long timeNow = new Date().getTime();
 
-			if (PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).timeoutTill < timeNow) {
+			if (PlayerManager.getPlayer(player, MCNSAChat.shortCode).timeoutTill < timeNow) {
 				// Player has finished their timeout
-				PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).modes
+				PlayerManager.getPlayer(player, MCNSAChat.shortCode).modes
 						.put("S-MUTE", false);
-				Network.updatePlayer(PlayerManager.getPlayer(playerName,
-						MCNSAChat.shortCode));
 			} else {
 				// get time left
-				long timeLeft = ((PlayerManager.getPlayer(playerName,
+				long timeLeft = ((PlayerManager.getPlayer(player,
 						MCNSAChat.shortCode).timeoutTill - timeNow) / 1000) * 20;
 
 				// Schedule the untimeout
-				final String finalPlayerName = playerName;
+				final UUID uuid = player.getUniqueId();
 				Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin,
 						new Runnable() {
 							public void run() {
-								if (PlayerManager.getPlayer(finalPlayerName,
+								if (PlayerManager.getPlayer(uuid,
 										MCNSAChat.shortCode) != null
 										&& PlayerManager.getPlayer(
-												finalPlayerName,
+												uuid,
 												MCNSAChat.shortCode).modes
 												.get("S-MUTE")) {
-									PlayerManager.shadowUnmutePlayer(finalPlayerName);
+									PlayerManager.shadowUnmutePlayer(uuid);
 								}
 							}
 						}, timeLeft);
 			}
 
 		}
-		// Get forceListens
-		for (int i = 0; i < ChannelManager.channels.size(); i++) {
-			ChatChannel chan = ChannelManager.channels.get(i);
-			if (Permissions.forcelisten(playerName, chan.name)) {
-				if (!PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).listening
-						.contains(chan.name.toLowerCase())) {
-					PlayerManager.getPlayer(playerName, MCNSAChat.shortCode).listening
-							.add(chan.name.toLowerCase());
+		
+		//Get force listens
+		for(String chan : ChannelManager.getChannelList()){
+			if (PermissionManager.forceListen(player, chan)){
+				if (!PlayerManager.getPlayer(player).isListening(chan)){
+					PlayerManager.getPlayer(player).listenTo(chan);
 				}
 			}
 		}
 
 		// Set their name on the player tab list
-		String playerlistName = Colours.color(Colours.PlayerPrefix(playerName)
+		String playerlistName = Colors.color(Colors.PlayerPrefix(player)
 				+ playerName);
 		if (playerlistName.length() > 16)
 			playerlistName = playerlistName.substring(0, 16);
@@ -191,46 +192,52 @@ public class PlayerListener implements Listener {
 
 		// Notify other players
 
-
-		Network.playerJoined(PlayerManager.getPlayer(playerName));
 	}
 	// Handles logouts
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void playerQuit(PlayerQuitEvent event) {
-
+	public void onPlayerQuit(final PlayerQuitEvent event) {
+		// Leave the logout event for a few seconds to see if they return...
 		// Save the player
-		PlayerManager.PlayerLogout(event.getPlayer().getName());
+		ChatPlayer cplayer = PlayerManager.getPlayer(event.getPlayer());
+		cplayer.isOnline = false;
+		cplayer.leaveMessage = event.getQuitMessage();
+		event.setQuitMessage("");
+		long timeleftTicks = MCNSAChat.plugin.getConfig().getLong("relogin-time",5)*20;
+		cplayer.timeoutID = Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin,
+				new Runnable() {
+					public void run() {
+						MessageSender.broadcast(event.getQuitMessage());
+						PlayerManager.PlayerLogout(event.getPlayer().getUniqueId());
 
-		// Notify others
-		MessageSender.quitMessage(event.getPlayer().getName(), event);
+						// Notify others
+						MessageSender.quitMessage(event.getPlayer(), event);
+					}
+				}, timeleftTicks);
 
 	}
 
 	// Handles chat events
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void playerChat(AsyncPlayerChatEvent event) {
+	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) {
 			return;
 		}
 		// Get chatplayer
 		ChatPlayer player = PlayerManager.getPlayer(
-				event.getPlayer().getName(), MCNSAChat.shortCode);
+				event.getPlayer(), MCNSAChat.shortCode);
 		if (player.modes.get("MUTE")) {
 			MessageSender.send("&c You are in timeout. Please try again later",
-					player.name);
-		} else if (player.modes.get("S-MUTE")) {
-			MessageSender.shadowChannelMessage(player.channel,
-					MCNSAChat.shortCode, player.name, event.getMessage());
-		} else {
+					player);
+		}  else {
 			MessageSender.channelMessage(player.channel, MCNSAChat.shortCode,
-					player.name, event.getMessage());
+					player, event.getMessage());
 		}
 		event.setCancelled(true);
 	}
 
 	// Handles channel alias's and command listeners
 	@EventHandler
-	public void channelalias(PlayerCommandPreprocessEvent event) {
+	public static void channelalias(PlayerCommandPreprocessEvent event) {
 		String[] args = event.getMessage().split(" ");
 		String command = args[0].substring(1);
 
@@ -239,13 +246,13 @@ public class PlayerListener implements Listener {
 			if (args.length == 1) {
 				// moving channel
 				ChatPlayer player = PlayerManager.getPlayer(event.getPlayer()
-						.getName(), MCNSAChat.shortCode);
+						, MCNSAChat.shortCode);
 				String channel = ChannelManager.channelAlias.get(command);
 				// make sure its a registered channel
 				if (ChannelManager.getChannel(channel) != null) {
 					ChatChannel chan = ChannelManager.getChannel(channel);
 					channel = chan.name;
-					if (Permissions.checkReadPerm(chan.read_permission,
+					if (PermissionManager.checkPermission(chan.readPermission,
 							player.name)) {
 						// Get players in channel
 						String playersInChannel = ChannelManager
@@ -253,17 +260,16 @@ public class PlayerListener implements Listener {
 						// We can say this player has the permissions. Lets
 						// welcome them
 						player.changeChannel(channel);
-						Network.updatePlayer(player);
 						MessageSender.send(
-								Colours.color("&6Welcome to the " + channel
+								Colors.color("&6Welcome to the " + channel
 										+ " channel. Players here: "
-										+ playersInChannel), player.name);
+										+ playersInChannel), player);
 						event.setCancelled(true);
 						return;
 					} else {
 						MessageSender
 								.send("&cYou do not have permissions for this channel",
-										player.name);
+										player);
 						event.setCancelled(true);
 						return;
 					}
@@ -281,28 +287,28 @@ public class PlayerListener implements Listener {
 			}
 			// get chat player
 			ChatPlayer player = PlayerManager.getPlayer(event.getPlayer()
-					.getName(), MCNSAChat.shortCode);
+					, MCNSAChat.shortCode);
 			String channel = ChannelManager.channelAlias.get(command)
 					.toLowerCase();
 
 			// See if the player is listening to channel
-			if (!player.listening.contains(channel.toLowerCase())
+			if (!player.isListening(channel.toLowerCase())
 					|| !player.channel.equalsIgnoreCase(channel.toLowerCase()))
 				if (ChannelManager.getChannel(channel) != null
-						&& Permissions
-								.checkReadPerm(
-										ChannelManager.getChannel(channel).read_permission,
+						&& PermissionManager
+								.checkPermission(
+										ChannelManager.getChannel(channel).readPermission,
 										player.name))
 					player.addListen(channel);
 
 			if (!player.modes.get("MUTE")) {
 				MessageSender.channelMessage(
 						ChannelManager.channelAlias.get(command),
-						MCNSAChat.shortCode, player.name, message.toString());
+						MCNSAChat.shortCode, player, message.toString());
 			} else {
 				MessageSender.send(
 						"&c You are in timeout. Please try again later",
-						player.name);
+						player);
 			}
 
 			event.setCancelled(true);

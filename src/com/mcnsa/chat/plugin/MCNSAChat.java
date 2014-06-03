@@ -1,7 +1,6 @@
 package com.mcnsa.chat.plugin;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -9,29 +8,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Timer;
+import java.util.UUID;
 
 import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.mcnsa.chat.file.Channels;
-import com.mcnsa.chat.networking.ClientThread;
-import com.mcnsa.chat.plugin.managers.ComponentManager;
-import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
-import com.mcnsa.chat.plugin.components.PlayerCommands;
-import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.CommandManager;
+import com.mcnsa.chat.plugin.managers.ComponentManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
-import com.mcnsa.chat.plugin.managers.Permissions;
+import com.mcnsa.chat.plugin.managers.PermissionManager;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.FileLog;
@@ -39,20 +31,20 @@ import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 
 public class MCNSAChat extends JavaPlugin{
+	public static final String userNameMatch = "\\/u\\/(\\w|-)+";
+	public static final String subredditNameMatch = "\\/r\\/(\\w|-)+";
+	public static final UUID consoleUUID = UUID.fromString("fb7afb6d-e9ea-4739-9893-616134617808");
 	public static String serverName;
 	public static String shortCode;
 	public static Boolean multiServer;
-	public static PlayerManager playerManager;
-	public static ChannelManager channelManager;
-	public static Boolean isSQL;
+	public PlayerManager playerManager;
+	public ChannelManager channelManager;
 	public Channels channels;
 	public static FileLog logs;
 	public CommandManager commandManager;
 	public static Chat chat;
 	public ComponentManager componentManager;
 	public static MCNSAChat plugin;
-	public static ConsoleLogging console;
-	public static ClientThread network;
 	public static boolean isLockdown;
 	public static int lockdownTimerID;
 	public static String lockdownReason;
@@ -63,20 +55,25 @@ public class MCNSAChat extends JavaPlugin{
 	public static Random random;
 	public void onEnable() {
 		plugin = this;
-		console = new ConsoleLogging();
-		if(!Permissions.setupPermissions())
+		
+		//Setup Vault Permissions hook
+		if(!PermissionManager.setupPermissions())
 			ConsoleLogging.severe("Could not load permissions, is Vault installed?");
+		
+		//Setup Vault Chat hook
 		if (!setupVaultChat())
 			ConsoleLogging.severe("Could not load permissions, is Vault installed?");
 		
 				
 		//Load the configs
-		console.info("Loading config");
+		ConsoleLogging.info("Loading config");
+		
+		//TODO Do we need to save config first?
 		this.saveDefaultConfig();
+		//TODO Swap to function
 		MCNSAChat.serverName = this.getConfig().getString("ServerName");
 		MCNSAChat.shortCode = this.getConfig().getString("ShortCode");
 		MCNSAChat.multiServer = this.getConfig().getBoolean("multiServer");
-		MCNSAChat.isSQL = this.getConfig().getBoolean("database-isSQL");
 		MCNSAChat.isLockdown = this.getConfig().getBoolean("Lockdown");
 		MCNSAChat.lockdownReason = this.getConfig().getString("lockdown-reason");
 		MCNSAChat.lockdownUnlockTime = this.getConfig().getLong("lockdown-unlock-time");
@@ -87,40 +84,34 @@ public class MCNSAChat extends JavaPlugin{
 		{
 			MCNSAChat.isLockdown = false;
 		}
-		boolean isTransitioning = this.getConfig().getBoolean("database-isTransitioning");
 		
-		if (isSQL && isTransitioning)
-		{
-			transition();
-				
-		}
-		
+		//TODO swap to static?
 		MCNSAChat.logs = new FileLog();
 		
 		//Check to see if the directory for players exists
 		File playerFolder = new File("plugins/MCNSAChat/Players");
 		if (!playerFolder.exists())
 			playerFolder.mkdir();
-		console.info("Config Loaded");
-		console.info("Server name is: "+MCNSAChat.serverName);
-		console.info("Server shortcode is: "+MCNSAChat.shortCode);
+		
+		//Finished config loading
+		ConsoleLogging.info("Config Loaded");
+		ConsoleLogging.info("Server name is: "+MCNSAChat.serverName);
+		ConsoleLogging.info("Server shortcode is: "+MCNSAChat.shortCode);
 
 		//Notify if the multiServer is set to true or false
 		if (MCNSAChat.multiServer) {
-			//Config for multiserver mode
-			console.info("Server is running in Multi Server mode.");
+			ConsoleLogging.info("Server is running in Multi Server mode.");
 		}
 		else {
-			//Config for single server mode
-			console.info("Server is running in single server mode.");
+			ConsoleLogging.info("Server is running in Single Server mode.");
 		}
 		
 		//Load up the playermanager
-		MCNSAChat.playerManager = new PlayerManager();
+		playerManager = new PlayerManager();
 		//Load up the ChannelManager
-		MCNSAChat.channelManager = new ChannelManager();
+		channelManager = new ChannelManager();
 		//Load up command manager
-		this.commandManager = new CommandManager();
+		commandManager = new CommandManager();
 		// ok, start loading our components
 		componentManager = new ComponentManager();
 		//Load components
@@ -128,94 +119,72 @@ public class MCNSAChat extends JavaPlugin{
 		//Load our commands
 		commandManager.loadCommands(componentManager);
 		
+		
+		
 		//load up the saved channels
 		this.channels = new Channels();
 		this.channels.saveDefault();
-		console.info("Loading channels");
+		ConsoleLogging.info("Loading channels");
 		loadChannels();
 
+		
+		//Load up the Database Manager
 		DatabaseManager dbManager = new DatabaseManager();
 		dbManager.enable();
 		//Support for /reload
 		addOnlinePlayers();
 		//Start up the player listener
+		
+		//TODO necessary?
 		new PlayerListener();
+		
+		//Set up a Plugin-wide random generator
 		random = new Random();
 		
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			public void run() {
-				if (network == null && MCNSAChat.multiServer) {
-					network = new ClientThread();
-					network.start();
-				}
-			}
-		}, 0L, 600L);
+		
 	}
+	
 	private boolean setupVaultChat() {
 
 		RegisteredServiceProvider<Chat> rsp = Bukkit.getServer().getServicesManager().getRegistration(Chat.class);
 		chat = rsp.getProvider();
 		return chat != null;
 	}
-	private void transition() {
-		try {
-			DatabaseManager db = new DatabaseManager();
-			db.enable();
-		} catch (Exception e) {
-			ConsoleLogging.severe("Could not connect to DB to transfer players");
-			e.printStackTrace();
-			return;
-		} 
-		File playerFolder = new File("plugins/MCNSAChat/Players");
-		if (!playerFolder.exists())
-		{
-			ConsoleLogging.severe("Cannot transition system, no player folder exists");
-			return;
-		}
-		File[] playerFiles = playerFolder.listFiles();
-		ConsoleLogging.info(String.valueOf(playerFiles.length) + " players to transfer");
-		long startTime = System.currentTimeMillis();
-		double i = 0;
-		for (File player : playerFiles)
-		{
-			String playerName = player.getName().substring(0, player.getName().length() - 4);
-			ChatPlayer cPlayer = new ChatPlayer(playerName);
-			cPlayer.loginTime = player.lastModified();
-			ConsoleLogging.info(String.format("Transferring: %s \t %.2f%%", playerName, (i / playerFiles.length * 100)));
-			cPlayer.savePlayer();
-			i++;
-		}
-		ConsoleLogging.info("Finished transferring all files in " + String.valueOf((System.currentTimeMillis() - startTime)/1000) + "s");
-		DatabaseManager.disconnect();
-		
-	}
+	
+	
+	
 	public void onDisable() {
+		//TODO why reload?
 		this.reloadConfig();
-		if (multiServer && network != null) {
-			ConsoleLogging.info("Closing network threads");
-			MCNSAChat.network.close();
-			MCNSAChat.network = null;
-				
-		}
+		
+		
+		//Iterate through and save all player data
 		for (ChatPlayer player : PlayerManager.players)
 		{
 			player.savePlayer();
 		}
+		
+		//Safely close SQL Connection
 		ConsoleLogging.info("Closing SQL connection");
 		DatabaseManager.disconnect();
 		
+		//TODO why not set to null?
 		//Clear players
 		PlayerManager.players = new ArrayList<ChatPlayer>();
 		
+		
+		//TODO this messes with reloading after changing config values, needs fixing
 		ConsoleLogging.info("Saving Channels");
 		saveChannels(); 
 		this.getConfig().set("lockdown", isLockdown);
 		this.getConfig().set("lockdown-reason", lockdownReason);
 		this.getConfig().set("lockdown-unlock-time", lockdownUnlockTime);
 		
+		
 		this.saveConfig();
 		ConsoleLogging.info("Disabled");
 	}
+	
 	@SuppressWarnings("unchecked")
 	public void loadChannels() {
 		
@@ -235,7 +204,7 @@ public class MCNSAChat extends JavaPlugin{
 					c.modes.put(mode.toUpperCase(), true);
 				}
 			}
-			ChannelManager.channels.add(c);
+			ChannelManager.addChannel(c);
 			//Add alias to channelmanager
 			if (c.alias !=null) {
 				ChannelManager.channelAlias.put(c.alias, c.name);
@@ -244,15 +213,15 @@ public class MCNSAChat extends JavaPlugin{
 		}
 	}
 	public void saveChannels(){
-		ArrayList<ChatChannel> channels = ChannelManager.channels;
+		ArrayList<ChatChannel> channels = ChannelManager.getChatChannelList();
 		ArrayList<HashMap<String, ?>> savedChannels = new ArrayList<HashMap<String, ?>>();
 		for (ChatChannel channel: channels) {
 			HashMap<String, Object> chan = new HashMap<String, Object>();
 			if (channel.modes.get("PERSIST")) {
 				//Need to save the channel
 				chan.put("name", channel.name);
-				chan.put("write_permission", channel.write_permission);
-				chan.put("read_permission", channel.read_permission);
+				chan.put("write_permission", channel.writePermission);
+				chan.put("read_permission", channel.readPermission);
 				chan.put("color", channel.color);
 				chan.put("alias", channel.alias);
 				
@@ -274,8 +243,8 @@ public class MCNSAChat extends JavaPlugin{
 	public void addOnlinePlayers() {
 		Player[] players = Bukkit.getOnlinePlayers();
 		for(Player player: players) {
-			if (PlayerManager.getPlayer(player.getName(), MCNSAChat.shortCode) == null)
-				PlayerManager.PlayerLogin(player.getName());
+			if (PlayerManager.getPlayer(player.getUniqueId(), MCNSAChat.shortCode) == null)
+				PlayerManager.PlayerLogin(player.getUniqueId());
 		}
 	}
 }

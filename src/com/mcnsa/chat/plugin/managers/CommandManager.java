@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandMap;
@@ -18,26 +19,27 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.MetadataValue;
 
-import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.exceptions.ChatCommandException;
 import com.mcnsa.chat.plugin.managers.ComponentManager.Component;
+import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
-
+//TODO Change ConsoleLogging references to static
+//TODO Closer examination
 public class CommandManager implements TabExecutor {
 	// keep track of all known aliases we're using
 	private HashSet<String> knownAliases = new HashSet<String>();
 	
 	//Keep track of channel alias's
 	public static HashMap<String, String> channelAlias = new HashMap<String, String>();
-	// an ``internal'' command structure class to inject into the commandmap with
+	// an "internal" command structure class to inject into the commandmap with
 	public class ChatCommand extends org.bukkit.command.Command {
 		// keep track of our command executor
 		private CommandExecutor commandExecutor = null;
 
-		// and tab completor	
+		// and tab completer	
 		private TabCompleter tabCompleter = null;
 
 		// just call our default constructor
@@ -133,7 +135,7 @@ public class CommandManager implements TabExecutor {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			MCNSAChat.console.warning("Failed to load components / commands!");
+			ConsoleLogging.warning("Failed to load components / commands!");
 		}
 	}
 
@@ -224,7 +226,7 @@ public class CommandManager implements TabExecutor {
 
 			// ok, now make sure the command is static
 			if(!Modifier.isStatic(method.getModifiers())) {
-				MCNSAChat.console.warning("failed to register command: " + method.getName() + " (not static)");
+				ConsoleLogging.warning("failed to register command: " + method.getName() + " (not static)");
 				continue;
 			}
 
@@ -238,7 +240,7 @@ public class CommandManager implements TabExecutor {
 
 			// make sure it has an appropriate return value
 			if(method.getReturnType() != boolean.class){
-				MCNSAChat.console.warning("failed to register command: " + method.getName() + " (doesn't return boolean)");
+				ConsoleLogging.warning("failed to register command: " + method.getName() + " (doesn't return boolean)");
 				continue;
 			}
 
@@ -247,7 +249,7 @@ public class CommandManager implements TabExecutor {
 
 			// make sure there is at least argument and it is a command sender
 			if(parameterTypes.length < 1) {
-				MCNSAChat.console.warning("failed to register command: " + method.getName() + " (doesn't have a CommandSender argument as arg0)");
+				ConsoleLogging.warning("failed to register command: " + method.getName() + " (doesn't have a CommandSender argument as arg0)");
 				continue;
 			}
 
@@ -257,7 +259,7 @@ public class CommandManager implements TabExecutor {
 			for(int i = 1; i < parameterTypes.length && valid; i++) {
 				if(!validParameterType(parameterTypes[i])) {
 					// we don't know what this is!
-					MCNSAChat.console.warning("failed to register command method: " + method.getName() + " (unhandle-able parameter type: " + parameterTypes[i].getName() + ")");
+					ConsoleLogging.warning("failed to register command method: " + method.getName() + " (unhandle-able parameter type: " + parameterTypes[i].getName() + ")");
 					valid = false;
 				}
 			}
@@ -282,13 +284,13 @@ public class CommandManager implements TabExecutor {
 			// check to see if we have a player / console only annotation
 			if(command.playerOnly() && command.consoleOnly()) {
 				// we can't have both!
-				MCNSAChat.console.warning("failed to register command method: " + method.getName() + " (can't have BOTH ConsoleOnly and PlayerOnly attributes!)");
+				ConsoleLogging.warning("failed to register command method: " + method.getName() + " (can't have BOTH ConsoleOnly and PlayerOnly attributes!)");
 				continue;
 			}
 
 			// make sure we're not repeating a command here
 			if(registeredCommands.containsKey(ci.command.command())) {
-				MCNSAChat.console.warning("failed to register command: " + ci.command.command() + " (command exists in another component)");
+				ConsoleLogging.warning("failed to register command: " + ci.command.command() + " (command exists in another component)");
 				continue;
 			}
 
@@ -361,18 +363,17 @@ public class CommandManager implements TabExecutor {
 				if(aliasMapping.containsKey(label)) {
 					label = aliasMapping.get(label);
 				}
-
+				ConsoleLogging.info("commandname: " + command.getName() + " + commandlabel: " + command.getLabel() + " + otherlabel: " + label);
 				//MCNSAChat.console.info(sender.getName()+" ran command "+command.getName()+" with args: "+args[0]);			
 				
 				// find all our possibilities
 				String lastFailMessage = "";
 				for(String registrationToken: registeredCommands.keySet()) {
-					//MCNSAEssentials.debug("testing " + registrationToken + " against command (" + label + ")");
+					//ConsoleLogging.info("testing " + registrationToken + " against command (" + label + ")");
 					String[] registrationParts = registrationToken.split(":");
-
 					if(!registrationParts[0].equals(label)) {
 						// nope!
-						//MCNSAEssentials.debug("failed " + registrationToken + ": not correct command (" + label + ")");
+						//ConsoleLogging.info("failed " + registrationToken + ": not correct command (" + label + ")");
 						continue;
 					}
 
@@ -481,7 +482,7 @@ public class CommandManager implements TabExecutor {
 
 							// loop through all the permissions and see if we have at least one
 							for(Iterator<String> it = ci.permissions.iterator(); it.hasNext() && !hasPermission;) {
-								if(Permissions.checkPermission(it.next(), sender.getName())) {
+								if(PermissionManager.checkPermission(it.next(), sender.getName())) {
 									hasPermission = true;
 								}
 								
@@ -514,12 +515,12 @@ public class CommandManager implements TabExecutor {
 						}
 						catch(Exception e) {					
 							if(e.getCause() instanceof ChatCommandException) {
-								MessageSender.send("&c" + e.getCause().getMessage(), sender.getName());
+								MessageSender.send("&c" + e.getCause().getMessage(), sender);
 								return true;
 							}
 							else {
-								MessageSender.send("&cSomething went wrong! Alert an administrator!", sender.getName());
-								MCNSAChat.console.warning("failed to execute command: " + label + " (" + e.getMessage() + ")");
+								MessageSender.send("&cSomething went wrong! Alert an administrator!", sender);
+								ConsoleLogging.warning("failed to execute command: " + label + " (" + e.getMessage() + ")");
 								e.printStackTrace();
 								return false;
 							}
@@ -538,7 +539,7 @@ public class CommandManager implements TabExecutor {
 
 				}
 				else {
-					MessageSender.send(lastFailMessage, sender.getName());
+					MessageSender.send(lastFailMessage, sender);
 				}
 				return false;
 			}
@@ -572,7 +573,7 @@ public class CommandManager implements TabExecutor {
 			//Check if argument is for player
 			if (registeredCommands.get(registrationToken).command.arguments()[argumentCount - 1].replaceAll("\\s+", "_").equalsIgnoreCase("player")) {
 				//Get a list of possible players
-				ArrayList<ChatPlayer> possiblePlayers = PlayerManager.playerSearch(args[argumentCount - 1]);
+				ArrayList<ChatPlayer> possiblePlayers = PlayerManager.searchPlayers(args[argumentCount - 1]);
 				for (ChatPlayer player: possiblePlayers) {
 					if (!possibleArguments.contains(player.name))
 						possibleArguments.add(player.name);
@@ -580,10 +581,10 @@ public class CommandManager implements TabExecutor {
 			}
 			if (registeredCommands.get(registrationToken).command.arguments()[argumentCount - 1].replaceAll("\\s+", "_").equalsIgnoreCase("channel")) {
 				//Get list of channels
-				for (ChatChannel channel: ChannelManager.channels) {
-					if (channel.read_permission != null)
+				for (ChatChannel channel: ChannelManager.getChatChannelList()) {
+					if (channel.readPermission != null)
 					{
-						if (channel.read_permission.equals("") || Permissions.checkReadPerm(channel.read_permission, sender.getName())) {
+						if (channel.readPermission.equals("") || PermissionManager.checkPermission(channel.readPermission, sender.getName())) {
 							if (channel.name.startsWith(args[argumentCount - 1].toLowerCase()) || channel.name.startsWith(args[argumentCount - 1].toUpperCase())) {
 								if (!possibleArguments.contains(channel.name))
 									possibleArguments.add(channel.name);

@@ -1,6 +1,5 @@
 package com.mcnsa.chat.plugin.components;
 
-import java.security.DigestException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -9,20 +8,20 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
-import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
 import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
-import com.mcnsa.chat.plugin.managers.Permissions;
+import com.mcnsa.chat.plugin.managers.PermissionManager;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
-import com.mcnsa.chat.plugin.utils.Colours;
+import com.mcnsa.chat.plugin.utils.Colors;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
@@ -31,6 +30,8 @@ import com.mcnsa.chat.type.ChatPlayer;
 @ComponentInfo(friendlyName = "Admin", description = "Admin commands", permsSettingsPrefix = "admin")
 public class AdminCommands {
 
+	//TODO change command structure including names 
+	//github issue #22
 	@Command(command = "cto", description = "Player chat timeout", permissions = { "timeout" })
 	public static boolean ctoList(CommandSender sender) {
 		// Function lists players in timeout
@@ -45,13 +46,12 @@ public class AdminCommands {
 		}
 
 		if (output.isEmpty()) {
-			MessageSender.send("&6There is no-one currently in timeout",
-					sender.getName());
+			MessageSender.send("&6There is no-one currently in timeout",sender);
 			return true;
 		}
 
 		// Start the output
-		MessageSender.send("&6Players in timeout", sender.getName());
+		MessageSender.send("&6Players in timeout", sender);
 
 		// Loop through players in timeout
 		for (Entry<String, Long> entry : output.entrySet()) {
@@ -60,54 +60,54 @@ public class AdminCommands {
 			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss dd.MMM");
 			MessageSender.send(
 					"&c" + player + " Until " + df.format(timeoutTime),
-					sender.getName());
+					sender);
 		}
 
 		return true;
 	}
 
-	@Command(command = "cto", description = "Player chat timeout", arguments = { "Player" }, permissions = { "timeout" })
-	public static boolean ctoRemove(CommandSender sender, String target) {
+	@Command(command = "untimeout", description = "Untimeout a player", arguments = { "Player" }, permissions = { "timeout" })
+	public static boolean timeoutRemove(CommandSender sender, String target) {
 
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager
-				.playerSearch(target);
+				.searchPlayers(target);
 		if (targetPlayers.isEmpty()) {
 			try {
 
 				ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where UPPER(player) = upper(?)", target);
 				if (!playerRS.next()){
-					MessageSender.send("&cCould not find player", sender.getName());
+					MessageSender.send("&cCould not find player", sender);
 					return true;
 				}
 				if (playerRS.getLong("timeouttill") == 0) {
 					MessageSender.send("&cThat player is not in timeout",
-							sender.getName());
+							sender);
 					return true;
 				}
 
 				ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes WHERE upper(playerName) = upper(?) AND modeName = ?", target,"MUTE");
 				if (!chatRS.next()) {
-					MessageSender.send("&cCould not find player", sender.getName());
+					MessageSender.send("&cCould not find player", sender);
 					return true;
 				}
 				if (chatRS.getBoolean("modeStatus") == false)
 				{
 					MessageSender.send("&cThat player is not in timeout",
-							sender.getName());
+							sender);
 					return true;
 				}
 
 				DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE upper(player) = upper(?)", 0, target);
 				DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=0 WHERE upper(playerName) = upper(?) AND modeName= ?", target,"MUTE");
 				MessageSender.send("&6" + target
-						+ " has been removed from timeout", sender.getName());
+						+ " has been removed from timeout", sender);
 				return true;
 			}
 			catch (DatabaseException e) {
-				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				MessageSender.send("&4A DB Error has occurred", sender);
 				e.printStackTrace();
 			} catch (SQLException e) {
-				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				MessageSender.send("&4A DB Error has occurred", sender);
 				e.printStackTrace();
 			}
 			return true;
@@ -117,23 +117,25 @@ public class AdminCommands {
 
 		if (!targetPlayer.modes.get("MUTE")) {
 			MessageSender.send("&cThat player is not in timeout",
-					sender.getName());
+					sender);
 			return true;
 		}
 
-		PlayerManager.unmutePlayer(targetPlayer.name);
+		PlayerManager.unmutePlayer(targetPlayer.getUUID());
 		MessageSender.send("&6" + targetPlayer.name
-				+ " has been removed from timeout", sender.getName());
+				+ " has been removed from timeout", sender);
 
 		return true;
 	}
 
-	@Command(command = "cto", description = "Player chat timeout", arguments = {
+	//TODO Allow multiple names
+	//This'll be hard
+	@Command(command = "timeout", description = "Timeout a player", arguments = {
 			"Player", "time", "reason" }, permissions = { "timeout" })
-	public static boolean ctoadd(CommandSender sender, String target,
+	public static boolean timeoutAdd(CommandSender sender, String target,
 			String time, String... reason) {
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager
-				.playerSearch(target);
+				.searchPlayers(target);
 		if (targetPlayers.isEmpty()) {
 			//Find offline player
 			try
@@ -141,19 +143,19 @@ public class AdminCommands {
 			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where upper(player) = upper(?)", target);
 			if (!playerRS.next())
 			{
-				MessageSender.send("&cCould not find player", sender.getName());
+				MessageSender.send("&cCould not find player", sender);
 				return true;
 			}
 			if (playerRS.getLong("timeouttill") != 0)
 			{
 				MessageSender.send("&cThat player already in timeout",
-						sender.getName());
+						sender);
 				return true;
 			}
 			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where upper(playerName) = upper(?)", target);
 			if (!chatRS.next())
 			{
-				MessageSender.send("&cCould not find player", sender.getName());
+				MessageSender.send("&cCould not find player", sender);
 				return true;
 			} 
 			long timeout = (long) (new Date().getTime() + (Double.valueOf(time) * 60000));
@@ -161,14 +163,14 @@ public class AdminCommands {
 			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE upper(playerName) = upper(?) AND modeName= ?", target,"MUTE");
 
 			MessageSender.send("&6" + target
-					+ " has been added to timeout", sender.getName());
+					+ " has been added to timeout", sender);
 			return true;
 			}
 			catch (DatabaseException e) {
-				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				MessageSender.send("&4A DB Error has occurred", sender);
 				e.printStackTrace();
 			} catch (SQLException e) {
-				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				MessageSender.send("&4A DB Error has occurred", sender);
 				e.printStackTrace();
 			}
 		}
@@ -176,7 +178,7 @@ public class AdminCommands {
 
 		if (targetPlayer.modes.get("MUTE")) {
 			MessageSender.send("&cThat player already in timeout",
-					sender.getName());
+					sender);
 			return true;
 		}
 		// Build reason
@@ -188,69 +190,67 @@ public class AdminCommands {
 				sb.append(" " + reasonPart);
 		}
 		// Mute and notify
-		PlayerManager.mutePlayer(targetPlayer.name, time, sb.toString());
+		PlayerManager.mutePlayer(targetPlayer.getUUID(), time, sb.toString());
 
 		// Start timer
-		final String finalPlayerName = targetPlayer.name;
+		final UUID finalUUID = targetPlayer.getUUID();
 		long timeleft = (long) (Double.valueOf(time) * 1200);
 		Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin,
 				new Runnable() {
 					public void run() {
-						if (PlayerManager.getPlayer(finalPlayerName,
+						if (PlayerManager.getPlayer(finalUUID,
 								MCNSAChat.shortCode) != null
-								&& PlayerManager.getPlayer(finalPlayerName,
+								&& PlayerManager.getPlayer(finalUUID,
 										MCNSAChat.shortCode).modes.get("MUTE")) {
-							PlayerManager.unmutePlayer(finalPlayerName);
+							PlayerManager.unmutePlayer(finalUUID);
 						}
 					}
 				}, timeleft);
 
-		// Send to network
-		Network.timeout(targetPlayer, sb.toString(), (long) (Double.valueOf(time) * 1));
 		return true;
 	}
 
-	@Command(command = "csto", description = "Player chat timeout", arguments = { "Player" }, permissions = { "shadow-timeout" })
-	public static boolean cstoRemove(CommandSender sender, String target) {
+	@Command(command = "unsilence", description = "Unsilence player", arguments = { "Player" }, permissions = { "shadow-timeout" })
+	public static boolean silenceRemove(CommandSender sender, String target) {
 
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager
-				.playerSearch(target);
+				.searchPlayers(target);
 		if (targetPlayers.isEmpty()) {try {
 
 			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where upper(player) = upper(?)", target);
 			if (!playerRS.next()){
-				MessageSender.send("&cCould not find player", sender.getName());
+				MessageSender.send("&cCould not find player", sender);
 				return true;
 			}
 			if (playerRS.getLong("timeouttill") == 0) {
 				MessageSender.send("&cThat player is not in timeout",
-						sender.getName());
+						sender);
 				return true;
 			}
 
 			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where upper(playerName) = upper(?) and modeName = ?", target,"S-MUTE");
 			if (!chatRS.next()) {
-				MessageSender.send("&cCould not find player", sender.getName());
+				MessageSender.send("&cCould not find player", sender);
 				return true;
 			}
 			if (chatRS.getBoolean("modeStatus") == false)
 			{
 				MessageSender.send("&cThat player is not in timeout",
-						sender.getName());
+						sender);
 				return true;
 			}
 
 			DatabaseManager.updateQuery("UPDATE chat_Players set timeouttill=? WHERE upper(player) = upper(?)", 0, target);
 			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=0 WHERE upper(playerName) = upper(?) AND  modeName= ?", "S-MUTE");
 			MessageSender.send("&6" + target
-					+ " has been removed from timeout", sender.getName());
+					+ " has been removed from timeout", sender);
 			return true;
 		}
 		catch (DatabaseException e) {
-			MessageSender.send("&4A DB Error has occurred", sender.getName());
+			MessageSender.send("&4A DB Error has occurred", sender);
 			e.printStackTrace();
 		} catch (SQLException e) {
-			MessageSender.send("&4A DB Error has occurred", sender.getName());
+			MessageSender.send("&4A DB Error has occurred", sender);
 			e.printStackTrace();
 		}
 			return true;
@@ -260,39 +260,39 @@ public class AdminCommands {
 
 		if (!targetPlayer.modes.get("S-MUTE")) {
 			MessageSender.send("&cThat player is not in timeout",
-					sender.getName());
+					sender);
 			return true;
 		}
 
-		PlayerManager.shadowUnmutePlayer(targetPlayer.name);
+		PlayerManager.shadowUnmutePlayer(targetPlayer.getUUID());
 
 		return true;
 	}
 
-	@Command(command = "csto", description = "Player chat shadow timeout", arguments = {
+	@Command(command = "silence", description = "Silence player", arguments = {
 			"Player", "time", "reason" }, permissions = { "shadow-timeout" })
-	public static boolean cstoAdd(CommandSender sender, String target,
+	public static boolean silenceAdd(CommandSender sender, String target,
 			String time, String... reason) {
 		ArrayList<ChatPlayer> targetPlayers = PlayerManager
-				.playerSearch(target);
+				.searchPlayers(target);
 		if (targetPlayers.isEmpty()) {try
 			{
 			ResultSet playerRS = DatabaseManager.accessQuery("SELECT * FROM chat_Players where upper(player) = upper(?)", target);
 			if (!playerRS.next())
 			{
-				MessageSender.send("&cCould not find player", sender.getName());
+				MessageSender.send("&cCould not find player", sender);
 				return true;
 			}
 			if (playerRS.getLong("timeouttill") != 0)
 			{
 				MessageSender.send("&cThat player already in timeout",
-						sender.getName());
+						sender);
 				return true;
 			}
 			ResultSet chatRS = DatabaseManager.accessQuery("SELECT * FROM chat_Modes where upper(playerName) = upper(?)", target);
 			if (!chatRS.next())
 			{
-				MessageSender.send("&cCould not find player", sender.getName());
+				MessageSender.send("&cCould not find player", sender);
 				return true;
 			} 
 			long timeout = (long) (new Date().getTime() + (Double.valueOf(time) * 60000));
@@ -300,14 +300,14 @@ public class AdminCommands {
 			DatabaseManager.updateQuery("UPDATE chat_Modes set modeStatus=1 WHERE upper(playerName) = upper(?) AND  modeName= ?", target,"S-MUTE");
 
 			MessageSender.send("&6" + target
-					+ " has been added to timeout", sender.getName());
+					+ " has been added to timeout", sender);
 			return true;
 			}
 			catch (DatabaseException e) {
-				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				MessageSender.send("&4A DB Error has occurred", sender);
 				e.printStackTrace();
 			} catch (SQLException e) {
-				MessageSender.send("&4A DB Error has occurred", sender.getName());
+				MessageSender.send("&4A DB Error has occurred", sender);
 				e.printStackTrace();
 			}
 			return true;
@@ -315,7 +315,7 @@ public class AdminCommands {
 		ChatPlayer targetPlayer = targetPlayers.get(0);
 		if (targetPlayer.modes.get("S-MUTE")) {
 			MessageSender.send("&cThat player already in timeout",
-					sender.getName());
+					sender);
 			return true;
 		}
 
@@ -328,26 +328,24 @@ public class AdminCommands {
 				sb.append(" " + reasonPart);
 		}
 		// Mute and notify
-		PlayerManager.shadowMutePlayer(targetPlayer.name, time, sb.toString());
+		PlayerManager.shadowMutePlayer(targetPlayer.getUUID(), time, sb.toString());
 
 		// Start timer
-		final String finalPlayerName = targetPlayer.name;
+		final UUID finalUUID = targetPlayer.getUUID();
 		long timeleft = (long) (Double.valueOf(time) * 1200);
 		Bukkit.getScheduler().scheduleSyncDelayedTask(MCNSAChat.plugin,
 				new Runnable() {
 					public void run() {
-						if (PlayerManager.getPlayer(finalPlayerName,
+						if (PlayerManager.getPlayer(finalUUID,
 								MCNSAChat.shortCode) != null
-								&& PlayerManager.getPlayer(finalPlayerName,
+								&& PlayerManager.getPlayer(finalUUID,
 										MCNSAChat.shortCode).modes
 										.get("S-MUTE")) {
-							PlayerManager.shadowUnmutePlayer(finalPlayerName);
+							PlayerManager.shadowUnmutePlayer(finalUUID);
 						}
 					}
 				}, timeleft);
 
-		// Send to network
-		Network.timeout(targetPlayer, sb.toString(), (long) (Double.valueOf(time) * 1));
 		return true;
 	}
 
@@ -358,23 +356,21 @@ public class AdminCommands {
 		// Check to make sure the channel isn't already registered.
 		if (ChannelManager.getChannel(channel) != null) {
 			MessageSender.send("&cChannel is already registered.",
-					sender.getName());
+					sender);
 			return true;
 		}
 
 		// Create the channel
-		ChatChannel Channel = new ChatChannel(channel);
+		ChatChannel chatChannel = new ChatChannel(channel);
 		// make the channel persistent
-		Channel.modes.put("PERSIST", true);
+		chatChannel.modes.put("PERSIST", true);
 
 		// Let the sender know that its created
-		MessageSender.send("&6Channel " + channel + " registered",
-				sender.getName());
+		MessageSender.send("&6Channel " + chatChannel + " registered",
+				sender);
 
 		// Add to channel Manager
-		ChannelManager.channels.add(Channel);
-		// Send to network
-		Network.channelUpdate(Channel);
+		ChannelManager.addChannel(chatChannel);
 		return true;
 	}
 
@@ -384,46 +380,44 @@ public class AdminCommands {
 			String mode) {
 		// Function adds modes to the channel
 		// Get the channel
-		ChatChannel channel = ChannelManager.getChannel(PlayerManager
-				.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
+		ChatChannel channel = ChannelManager.getChannel(PlayerManager.getPlayer(sender).channel);
 		if (channel == null) {
 			MessageSender
 					.send("&cChannel is not registered. Please register first by /cregister <channel>",
-							sender.getName());
+							sender);
 			return true;
 		}
 		if (action.equalsIgnoreCase("add")) {
 			if (mode.equalsIgnoreCase("rave")) {
 				channel.modes.put("RAVE", true);
-				MessageSender.send("&6Rave mode activated!", sender.getName());
+				MessageSender.send("&6Rave mode activated!", sender);
 			} else if (mode.equalsIgnoreCase("boring")) {
 				channel.modes.put("BORING", true);
 				MessageSender
-						.send("&6Boring mode activated!", sender.getName());
+						.send("&6Boring mode activated!", sender);
 			} else if (mode.equalsIgnoreCase("local")) {
 				channel.modes.put("LOCAL", true);
-				MessageSender.send("&6Local mode activated!", sender.getName());
+				MessageSender.send("&6Local mode activated!", sender);
 			}
 		} else if (action.equalsIgnoreCase("del")) {
 			if (mode.equalsIgnoreCase("rave")) {
 				channel.modes.put("RAVE", false);
 				MessageSender
-						.send("&6Rave mode deactivated!", sender.getName());
+						.send("&6Rave mode deactivated!", sender);
 			} else if (mode.equalsIgnoreCase("boring")) {
 				channel.modes.put("BORING", false);
 				MessageSender.send("&6Boring mode deactivated!",
-						sender.getName());
+						sender);
 			} else if (mode.equalsIgnoreCase("local")) {
 				channel.modes.put("LOCAL", false);
 				MessageSender.send("&6Local mode deactivated!",
-						sender.getName());
+						sender);
 			}
 		} else {
 			MessageSender.send(
 					"&cUsage: /cmode [add|del] [rave|boring|mute|local]",
-					sender.getName());
+					sender);
 		}
-		Network.channelUpdate(channel);
 		return true;
 	}
 
@@ -432,31 +426,30 @@ public class AdminCommands {
 			String... var) {
 		// Get channel
 		ChatChannel channel = ChannelManager.getChannel(PlayerManager
-				.getPlayer(sender.getName()).channel);
+				.getPlayer(sender).channel);
 		if (var[0] == null)
 			var[0] = "";
 		if (channel == null) {
-			MessageSender.send("&cChannel is not registered", sender.getName());
+			MessageSender.send("&cChannel is not registered", sender);
 			return true;
 		}
 		if (setting.equalsIgnoreCase("alias")) {
 			channel.alias = var[0];
 			MessageSender.send("&6Channel alias changed to: /" + var[0],
-					sender.getName());
+					sender);
 		} else if (setting.equalsIgnoreCase("readperm")) {
-			channel.read_permission = var[0];
+			channel.readPermission = var[0];
 			MessageSender.send("&6Channel read permission changed to: "
-					+ var[0], sender.getName());
+					+ var[0], sender);
 		} else if (setting.equalsIgnoreCase("writeperm")) {
-			channel.read_permission = var[0];
+			channel.readPermission = var[0];
 			MessageSender.send("&6Channel write permission changed to: "
-					+ var[0], sender.getName());
+					+ var[0], sender);
 		} else if (setting.equalsIgnoreCase("color")) {
 			channel.color = "&" + var[0];
 			MessageSender.send("&6Channel color changed to: &" + var[0]
-					+ "this", sender.getName());
+					+ "this", sender);
 		}
-		Network.channelUpdate(channel);
 		return true;
 	}
 
@@ -466,21 +459,19 @@ public class AdminCommands {
 		ChatChannel chan = ChannelManager.getChannel(channel);
 		if (chan == null) {
 			MessageSender
-					.send("&cChannel is not registered.", sender.getName());
+					.send("&cChannel is not registered.", sender);
 			return true;
 		}
 
 		// Remove from channel Manager
-		ChannelManager.channels.remove(chan);
+		ChannelManager.removeChannel(chan.name);
 
 		chan.modes.put("PERSIST", false);
 
-		// Update other servers
-		Network.channelUpdate(chan);
 
 		// Inform user
 		MessageSender.send("&cChannel: " + channel + " has been removed.",
-				sender.getName());
+				sender);
 
 		return true;
 	}
@@ -498,7 +489,7 @@ public class AdminCommands {
 			Message.append(" " + part);
 		}
 
-		Bukkit.broadcastMessage(Colours.processConsoleColours(Message
+		Bukkit.broadcastMessage(Colors.processConsoleColours(Message
 				.toString()));
 		return true;
 	}
@@ -507,9 +498,9 @@ public class AdminCommands {
 	public static boolean clock(CommandSender sender, String player) {
 		// Function locks player in their channel
 		// Try and get player
-		ArrayList<ChatPlayer> target = PlayerManager.playerSearch(player);
+		ArrayList<ChatPlayer> target = PlayerManager.searchPlayers(player);
 		if (target.isEmpty()) {
-			MessageSender.send("&4Could not find player.", sender.getName());
+			MessageSender.send("&4Could not find player.", sender);
 			return true;
 		}
 
@@ -520,22 +511,21 @@ public class AdminCommands {
 			targetPlayer.modes.put("LOCKED", true);
 			// Inform player
 			MessageSender.send("&6You have been locked in your channel",
-					targetPlayer.name);
+					targetPlayer);
 			// inform command sender
 			MessageSender.send("&6" + targetPlayer.name
 					+ " has been locked in channel: " + targetPlayer.channel,
-					sender.getName());
+					sender);
 		} else {
 			// lock player
 			targetPlayer.modes.put("LOCKED", false);
 			// Inform player
 			MessageSender.send("&6You can now change channels",
-					targetPlayer.name);
+					targetPlayer);
 			// inform command sender
 			MessageSender.send("&6" + targetPlayer.name + " has been unlocked",
-					sender.getName());
+					sender);
 		}
-		Network.updatePlayer(targetPlayer);
 		return true;
 	}
 
@@ -544,9 +534,9 @@ public class AdminCommands {
 			String channel) {
 		// Function moves a player to a different channel
 		// Try and get player
-		ArrayList<ChatPlayer> target = PlayerManager.playerSearch(player);
+		ArrayList<ChatPlayer> target = PlayerManager.searchPlayers(player);
 		if (target.isEmpty()) {
-			MessageSender.send("&4Could not find player.", sender.getName());
+			MessageSender.send("&4Could not find player.", sender);
 			return true;
 		}
 
@@ -556,11 +546,11 @@ public class AdminCommands {
 		if (ChannelManager.getChannel(channel) != null) {
 			ChatChannel chan = ChannelManager.getChannel(channel);
 
-			if (!Permissions.checkReadPerm(chan.read_permission,
+			if (!PermissionManager.checkPermission(chan.readPermission,
 					targetPlayer.name)) {
 				MessageSender.send("&4" + targetPlayer.name
 						+ " does not have the required permissions to enter "
-						+ channel, sender.getName());
+						+ channel, sender);
 				return true;
 			}
 			channel = chan.name;
@@ -570,16 +560,14 @@ public class AdminCommands {
 		// We can say this player has the permissions. Lets welcome them
 		targetPlayer.changeChannel(channel);
 		MessageSender.send(
-				Colours.color("&6You have been moved to " + channel
+				Colors.color("&6You have been moved to " + channel
 						+ ". Players here: " + playersInChannel),
-				targetPlayer.name);
+				targetPlayer);
 
-		// Update player on other servers
-		Network.updatePlayer(targetPlayer);
 
 		// Notify the mod
 		MessageSender.send("&6" + targetPlayer.name + " has been moved into "
-				+ channel, sender.getName());
+				+ channel, sender);
 		return true;
 	}
 
@@ -587,61 +575,30 @@ public class AdminCommands {
 	public static boolean reload(CommandSender sender) {
 		// Reloads the config file
 		MCNSAChat.plugin.reloadConfig();
-		MessageSender.send("&6Chat Config reloaded", sender.getName());
+		MessageSender.send("&6Chat Config reloaded", sender);
 		return true;
 	}
 
 	@Command(command = "cnet", description = "Cross server chat controls, use off, on, or reset", permissions = { "csccontrol" })
 	public static boolean net(CommandSender sender, String action) {
-		// Function allows setting of the cross server functionality
-		if (action.equalsIgnoreCase("on")) {
-			if (!MCNSAChat.multiServer) {
-				MCNSAChat.multiServer = true;
-				MessageSender.send("&6Cross server chat turned on",
-						sender.getName());
-			} else {
-				MessageSender.send("&6Cross server chat is already on",
-						sender.getName());
-			}
-			return true;
-		} else if (action.equalsIgnoreCase("off")) {
-			MCNSAChat.multiServer = false;
-			// sanity check
-			if (MCNSAChat.network != null)
-				MCNSAChat.network.close();
-			MCNSAChat.network = null;
-			MessageSender.send("&6Cross server chat turned off",
-					sender.getName());
-			PlayerManager.removeNonServerPlayers();
-			return true;
-		} else if (action.equalsIgnoreCase("reset")) {
-			if (MCNSAChat.network != null)
-				MCNSAChat.network.close();
-			MCNSAChat.network = null;
-			MessageSender.send("&6Cross server chat reset", sender.getName());
-			PlayerManager.removeNonServerPlayers();
-			return true;
-		}
-		MessageSender.send("&4Invalid arguments: use on, off, or reset",
-				sender.getName());
-		return true;
+		throw new UnsupportedOperationException();
 	}
 
-	@Command(command = "seeall", description = "Vewa all channels", permissions = { "seeall" }, playerOnly = true)
+	@Command(command = "seeall", description = "View all channels", permissions = { "seeall" }, playerOnly = true)
 	public static boolean seeall(CommandSender sender) {
 		// Function sets the mode to allow to see all channels
 		// get player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName(),
+		ChatPlayer player = PlayerManager.getPlayer(sender,
 				MCNSAChat.shortCode);
 
 		if (player.modes.get("SEEALL")) {
 			player.modes.put("SEEALL", false);
 			MessageSender.send("&6You are no longer listening to all channels",
-					player.name);
+					player);
 		} else {
 			player.modes.put("SEEALL", true);
 			MessageSender.send("&6You are now listening to all channels",
-					player.name);
+					player);
 		}
 		return true;
 	}
@@ -671,11 +628,10 @@ public class AdminCommands {
 		// Strips everyone's listens for a channel
 		for (int i = 0; i < PlayerManager.players.size(); i++) {
 			ChatPlayer player = PlayerManager.players.get(i);
-			if (player.listening.contains(channel)) {
-				player.listening.remove(channel);
+			if (player.isListening(channel)) {
+				player.stopListening(channel);
 				MessageSender.send("removed " + player.name
-						+ "from listening to " + channel, sender.getName());
-				Network.updatePlayer(player);
+						+ "from listening to " + channel, sender);
 			}
 		}
 
@@ -693,7 +649,7 @@ public class AdminCommands {
 					"strings.lockdown-failed");
 			message = message.replace("%reason%",
 					"Server already in temporary lockdown");
-			MessageSender.send(message, sender.getName());
+			MessageSender.send(message, sender);
 		}
 		return true;
 	}
@@ -717,7 +673,7 @@ public class AdminCommands {
 			String message = MCNSAChat.plugin.getConfig().getString(
 					"strings.lockdown-failed");
 			message = message.replace("%reason%", "Server not in lockdown");
-			MessageSender.send(message, sender.getName());
+			MessageSender.send(message, sender);
 		}
 		return true;
 	}
@@ -754,7 +710,7 @@ public class AdminCommands {
 					"strings.lockdown-failed");
 			message = message.replace("%reason%",
 					"Server already in temporary lockdown");
-			MessageSender.send(message, sender.getName());
+			MessageSender.send(message, sender);
 		}
 		return true;
 	}
@@ -776,5 +732,7 @@ public class AdminCommands {
 		MCNSAChat.isLockdown = true;
 		return true;
 	}
+	
+	
 
 }

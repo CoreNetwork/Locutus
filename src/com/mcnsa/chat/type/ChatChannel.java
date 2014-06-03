@@ -8,19 +8,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ChatChannel  implements Serializable{
-
+	//TODO Whole class is only for networking?
 	private static final long serialVersionUID = -7949153652183232773L;
 	public String name;
-	public String write_permission;
-	public String read_permission;
+	public String writePermission;
+	public String readPermission;
 	public Map<String, Boolean> modes = new HashMap<String, Boolean>();;
 	public String alias;
 	public String color;
 	
 	public ChatChannel(String cname){
 		this.name = cname;
-		this.write_permission = null;
-		this.read_permission = null;
+		this.writePermission = null;
+		this.readPermission = null;
 		this.alias = null;
 		this.modes.put("MUTE", false);
 		this.modes.put("RAVE", false);
@@ -31,8 +31,8 @@ public class ChatChannel  implements Serializable{
 	}
 	public ChatChannel(String cname, String wperm, String rperm, String alias, String colour){
 		this.name = cname;
-		this.write_permission = wperm;
-		this.read_permission = rperm;
+		this.writePermission = wperm;
+		this.readPermission = rperm;
 		this.alias = alias;
 		this.color = colour;
 		this.modes.put("MUTE", false);
@@ -43,17 +43,18 @@ public class ChatChannel  implements Serializable{
 		
 	}
 	
+	//TODO Networking, needs fixing?
 	public void write(DataOutputStream out) throws IOException{
 		out.writeUTF(this.name);
-		if (this.write_permission == null)
+		if (this.writePermission == null)
 			out.writeUTF("null");
 		else
-			out.writeUTF(this.write_permission);
+			out.writeUTF(this.writePermission);
 		
-		if (this.read_permission == null)
+		if (this.readPermission == null)
 			out.writeUTF("null");
 		else
-			out.writeUTF(this.read_permission);
+			out.writeUTF(this.readPermission);
 		
 		if (this.alias == null)
 			out.writeUTF("null");
@@ -72,10 +73,11 @@ public class ChatChannel  implements Serializable{
 		out.writeBoolean(this.modes.get("PERSIST"));
 	}
 	
+	//TODO Networking, needs fixing?
 	public static ChatChannel read(DataInputStream in) throws IOException{
 		String name = in.readUTF();
-		String write_perm = in.readUTF();
-		String read_perm = in.readUTF();
+		String writePerm = in.readUTF();
+		String readPerm = in.readUTF();
 		String alias = in.readUTF();
 		String color = in.readUTF();
 		HashMap<String, Boolean> modes = new HashMap<String, Boolean>();
@@ -85,16 +87,16 @@ public class ChatChannel  implements Serializable{
 		modes.put("LOCAL", in.readBoolean());
 		modes.put("PERSIST", in.readBoolean());
 		
-		if (write_perm.equals("null"))
-			write_perm = null;
+		if (writePerm.equals("null"))
+			writePerm = null;
 		
-		if (read_perm.equals("null"))
-			read_perm = null;
+		if (readPerm.equals("null"))
+			readPerm = null;
 		if (alias.equals("null"))
 			alias = null;
 		if (color.equals("null"))
 			color = null;
-		ChatChannel c = new ChatChannel(name, write_perm, read_perm, alias, color);
+		ChatChannel c = new ChatChannel(name, writePerm, readPerm, alias, color);
 		c.modes = modes;
 		
 		return c;

@@ -1,20 +1,51 @@
 package com.mcnsa.chat.plugin.utils;
 
 import java.util.Random;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
-import com.mcnsa.chat.plugin.MCNSAChat;
-import com.mcnsa.chat.plugin.managers.Permissions;
+import org.bukkit.entity.Player;
 
-public class Colours {
-	public static String PlayerPrefix(String playerName) {
-		return MCNSAChat.chat.getPlayerPrefix("world", playerName);
+import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.managers.PermissionManager;
+import com.mcnsa.chat.type.ChatPlayer;
+
+public class Colors {
+	public static String PlayerPrefix(ChatPlayer player) {
+		return MCNSAChat.chat.getPlayerPrefix("world", player.name);
 	}
 	
-	public static String PlayerGroup(String playerName) {
-		String group = Permissions.perms.getPrimaryGroup("world", playerName);
+	public static String PlayerGroup(ChatPlayer player) {
+		String group = PermissionManager.perms.getPrimaryGroup("world", player.name);
 		return group;		
+	}
+	
+	public static String PlayerSuffix(ChatPlayer player) {
+		return MCNSAChat.chat.getPlayerSuffix("world", player.name);
+	}
+	public static String PlayerPrefix(UUID player) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public static String PlayerGroup(UUID player) {
+		throw new UnsupportedOperationException();
+	}
+	
+	public static String PlayerSuffix(UUID player) {
+		throw new UnsupportedOperationException();
+	}
+	public static String PlayerPrefix(Player player) {
+		return MCNSAChat.chat.getPlayerPrefix(player);
+	}
+	
+	public static String PlayerGroup(Player player) {
+		String group = PermissionManager.perms.getPrimaryGroup(player);
+		return group;		
+	}
+	
+	public static String PlayerSuffix(Player player) {
+		return MCNSAChat.chat.getPlayerSuffix(player);
 	}
 	
 	public static String processConsoleColours(String str) {
@@ -54,14 +85,13 @@ public class Colours {
 		return ChatColor.translateAlternateColorCodes('&', str);
 	}
 	public static String raveColor(String rawMessage) {
-		Random r = new Random();
+		Random r = MCNSAChat.random;
 		String newStr = "";
 		String colors = "123456789abcde";
 		for (int i = 0; i < rawMessage.length(); i++)
 			newStr += "&" + colors.charAt(r.nextInt(colors.length())) + rawMessage.charAt(i);
 		return newStr;
 	}
-	public static String PlayerSuffix(String playerName) {
-		return MCNSAChat.chat.getPlayerSuffix("world", playerName);
-	}
+	
+	
 }

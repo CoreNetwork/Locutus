@@ -10,10 +10,10 @@ import java.util.LinkedList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
 import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
-
+import com.mcnsa.chat.plugin.utils.ConsoleLogging;
+//TODO Haven't even looked at, need close examination
 public class ComponentManager {
 	public class Component {
 		public Class<?> clazz = null;
@@ -79,12 +79,12 @@ public class ComponentManager {
 				}
 			}
 			else {
-				MCNSAChat.console.warning("code source was null!");
+				ConsoleLogging.warning("code source was null!");
 			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			MCNSAChat.console.warning("Failed to load component classes!");
+			ConsoleLogging.warning("Failed to load component classes!");
 		}
 	}
 	
@@ -96,7 +96,7 @@ public class ComponentManager {
 					registeredComponents.get(component).instance = registeredComponents.get(component).clazz.newInstance();
 				}
 				catch(Exception e) {
-					MCNSAChat.console.warning("Failed to instantiate component "+component+" : "+e.getMessage());
+					ConsoleLogging.warning("Failed to instantiate component "+component+" : "+e.getMessage());
 				}
 			}
 		}

@@ -3,34 +3,29 @@ package com.mcnsa.chat.plugin.components;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
-import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
 import com.mcnsa.chat.plugin.exceptions.ChatCommandException;
 import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
-import com.mcnsa.chat.plugin.managers.Permissions;
+import com.mcnsa.chat.plugin.managers.PermissionManager;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
-import com.mcnsa.chat.plugin.utils.Colours;
+import com.mcnsa.chat.plugin.utils.Colors;
 import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
-
+//TODO Change command structure including names
+//TODO Change func names to fit standard
 @ComponentInfo(friendlyName = "Player",
 description = "Player commands",
 permsSettingsPrefix = "player")
@@ -41,11 +36,12 @@ public class PlayerCommands {
 			permissions = {"move"},
 			playerOnly = true)
 	public static boolean channelChange(CommandSender sender, String channel) throws ChatCommandException{
+		Player p = (Player) sender;
 		//Get the player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
+		ChatPlayer player = PlayerManager.getPlayer(p.getUniqueId(), MCNSAChat.shortCode);
 		//Check to see if the Player is locked in channel
 		if (player.modes.get("LOCKED")) {
-			MessageSender.send("&cYou are locked in this channel", player.name);
+			MessageSender.send("&cYou are locked in this channel", player);
 			return true;
 		}
 		
@@ -53,8 +49,8 @@ public class PlayerCommands {
 		if (ChannelManager.getChannel(channel) != null) {
 			ChatChannel chan = ChannelManager.getChannel(channel);
 			
-			if (!Permissions.checkReadPerm(chan.read_permission, player.name)) {
-					MessageSender.send("&4You do not have the required permissions to enter this channel", player.name);
+			if (!PermissionManager.checkPermission(chan.readPermission, player.name)) {
+					MessageSender.send("&4You do not have the required permissions to enter this channel", player);
 					return true;
 				}
 			channel = chan.name;
@@ -73,57 +69,77 @@ public class PlayerCommands {
 		String playersInChannel = ChannelManager.playersInChannel(channel);
 		//We can say this player has the permissions. Lets welcome them
 		player.changeChannel(channel);
-		Network.updatePlayer(player);
-		MessageSender.send(Colours.color("&6Welcome to the "+channel+" channel. Players here: " + playersInChannel), player.name);
+		MessageSender.send(Colors.color("&6Welcome to the "+channel+" channel. Players here: " + playersInChannel), player);
 	
 		return true;
 		
 	}
 	
-	@Command(command = "cmute",
+	@Command(command = "mute",
 			aliases = {"ignore", "mute", "cmute"},
 			arguments = {"Player"},
 			description = "Mute a player",
 			permissions = {"mute"},
 			playerOnly = true)
-	public static boolean mutePlayer(CommandSender sender, String mutedPlayer) {
+	public static boolean mutePlayer(CommandSender sender, String mutedPlayerName) {
+		Player p = (Player) sender;
 		//Get the player sending command
-		ChatPlayer playerSending = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
+		ChatPlayer playerSending = PlayerManager.getPlayer(p.getUniqueId(), MCNSAChat.shortCode);
 		
 		//Try and find the player they are trying to mute
-		ArrayList<ChatPlayer> playerResults = PlayerManager.playerSearch(mutedPlayer);
-		if (!playerResults.isEmpty()) {
-			//Get the first result
-			mutedPlayer = playerResults.get(0).name;
-		}
+		ChatPlayer mutedPlayer = PlayerManager.searchPlayer(mutedPlayerName);
 		//See if the player they are trying to mute is already muted
-		if (playerSending.muted.contains(mutedPlayer)) {
-			//Player is already muted, Un mute them
-			playerSending.muted.remove(mutedPlayer);
-			
+		if (playerSending.hasMuted(mutedPlayer)) {
 			//Let the player know
-			MessageSender.send("&6"+mutedPlayer+" has been unmuted", playerSending.name);
+			MessageSender.send("&6"+mutedPlayer+" is already muted", playerSending);
 		}
 		else {
-			playerSending.muted.add(mutedPlayer);
+			playerSending.mutePlayer(mutedPlayer);
 			//Let the player know
-			MessageSender.send("&6"+mutedPlayer+" has been muted", playerSending.name);
+			MessageSender.send("&6"+mutedPlayer+" has been muted", playerSending);
 		}
 
-		//Update player on other servers
-		Network.updatePlayer(playerSending);
 		
 		return true;
 	}
 	
-	@Command(command = "clist",
+	@Command(command = "unmute",
+			arguments = {"Player"},
+			description = "Unmute a player",
+			permissions = {"mute"},
+			playerOnly = true)
+	public static boolean unmutePlayer(CommandSender sender, String mutedPlayerName) {
+		Player p = (Player) sender;
+		//Get the player sending command
+		ChatPlayer playerSending = PlayerManager.getPlayer(p.getUniqueId(), MCNSAChat.shortCode);
+		
+		//Try and find the player they are trying to mute
+		ChatPlayer mutedPlayer = PlayerManager.searchPlayer(mutedPlayerName);
+		//See if the player they are trying to mute is already muted
+		if (playerSending.hasMuted(mutedPlayer)) {
+			//Player is already muted, Un mute them
+			playerSending.hasMuted(mutedPlayer);
+			
+			//Let the player know
+			MessageSender.send("&6"+mutedPlayer+" has been unmuted", playerSending);
+		}
+		else {
+			//Let the player know
+			MessageSender.send("&6"+mutedPlayer+" is not muted", playerSending);
+		}
+
+		
+		return true;
+	}
+	
+	@Command(command = "channels",
 			aliases = {"Channels"},
 			description = "Get a list of channels",
 			permissions = {"list"},
 			playerOnly = false)
 	public static boolean channelList(CommandSender sender) {
 		//Get the player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
+		ChatPlayer player = PlayerManager.getPlayer(sender, MCNSAChat.shortCode);
 		ArrayList<String> channels;
 		if (sender instanceof Player)
 		{
@@ -150,11 +166,11 @@ public class PlayerCommands {
 		}
 		if (sender instanceof Player)
 		{
-			MessageSender.send("Channels: "+message.toString(), player.name);
+			MessageSender.send("Channels: "+message.toString(), player);
 		}
 		else
 		{
-			MessageSender.send("Channels: "+message.toString(), "console");
+			MessageSender.sendToConsole("Channels: "+message.toString());
 		}
 		return true;
 	}
@@ -165,18 +181,19 @@ public class PlayerCommands {
 			permissions = {},
 			playerOnly = true)
 	public static boolean channelListen(CommandSender sender, String Channel) {
+		Player p = (Player) sender;
 		Channel = Channel.substring(0, 1).toUpperCase() + Channel.substring(1);
 		String channel = Channel;
 		//Get the player
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode);
+		ChatPlayer player = PlayerManager.getPlayer(p.getUniqueId(), MCNSAChat.shortCode);
 		
 		//Try and get the channel
 		ChatChannel targetChannel = ChannelManager.getChannel(Channel);
 		if (targetChannel != null) {
 			//Channel is persistent. Check perms
-			if (!Permissions.checkReadPerm(targetChannel.read_permission, player.name)) {
+			if (!PermissionManager.checkPermission(targetChannel.readPermission, player.name)) {
 				//Player does not have read permission
-				MessageSender.send("&4You do not have permission to listen to: "+targetChannel.color+targetChannel.name, player.name);
+				MessageSender.send("&4You do not have permission to listen to: "+targetChannel.color+targetChannel.name, player);
 				return true;
 			}
 			channel = targetChannel.color+targetChannel.name;
@@ -193,20 +210,15 @@ public class PlayerCommands {
 		//Change the channel
 		int result = player.channelListen(channel);
 		if (result == 3) {
-			MessageSender.send("&6You are now listening to "+channel, player.name);
-			Network.updatePlayer(player);
+			MessageSender.send("&6You are now listening to "+channel, player);
 		}
 		else if (result == 1) {
-			MessageSender.send("&6You have stopped listening to "+channel, player.name);
-			Network.updatePlayer(player);
+			MessageSender.send("&6You have stopped listening to "+channel, player);
 		}
 		else  if (result == 2){
-			MessageSender.send("&cYou cannot listen to this channel "+channel, player.name);
-			Network.updatePlayer(player);
+			MessageSender.send("&cYou cannot listen to this channel "+channel, player);
 		}
 		
-		//Update player on other servers
-		Network.updatePlayer(player);
 		
 		return true;
 	}
@@ -215,98 +227,62 @@ public class PlayerCommands {
 			arguments = {"Player", "Message"},
 			description = "Message a player",
 			permissions = {"msg"})
-	public static boolean message(CommandSender sender, String player, String... Message) {
+	public static boolean message(CommandSender sender, String player, String... messageArray) {
 		
 		StringBuffer messageString = new StringBuffer();
-		for (String message: Message) {
+		for (String message: messageArray) {
 			messageString.append(message+" ");
 		}
-		
-		//sending to console support
-		if (player.equalsIgnoreCase("console")) {
-			//Try and get player
-			ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
+		String message = messageString.toString();
+		if (sender instanceof Player){
+			ChatPlayer playerSender = PlayerManager.getPlayer(sender);
 			if (playerSender.modes.get("MUTE"))
 			{
-				MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
-				return true;
-			} else if (playerSender.modes.get("S-MUTE"))
-			{
-				MessageSender.sendPM(messageString.toString(), sender.getName(), player.toUpperCase());
-				
+				MessageSender.send("&c You are in timeout. Please try again later", playerSender);
 				return true;
 			}
-			MessageSender.sendPM(messageString.toString(), sender.getName(), player.toUpperCase());
-			MessageSender.recievePM(messageString.toString(), sender.getName(), player.toUpperCase());
-			
+			if (player.equalsIgnoreCase("console")){
+				if(!playerSender.modes.get("S-MUTE"))
+					MessageSender.sendToConsole(message);
+				MessageSender.sendPMConsole(messageString.toString(), sender);
+				return true;
+			}
+			ChatPlayer target = PlayerManager.searchPlayer(player);
+			if (target == null){
+				MessageSender.send("Could not find player: "+player, sender);
+				return true;
+			}
+			if (target.equals(playerSender)){
+				MessageSender.recievePM(messageString.toString(), sender, target);
+				MessageSender.sendPM(messageString.toString(), sender, target);
+				return true;
+			}
+
+			MessageSender.sendPM(messageString.toString(), sender, target);
+			if (!(playerSender.modes.get("S-MUTE") || target.modes.get("S-MUTE"))){
+				MessageSender.recievePM(messageString.toString(), sender, target);
+			}
 			return true;
 			
+		} else {
+			if (player.equalsIgnoreCase("console")){
+				MessageSender.sendPMConsoleConsole(message);
+				MessageSender.receivePMConsoleConsole(message);
+				return true;
+			}
+			ChatPlayer target = PlayerManager.searchPlayer(player);
+			if (target == null){
+				MessageSender.sendToConsole("Could not find player: "+player);
+				return true;
+			}
+			MessageSender.sendPMConsole(messageString.toString(), target);
+			if (!target.modes.get("S-MUTE")){
+				MessageSender.receivePMConsole(messageString.toString(), target);
+			}
+			return true;
 			
 		}
-		else {
-			if (sender instanceof Player)
-			{
-				ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
-				if (playerSender.modes.get("MUTE"))
-				{
-					MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
-					return true;
-				}
-				else if(playerSender.modes.get("S-MUTE"))
-				{
-					ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
-					if (targetPlayers.isEmpty()) {
-						MessageSender.send("Could not find player: "+player, sender.getName());
-						return true;
-					}
-
-					ChatPlayer targetPlayer = targetPlayers.get(0);
-					//Send the pm back to the sender
-					
-					MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-					if (player.equalsIgnoreCase(playerSender.name))
-					{
-						MessageSender.recievePM(messageString.toString(), sender.getName(), player.toUpperCase());
-					}
-					return true;
-				}
-				//Get targetPlayer
-				ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
-				if (targetPlayers.isEmpty()) {
-					MessageSender.send("Could not find player: "+player, sender.getName());
-					return true;
-				}
-				ChatPlayer targetPlayer = targetPlayers.get(0);
-				
-				//Send the pm back to the sender
-				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-				
-				//Try sending the pm to the target
-				MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
-				
-				//Send it to network
-				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
-			}
-			else
-			{
-				ArrayList<ChatPlayer> targetPlayers = PlayerManager.playerSearch(player);
-				if (targetPlayers.isEmpty()) {
-					MessageSender.send("Could not find player: "+player, sender.getName());
-					return true;
-				}
-				ChatPlayer targetPlayer = targetPlayers.get(0);
-				
-				//Send the pm back to the sender
-				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-				
-				//Try sending the pm to the target
-				MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
-				
-				//Send it to network
-				Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
-			}
-		}
-		return true;
+		
 	}
 	@Command(command = "r",
 			arguments = {"Message"},
@@ -314,83 +290,16 @@ public class PlayerCommands {
 			permissions = {"msg"}, 
 			description = "Reply to the last PM send or recieved",
 			playerOnly = true)
-	public static boolean reply(CommandSender sender, String... Message) {
-		//Build the chat message
-		StringBuffer messageString = new StringBuffer();
-		for (String message: Message) {
-			messageString.append(message+" ");
-		}
+	public static boolean reply(CommandSender sender, String... message) {
+		Player p = (Player) sender;
 		//Get the player
-		ChatPlayer playerSender = PlayerManager.getPlayer(sender.getName());
-		
-		if (playerSender.modes.get("MUTE"))
-		{
-			MessageSender.send("&c You are in timeout. Please try again later", playerSender.name);
-			return true;
-		} else if(playerSender.modes.get("S-MUTE"))
-		{
-			if (playerSender.lastPm == null || playerSender.lastPm.length() < 1){
-				MessageSender.send("There is no one to reply to", playerSender.name);
-				return true;
-			}
-			if (playerSender.lastPm.equalsIgnoreCase("console")) {
-				MessageSender.sendPM(messageString.toString(), sender.getName(), playerSender.lastPm);
-			}
-			else
-			{
-				ChatPlayer targetPlayer = PlayerManager.getPlayer(playerSender.lastPm);
-				
-				//See if target player is online
-				if (targetPlayer == null) {
-					MessageSender.send("That player is offline", playerSender.name);
-					return true;
-				}
-							
-				
-				//Send the pm back to the sender
-				MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-				if (targetPlayer.name == sender.getName())
-				{
-					MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
-				}
-				return true;
-			}
-			
-		}
-		//check to see if the lastpm is actually filled in
-		if (playerSender.lastPm == null || playerSender.lastPm.length() < 1){
-			MessageSender.send("There is no one to reply to", playerSender.name);
+		ChatPlayer playerSender = PlayerManager.getPlayer(p);
+		ChatPlayer target = PlayerManager.getPlayer(playerSender.lastPm);
+		if (target == null){
+			MessageSender.send("There is no one to reply to", playerSender);
 			return true;
 		}
-		//sending to console support
-		if (playerSender.lastPm.equalsIgnoreCase("console")) {
-			//Send the pm back to the sender
-			MessageSender.sendPM(messageString.toString(), sender.getName(), playerSender.lastPm);
-			
-			//Try sending the pm to the target
-			MessageSender.recievePM(messageString.toString(), sender.getName(), playerSender.lastPm);
-			return true;
-		}
-		else {
-			//Get who they are replying to
-			ChatPlayer targetPlayer = PlayerManager.getPlayer(playerSender.lastPm);
-			
-			//See if target player is online
-			if (targetPlayer == null) {
-				MessageSender.send("That player is offline", playerSender.name);
-				return true;
-			}
-						
-			//Send the pm back to the sender
-			MessageSender.sendPM(messageString.toString(), sender.getName(), targetPlayer.name);
-			
-			//Try sending the pm to the target
-			MessageSender.recievePM(messageString.toString(), sender.getName(), targetPlayer.name);
-			
-			//Send it to network
-			Network.PmSend(PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode), targetPlayer.name, messageString.toString());
-		}
-		return true;
+		return message(sender, target.name, message);
 	}
 	
 	@Command(
@@ -401,21 +310,19 @@ public class PlayerCommands {
 			playerOnly = true
 			)
 	public static boolean cmdMe(CommandSender sender, String... rawMessage) {
+		Player p = (Player) sender;
 		//Build the chat message
-		ChatPlayer player = PlayerManager.getPlayer(sender.getName());
+		ChatPlayer player = PlayerManager.getPlayer(p);
 		StringBuffer messageString = new StringBuffer();
 		for (String message: rawMessage) {
 			messageString.append(message+" ");
 		}
 		if (player.modes.get("MUTE")) { 
-			MessageSender.send("&c You are in timeout. Please try again later", player.name);
+			MessageSender.send("&c You are in timeout. Please try again later", player);
 			}
-		else if(player.modes.get("S-MUTE")){
-			MessageSender.shadowActionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
-		}
 		else
 		{
-			MessageSender.actionMessage(sender.getName(), messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(sender.getName(), MCNSAChat.shortCode).channel);
+			MessageSender.actionMessage(player, messageString.toString(), MCNSAChat.shortCode, PlayerManager.getPlayer(p, MCNSAChat.shortCode).channel);
 		}
 		
 		//Send it to relevent players
@@ -428,13 +335,13 @@ public class PlayerCommands {
 			description = "Find what channel a player is in"
 			)
 	public static boolean csearch(CommandSender sender, String player) {
+		ChatPlayer target;
 		//Try and see if we can find the target player
-		if (PlayerManager.playerSearch(player).size() > 0) {
-			ChatPlayer target = PlayerManager.playerSearch(player).get(0);
-			MessageSender.send(target.name+" is in channel: "+target.channel, sender.getName());
+		if ((target = PlayerManager.searchPlayer(player)) != null) {
+			MessageSender.send(target.name+" is in channel: "+target.channel, sender);
 		}
 		else {
-			MessageSender.send("&cCould not find: "+player, sender.getName());
+			MessageSender.send("&cCould not find: "+player, sender);
 		}
 		return true;
 	}
@@ -491,7 +398,7 @@ public class PlayerCommands {
 		List<String> formattedPlayers = new ArrayList<String>();
 		//Get the players online
 		for (Player player: Bukkit.getOnlinePlayers()) {
-			formattedPlayers.add(Colours.PlayerPrefix(player.getName())+player.getName());
+			formattedPlayers.add(Colors.PlayerPrefix(player)+player.getName());
 		}
 		
 		//Sort by rank (&7 (default), &2, &3, &e, &6, &c, &d, &8, &b (mod))
@@ -506,7 +413,7 @@ public class PlayerCommands {
 				players.append(", "+player);
 		}
 		//Now display
-		MessageSender.send("&6Players online ("+formattedPlayers.size()+"/"+Bukkit.getMaxPlayers()+"): "+players.toString() , sender.getName());
+		MessageSender.send("&6Players online ("+formattedPlayers.size()+"/"+Bukkit.getMaxPlayers()+"): "+players.toString() , sender);
 		return true;
 	}
 	
@@ -517,11 +424,12 @@ public class PlayerCommands {
 			permissions = {"crankreload"}
 			)
 		public static boolean crankreload(CommandSender sender) {
-
-		Permissions.perms.getGroups();
+		//TODO
+		//Needed? has changed
+		PermissionManager.perms.getGroups();
 		for (ChatPlayer player : PlayerManager.players)
 		{
-			String playerlistName = Colours.color(Colours.PlayerPrefix(player.name)
+			String playerlistName = Colors.color(Colors.PlayerPrefix(player)
 					+ player.name);
 			if (playerlistName.length() > 16)
 				playerlistName = playerlistName.substring(0, 16);
@@ -537,11 +445,12 @@ public class PlayerCommands {
 			permissions = {"seen"}
 			)
 		public static boolean seen(CommandSender sender, String playerName) {
-			if (PlayerManager.getPlayer(playerName) != null){
+		
+			if (PlayerManager.searchPlayer(playerName) != null){
 				String message = MCNSAChat.plugin.getConfig().getString(
 				"strings.seen-online");
 				message = 	message.replace("%player%", playerName);
-				MessageSender.send(message, sender.getName());
+				MessageSender.send(message, sender);
 			} else {
 				try {
 					ResultSet rs = DatabaseManager.accessQuery("SELECT lastLogin FROM chat_Players WHERE UPPER(player)=UPPER(?)", playerName);
@@ -572,17 +481,17 @@ public class PlayerCommands {
 					message += (!minutes.equals("0") ? minutes+"m " : "");
 					message += (!seconds.equals("0") ? seconds+"s " : "");
 					message += "ago";
-					MessageSender.send(message, sender.getName());
+					MessageSender.send(message, sender);
 				} catch (DatabaseException e) {
 					String message = MCNSAChat.plugin.getConfig().getString(
 					"strings.seen-never");
 					message = 	message.replace("%player%", playerName);
-					MessageSender.send(message, sender.getName());
+					MessageSender.send(message, sender);
 				} catch (SQLException e) {
 					String message = MCNSAChat.plugin.getConfig().getString(
 					"strings.seen-never");
 					message = 	message.replace("%player%", playerName);
-					MessageSender.send(message, sender.getName());
+					MessageSender.send(message, sender);
 					
 				}
 			}
