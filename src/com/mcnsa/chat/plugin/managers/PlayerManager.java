@@ -164,11 +164,13 @@ public class PlayerManager {
 				
 				
 				String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.shadow-mute-notify");
+				notifyMessage = notifyMessage.replace("%player%", players.get(i).name);
+				notifyMessage = notifyMessage.replace("%time%", time);
 				for (ChatPlayer p : players)
 				{
 					if(Permissions.checkPermission("admin.shadow-notify", p.name))
 					{
-						MessageSender.send(notifyMessage.replace("%player%", players.get(i).name), p.name);
+						MessageSender.send(notifyMessage, p.name);
 					}
 				}
 				//UpdatePlayers on network
