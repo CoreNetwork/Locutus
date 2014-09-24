@@ -161,3 +161,13 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+# idea project files
+.idea/
+*.iml
+*.eml
+out/
+/target
+.classpath
+.project
+.settings/
