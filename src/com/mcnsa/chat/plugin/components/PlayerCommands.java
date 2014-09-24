@@ -1,24 +1,9 @@
 package com.mcnsa.chat.plugin.components;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.annotations.Command;
 import com.mcnsa.chat.plugin.annotations.ComponentInfo;
-import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
 import com.mcnsa.chat.plugin.exceptions.ChatCommandException;
 import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
@@ -30,6 +15,14 @@ import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 @ComponentInfo(friendlyName = "Player",
 description = "Player commands",
@@ -532,15 +525,19 @@ public class PlayerCommands {
 			permissions = {"crankreload"}
 			)
 		public static boolean crankreload(CommandSender sender) {
-
-		Permissions.perms.getGroups();
+        Permissions.perms.getGroups();
 		for (ChatPlayer player : PlayerManager.players)
 		{
-			String playerlistName = Colours.color(Colours.PlayerPrefix(player.name)
+            String playerlistName = Colours.color(Colours.PlayerPrefix(player.name)
 					+ player.name);
-			if (playerlistName.length() > 16)
+
+            if (playerlistName.length() > 16)
 				playerlistName = playerlistName.substring(0, 16);
-			Bukkit.getPlayer(player.name).setPlayerListName(playerlistName);
+
+            //Bukkit won't update name with colors if name is the same as previous, so we need to add dummy name just to change it
+            Player bukkitPlayer = Bukkit.getPlayer(player.name);
+            bukkitPlayer.setPlayerListName("dummy");
+            bukkitPlayer.setPlayerListName(playerlistName);
 		}
 		return true;
 	}

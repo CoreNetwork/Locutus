@@ -1,18 +1,16 @@
 package com.mcnsa.chat.plugin.managers;
 
+import com.mcnsa.chat.networking.Network;
+import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.utils.MessageSender;
+import com.mcnsa.chat.type.ChatPlayer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-
-import com.mcnsa.chat.networking.Network;
-import com.mcnsa.chat.plugin.MCNSAChat;
-import com.mcnsa.chat.plugin.utils.ConsoleLogging;
-import com.mcnsa.chat.plugin.utils.MessageSender;
-import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerManager {
 	public static ArrayList<ChatPlayer> players;
@@ -195,7 +193,7 @@ public class PlayerManager {
 
 	public static void removeNonServerPlayers() {
 		ArrayList<ChatPlayer> newPlayers = new ArrayList<ChatPlayer>();
-		Player[] bukkitPlayers = Bukkit.getOnlinePlayers();
+		Collection<Player> bukkitPlayers = (Collection<Player>) Bukkit.getOnlinePlayers();
 		for (Player player: bukkitPlayers) {
 			newPlayers.add(getPlayer(player.getName(), MCNSAChat.shortCode));
 		}

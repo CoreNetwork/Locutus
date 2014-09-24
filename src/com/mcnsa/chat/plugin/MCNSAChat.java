@@ -1,35 +1,11 @@
 package com.mcnsa.chat.plugin;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Timer;
-
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.permission.Permission;
-
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import com.mcnsa.chat.file.Channels;
 import com.mcnsa.chat.networking.ClientThread;
-import com.mcnsa.chat.plugin.managers.ComponentManager;
-import com.mcnsa.chat.plugin.annotations.DatabaseTableInfo;
-import com.mcnsa.chat.plugin.components.PlayerCommands;
-import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.CommandManager;
+import com.mcnsa.chat.plugin.managers.ComponentManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.managers.PlayerManager;
@@ -37,6 +13,20 @@ import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.FileLog;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import net.milkbowl.vault.chat.Chat;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class MCNSAChat extends JavaPlugin{
 	public static String serverName;
@@ -273,7 +263,7 @@ public class MCNSAChat extends JavaPlugin{
 	}
 	
 	public void addOnlinePlayers() {
-		Player[] players = Bukkit.getOnlinePlayers();
+		Collection<Player> players = (Collection<Player>) Bukkit.getOnlinePlayers();
 		for(Player player: players) {
 			if (PlayerManager.getPlayer(player.getName(), MCNSAChat.shortCode) == null)
 				PlayerManager.PlayerLogin(player.getName());

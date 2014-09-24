@@ -1,9 +1,17 @@
 package com.mcnsa.chat.plugin.listeners;
 
+import com.mcnsa.chat.networking.Network;
+import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.managers.ChannelManager;
+import com.mcnsa.chat.plugin.managers.DatabaseManager;
+import com.mcnsa.chat.plugin.managers.Permissions;
+import com.mcnsa.chat.plugin.managers.PlayerManager;
+import com.mcnsa.chat.plugin.utils.Colours;
+import com.mcnsa.chat.plugin.utils.MessageSender;
+import com.mcnsa.chat.type.ChatChannel;
+import com.mcnsa.chat.type.ChatPlayer;
 import java.sql.ResultSet;
 import java.util.Date;
-import java.util.List;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -16,18 +24,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
-
-import com.mcnsa.chat.networking.Network;
-import com.mcnsa.chat.plugin.MCNSAChat;
-import com.mcnsa.chat.plugin.managers.ChannelManager;
-import com.mcnsa.chat.plugin.managers.DatabaseManager;
-import com.mcnsa.chat.plugin.managers.Permissions;
-import com.mcnsa.chat.plugin.managers.PlayerManager;
-import com.mcnsa.chat.plugin.utils.Colours;
-import com.mcnsa.chat.plugin.utils.ConsoleLogging;
-import com.mcnsa.chat.plugin.utils.MessageSender;
-import com.mcnsa.chat.type.ChatChannel;
-import com.mcnsa.chat.type.ChatPlayer;
 
 public class PlayerListener implements Listener {
 	private MCNSAChat plugin;
@@ -69,7 +65,7 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void playerJoin(PlayerJoinEvent event){
+	public void playerJoin(final PlayerJoinEvent event){
 		Player player = event.getPlayer();
 		String playerName = player.getName();
 
@@ -187,7 +183,20 @@ public class PlayerListener implements Listener {
 				+ playerName);
 		if (playerlistName.length() > 16)
 			playerlistName = playerlistName.substring(0, 16);
-		event.getPlayer().setPlayerListName(playerlistName);
+
+        final String finalListName = playerlistName;
+
+        //Setting packet needs to be delayed a bit, otherwise just joining player won't get it
+        Bukkit.getScheduler().runTask(MCNSAChat.plugin, new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                //Bukkit won't update name with colors if name is the same as previous, so we need to add dummy name just to change it
+                event.getPlayer().setPlayerListName("dummy");
+                event.getPlayer().setPlayerListName(finalListName);
+            }
+        });
 
 		// Notify other players
 
