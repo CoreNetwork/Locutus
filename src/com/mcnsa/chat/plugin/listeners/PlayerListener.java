@@ -93,10 +93,12 @@ public class PlayerListener implements Listener {
 				event.setJoinMessage("");
 				String message = plugin.getConfig().getString(
 						"strings.player-welcome");
+				//TODO 
+				//Use search?
 				message = message.replaceAll("%player%", playerName);
 				for (int i = 0; i < PlayerManager.players.size(); i++) {
 					ChatPlayer otherPlayer = PlayerManager.players.get(i);
-					if (!otherPlayer.name.equalsIgnoreCase(playerName)
+					if (!otherPlayer.getName().equalsIgnoreCase(playerName)
 							&& otherPlayer.server.equals(MCNSAChat.shortCode)) {
 						MessageSender.send(message, otherPlayer);
 					}
@@ -253,7 +255,7 @@ public class PlayerListener implements Listener {
 					ChatChannel chan = ChannelManager.getChannel(channel);
 					channel = chan.name;
 					if (PermissionManager.checkPermission(chan.readPermission,
-							player.name)) {
+							player.getName())) {
 						// Get players in channel
 						String playersInChannel = ChannelManager
 								.playersInChannel(channel);
@@ -298,7 +300,7 @@ public class PlayerListener implements Listener {
 						&& PermissionManager
 								.checkPermission(
 										ChannelManager.getChannel(channel).readPermission,
-										player.name))
+										player.getName()))
 					player.addListen(channel);
 
 			if (!player.modes.get("MUTE")) {

@@ -11,7 +11,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.mcnsa.chat.plugin.MCNSAChat;
-import com.mcnsa.chat.plugin.utils.ConsoleLogging;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatPlayer;
 
@@ -32,7 +31,7 @@ public class PlayerManager {
 				return;
 			}
 			players.add(newPlayer);
-			if (PermissionManager.checkPermission("admin.notify", newPlayer.name) && MCNSAChat.isLockdown)
+			if (PermissionManager.checkPermission("admin.notify", newPlayer.getName()) && MCNSAChat.isLockdown)
 			{
 				if (MCNSAChat.lockdownTimerID == 0)
 				{
@@ -132,7 +131,7 @@ public class PlayerManager {
 	public static ArrayList<ChatPlayer> searchPlayers(String string) {
 		ArrayList<ChatPlayer> results = new ArrayList<ChatPlayer>();
 		for (int i = 0; i < players.size(); i++){
-			if (players.get(i).name.toLowerCase().startsWith(string.toLowerCase()) && !results.contains(players.get(i))) {
+			if (players.get(i).getName().toLowerCase().startsWith(string.toLowerCase()) && !results.contains(players.get(i))) {
 				results.add(players.get(i));
 			}
 		}
@@ -176,9 +175,9 @@ public class PlayerManager {
 				String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.shadow-unmute-notify");
 				for (ChatPlayer p : players)
 				{
-					if(PermissionManager.checkPermission("admin.shadow-notify", p.name))
+					if(PermissionManager.checkPermission("admin.shadow-notify", p))
 					{
-						MessageSender.send(notifyMessage.replace("%player%", players.get(i).name), p);
+						MessageSender.send(notifyMessage.replace("%player%", players.get(i).getName()), p);
 					}
 				}
 			}
@@ -207,9 +206,9 @@ public class PlayerManager {
 				String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.shadow-mute-notify");
 				for (ChatPlayer p : players)
 				{
-					if(PermissionManager.checkPermission("admin.shadow-notify", p.name))
+					if(PermissionManager.checkPermission("admin.shadow-notify", p))
 					{
-						MessageSender.send(notifyMessage.replace("%player%", players.get(i).name), p);
+						MessageSender.send(notifyMessage.replace("%player%", players.get(i).getName()), p);
 					}
 				}
 				return;

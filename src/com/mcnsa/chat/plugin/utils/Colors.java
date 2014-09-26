@@ -13,16 +13,16 @@ import com.mcnsa.chat.type.ChatPlayer;
 
 public class Colors {
 	public static String PlayerPrefix(ChatPlayer player) {
-		return MCNSAChat.chat.getPlayerPrefix("world", player.name);
+		return MCNSAChat.chat.getPlayerPrefix("world", player.getName());
 	}
 	
 	public static String PlayerGroup(ChatPlayer player) {
-		String group = PermissionManager.perms.getPrimaryGroup("world", player.name);
+		String group = PermissionManager.perms.getPrimaryGroup("world", player.getName());
 		return group;		
 	}
 	
 	public static String PlayerSuffix(ChatPlayer player) {
-		return MCNSAChat.chat.getPlayerSuffix("world", player.name);
+		return MCNSAChat.chat.getPlayerSuffix("world", player.getName());
 	}
 	public static String PlayerPrefix(UUID player) {
 		throw new UnsupportedOperationException();

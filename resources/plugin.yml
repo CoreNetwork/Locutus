@@ -1,5 +1,92 @@
 name: MCNSAChat
 main: com.mcnsa.chat.plugin.MCNSAChat
 version: 4
-author: [maboughey]
+author: [geoff]
 depend: [Vault] 
+commands:
+    chat reload:
+        description: Reloads chat
+    chat network on:
+        description: Turns on the chat network
+    chat network off:
+        description: Turns off the chat network
+    chat network reset:
+        description: Resets the chat network
+    chat lockdown on:
+        description: Locks down the server
+    chat lockdown off:
+        description: Unlocks the server
+    chat lockdown:
+        description: Locks the server down for a specified time
+        usage: /chat lockdown <time>
+    chat:
+        description: chat stuff
+        usage: None
+    untimeout:
+        description: Untimeouts a player
+        usage: /untimeout <player>(s)
+    timeout:
+        description: timeouts a player
+        usage: timeout <player>(s) <time> <reason>
+    silence:
+        description: Shadow mutes a player
+        usage: /silence <player>(s) <time>
+    unsilence:
+        description: Un-shadow mutes a player
+        usage: /unsilence <player>(s)
+    channel:
+        description: A sub-class
+    channel move:
+        description: moves a player or players into a channel
+        usage: /channel move <channel> <player> ...
+    channel lock:
+        description: lock a player to a channel
+        usage: 
+            /channel lock <player>
+            /channel lock <player> <channel>
+    channel alias:
+        description: Set a channels alias
+        usage:
+            /channel alias <alias>
+            /channel alias <channel> <alias>
+    channel color:
+        description: Sets a channels color
+        usage:
+            /channel color <code>
+            /channel color <channel> <code>
+    channel register:
+        description: Registers a channel
+        usage:
+            /channel register
+            /channel register <channel>
+    channel unregister:
+        description: Unregisters a channel
+        usage:
+            /channel unregister
+            /channel unregister <channel>
+    channel find:
+        description: Find the channels of a given player
+        usage:
+            /channel find <player>
+    unmute:
+        description: Unmutes a player
+        usage: 
+            /unmute <player>
+    msg:
+        description: Private Messages a player
+        usage:
+            /msg <player> <message>
+    reply:
+        description: Replys to a private message
+        usage:
+            /reply <message>
+    channels:
+        description: Lists all channels
+    me:
+        description: Action command
+    seen:
+        description: Shows when last login
+    mute:
+        description: something
+    unmute:
+        description: something
