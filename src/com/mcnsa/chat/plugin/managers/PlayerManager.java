@@ -2,13 +2,17 @@ package com.mcnsa.chat.plugin.managers;
 
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.utils.Colours;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatPlayer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import net.minecraft.server.v1_7_R4.EntityPlayer;
+import net.minecraft.server.v1_7_R4.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 public class PlayerManager {
@@ -230,7 +234,39 @@ public class PlayerManager {
 
     public static void updateTabNames(Player player)
     {
+        final EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
+        if (nmsPlayer.playerConnection == null || nmsPlayer.playerConnection.networkManager.getVersion() < 28)
+            return; //1.7 seems to work without that update
 
+        // Change the name on the client side
+        for (Player otherPlayer : Bukkit.getOnlinePlayers()) {
+            if (otherPlayer.equals(player))
+                continue;
+
+            String playerName = otherPlayer.getName();
+            String playerlistName = Colours.color(Colours.PlayerPrefix(playerName)
+                    + playerName);
+            if (playerlistName.length() > 16)
+                playerlistName = playerlistName.substring(0, 16);
+
+            EntityPlayer nmsOtherPlayer = ((CraftPlayer) otherPlayer).getHandle();
+
+            nmsOtherPlayer.listName = playerlistName;
+            final PacketPlayOutPlayerInfo realNamePacket = PacketPlayOutPlayerInfo.updateDisplayName(nmsOtherPlayer);
+
+            if (player.canSee(otherPlayer)) {
+
+                Bukkit.getScheduler().runTask(MCNSAChat.plugin, new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        if (nmsPlayer.playerConnection != null)
+                         nmsPlayer.playerConnection.sendPacket(realNamePacket);
+                    }
+                });
+            }
+        }
     }
 
 }

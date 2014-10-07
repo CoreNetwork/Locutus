@@ -198,9 +198,9 @@ public class PlayerListener implements Listener {
             }
         });
 
+        PlayerManager.updateTabNames(player);
+
 		// Notify other players
-
-
 		Network.playerJoined(PlayerManager.getPlayer(playerName));
 	}
 	// Handles logouts
