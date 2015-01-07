@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -22,7 +21,7 @@ import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.utils.Colours;
-import com.mcnsa.chat.plugin.utils.ConsoleLogging;
+
 
 public class ChatPlayer implements Serializable{
 
@@ -196,62 +195,72 @@ public class ChatPlayer implements Serializable{
 		this.listening = listening2;
 		this.serversVisited = serversVisited2;
 	}
+
+	//private long timeStart;
 	public void savePlayer() {
 		if (MCNSAChat.isSQL)
 		{
-			try {
-				//Insert the simple values first
-				if (this.lastPm == null)
-					this.lastPm = "";
-				DatabaseManager.updateQuery("DELETE FROM chat_Players where player = ?", this.name);
-				DatabaseManager.updateQuery("INSERT INTO chat_players (player, channel, lastpm, timeouttill, lastLogin) VALUES (?,?,?,?,?)", this.name, this.channel, this.lastPm, this.timeoutTill, this.loginTime);
-				
-				//Clear all chat_Playerchannels for that player
-				DatabaseManager.updateQuery("DELETE FROM chat_Playerchannels where playerName = ?", this.name);
-				
-				//Then add the new ones
-				for(String channel : this.listening)
-				{
-					ResultSet results = DatabaseManager.accessQuery("SELECT COUNT(*) FROM chat_channels WHERE name = ?", channel);
-					int size = results.getInt(1);
-					results = DatabaseManager.accessQuery("SELECT * FROM chat_channels WHERE name = ?", channel);
-					if (size == 0)
-					{
-						DatabaseManager.updateQuery("INSERT INTO chat_channels VALUES (NULL, ?)", channel);
-					}
-					results = DatabaseManager.accessQuery("SELECT * FROM chat_channels WHERE name = ?", channel);
-					int id =  results.getInt("id");
-					DatabaseManager.updateQuery("INSERT INTO chat_Playerchannels VALUES(?,?)", this.name, id);
-				}
-				
-				//Now modes
-				//Clear all first
-				DatabaseManager.updateQuery("DELETE FROM chat_Modes where playerName = ?", this.name);
-				
-				//Iterate through and add all
-				for(Entry<String, Boolean> s :this.modes.entrySet())
-				{
-					if (s.getKey() == null)
-						continue;
-					DatabaseManager.updateQuery("INSERT INTO chat_Modes VALUES(?,?,?)", this.name, s.getKey(), s.getValue());
-				}
-				
-				//Now mutes
-				
-				//Clear all
-				DatabaseManager.updateQuery("DELETE FROM chat_MutedPlayers where muteePlayer = ?", this.name);
-				
-				//And add new
-				for(String s : muted)
-				{
-					DatabaseManager.updateQuery("INSERT INTO chat_MutedPlayers VALUES(?,?)", this.name, s);
-				}
 
-			} catch (DatabaseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+			try {
+
+
+				final boolean oldAutoCommit;
+				oldAutoCommit = DatabaseManager.getConnection().getAutoCommit();
+				DatabaseManager.getConnection().setAutoCommit(false);
+				try {
+					//Insert the simple values first
+					if (this.lastPm == null)
+						this.lastPm = "";
+
+					DatabaseManager.updateQuery("DELETE FROM chat_Players where player = ?", this.name);
+
+					DatabaseManager.updateQuery("INSERT INTO chat_players (player, channel, lastpm, timeouttill, lastLogin) VALUES (?,?,?,?,?)", this.name, this.channel, this.lastPm, this.timeoutTill, this.loginTime);
+
+					//Clear all chat_Playerchannels for that player
+					DatabaseManager.updateQuery("DELETE FROM chat_Playerchannels where playerName = ?", this.name);
+					//Then add the new ones
+					for(String channel : this.listening)
+					{
+						ResultSet results = DatabaseManager.accessQuery("SELECT COUNT(*) FROM chat_channels WHERE name = ?", channel);
+						int size = results.getInt(1);
+						if (size == 0)
+						{
+							DatabaseManager.updateQuery("INSERT INTO chat_channels VALUES (NULL, ?)", channel);
+						}
+						results = DatabaseManager.accessQuery("SELECT * FROM chat_channels WHERE name = ?", channel);
+						int id =  results.getInt("id");
+						DatabaseManager.updateQuery("INSERT INTO chat_Playerchannels VALUES(?,?)", this.name, id);
+					}
+
+					//Now modes
+					//Clear all first
+					DatabaseManager.updateQuery("DELETE FROM chat_Modes where playerName = ?", this.name);
+					//Iterate through and add all
+					for(Entry<String, Boolean> s :this.modes.entrySet())
+					{
+						if (s.getKey() == null)
+							continue;
+
+						DatabaseManager.updateQuery("INSERT INTO chat_Modes VALUES(?,?,?)", this.name, s.getKey(), s.getValue());
+					}
+
+					//Now mutes
+					DatabaseManager.updateQuery("DELETE FROM chat_MutedPlayers where muteePlayer = ?", this.name);
+
+					//And add new
+					for(String s : muted)
+					{
+						DatabaseManager.updateQuery("INSERT INTO chat_MutedPlayers VALUES(?,?)", this.name, s);
+					}
+				} catch (Exception e) {
+					DatabaseManager.getConnection().rollback();
+				} finally {
+					DatabaseManager.getConnection().commit();
+					DatabaseManager.getConnection().setAutoCommit(oldAutoCommit);
+				}
+			}
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -278,6 +287,15 @@ public class ChatPlayer implements Serializable{
 			this.playersFile.save();
 		}
 	}
+
+	/*
+	private long timeDiff()
+	{
+		long woot = System.currentTimeMillis() - timeStart;
+		timeStart = System.currentTimeMillis();
+		return woot;
+	}
+	*/
 	public void changeChannel(String newChannel) {
 		this.channel = newChannel.substring(0, 1).toUpperCase() + newChannel.substring(1);
 	}
