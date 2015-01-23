@@ -32,7 +32,8 @@ public class DatabaseManager {
 		try {
 		    Class.forName("org.sqlite.JDBC");
 			// connect
-		    url = (String) MCNSAChat.plugin.getConfig().get("database-url");
+			url = new File(MCNSAChat.plugin.getDataFolder().getPath(), url).getPath();
+			//url = (String) MCNSAChat.plugin.getConfig().get("database-url");
 			connect();
 			
 			//chatPlayers, chatServers, and the foreign key table

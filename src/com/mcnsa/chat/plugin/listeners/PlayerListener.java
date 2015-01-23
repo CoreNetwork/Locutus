@@ -2,6 +2,7 @@ package com.mcnsa.chat.plugin.listeners;
 
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
+import com.mcnsa.chat.plugin.components.PlayerCommands;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
@@ -179,8 +180,7 @@ public class PlayerListener implements Listener {
 		}
 
 		// Set their name on the player tab list
-		String playerlistName = Colours.color(Colours.PlayerPrefix(playerName)
-				+ playerName);
+		String playerlistName = Colours.color(Colours.PlayerPrefix(playerName) + playerName);
 		if (playerlistName.length() > 16)
 			playerlistName = playerlistName.substring(0, 16);
 
@@ -193,9 +193,10 @@ public class PlayerListener implements Listener {
             public void run()
             {
                 //Bukkit won't update name with colors if name is the same as previous, so we need to add dummy name just to change it
-                event.getPlayer().setPlayerListName("dummy");
-                event.getPlayer().setPlayerListName(finalListName);
-            }
+                //event.getPlayer().setPlayerListName("dummy");
+                //event.getPlayer().setPlayerListName(finalListName);
+				PlayerCommands.crankreload(null);
+			}
         });
 
         PlayerManager.updateTabNames(player);
