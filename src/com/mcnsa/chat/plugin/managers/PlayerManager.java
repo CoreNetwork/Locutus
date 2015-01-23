@@ -9,10 +9,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import net.minecraft.server.v1_7_R4.EntityPlayer;
-import net.minecraft.server.v1_7_R4.PacketPlayOutPlayerInfo;
+import net.minecraft.server.v1_8_R1.ChatSerializer;
+import net.minecraft.server.v1_8_R1.EntityPlayer;
+import net.minecraft.server.v1_8_R1.EnumPlayerInfoAction;
+import net.minecraft.server.v1_8_R1.IChatBaseComponent;
+import net.minecraft.server.v1_8_R1.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 public class PlayerManager {
@@ -235,8 +238,6 @@ public class PlayerManager {
     public static void updateTabNames(Player player)
     {
         final EntityPlayer nmsPlayer = ((CraftPlayer) player).getHandle();
-        if (nmsPlayer.playerConnection == null || nmsPlayer.playerConnection.networkManager.getVersion() < 28)
-            return; //1.7 seems to work without that update
 
         // Change the name on the client side
         for (Player otherPlayer : Bukkit.getOnlinePlayers()) {
@@ -251,8 +252,8 @@ public class PlayerManager {
 
             EntityPlayer nmsOtherPlayer = ((CraftPlayer) otherPlayer).getHandle();
 
-            nmsOtherPlayer.listName = playerlistName;
-            final PacketPlayOutPlayerInfo realNamePacket = PacketPlayOutPlayerInfo.updateDisplayName(nmsOtherPlayer);
+            nmsOtherPlayer.listName = ChatSerializer.a(playerlistName);
+            final PacketPlayOutPlayerInfo realNamePacket = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, nmsOtherPlayer);
 
             if (player.canSee(otherPlayer)) {
 
