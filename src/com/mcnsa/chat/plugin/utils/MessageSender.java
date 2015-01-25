@@ -301,7 +301,7 @@ public class MessageSender {
 			String playerMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-player", "That message contains banned words or characters");
 			playerMessage = playerMessage.replace("%player%", player);
 			playerMessage = playerMessage.replace("%message%", rawMessage);
-			send(playerMessage, player);
+			// send(playerMessage, player);
 
 			return;
 		}
@@ -309,7 +309,7 @@ public class MessageSender {
 			String playerMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-player", "That message contains banned words or characters");
 			playerMessage = playerMessage.replace("%player%", player);
 			playerMessage = playerMessage.replace("%message%", rawMessage);
-			send(playerMessage, player);
+			// send(playerMessage, player);
 			return;
 			
 		}
@@ -372,7 +372,7 @@ public class MessageSender {
 			String playerMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-player", "That message contains banned words or characters");
 			playerMessage = playerMessage.replace("%player%", player);
 			playerMessage = playerMessage.replace("%message%", rawMessage);
-			send(playerMessage, player);
+			// send(playerMessage, player);
 
 			String adminMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-admin", "%player% tried to send a message containing banned words: %message%");
 			adminMessage = adminMessage.replace("%player%", player);
@@ -384,7 +384,7 @@ public class MessageSender {
 			String playerMessage = MCNSAChat.plugin.getConfig().getString("strings.banned-word-player", "That message contains banned words or characters");
 			playerMessage = playerMessage.replace("%player%", player);
 			playerMessage = playerMessage.replace("%message%", rawMessage);
-			send(playerMessage, player);
+			// send(playerMessage, player);
 			return;
 			
 		}
