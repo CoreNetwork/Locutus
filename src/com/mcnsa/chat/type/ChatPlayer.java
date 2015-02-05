@@ -5,10 +5,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,6 +18,8 @@ import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
 import com.mcnsa.chat.plugin.utils.Colours;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 
 public class ChatPlayer implements Serializable{
@@ -39,12 +38,14 @@ public class ChatPlayer implements Serializable{
 	public long timeoutTill = 0;
 	public long loginTime = 0;
 	public String formatted;
-	
+	public UUID playerId;
+
 	@SuppressWarnings("unchecked")
-	public ChatPlayer(String username){
-		
+	public ChatPlayer(OfflinePlayer player) {
+
 		//Player name
-		this.name = username;
+		this.name = player.getName();
+        this.playerId = player.getUniqueId();
 		//Player server
 		this.server = MCNSAChat.shortCode;
 		
@@ -56,7 +57,7 @@ public class ChatPlayer implements Serializable{
 				//Check to see if they actually exist
 				ResultSet results = DatabaseManager.accessQuery("SELECT COUNT(*) FROM chat_players WHERE player = ?", this.name);
 				int size = results.getInt(1);
-				results = DatabaseManager.accessQuery("SELECT * FROM chat_players WHERE player = ?", this.name);//ArrayList<HashMap<String, Object>> results = DatabaseManager.accessQuery("SELECT * FROM chat_players WHERE player = ?", this.name);
+				results = DatabaseManager.accessQuery("SELECT * FROM chat_players WHERE player_id = ?", this.playerId.toString());//ArrayList<HashMap<String, Object>> results = DatabaseManager.accessQuery("SELECT * FROM chat_players WHERE player = ?", this.name);
 				if (size == 0)
 				{
 					this.channel = MCNSAChat.plugin.getConfig().getString("defaultChannel");
@@ -132,7 +133,7 @@ public class ChatPlayer implements Serializable{
 		else
 		{
 			//check to see if there is actually a player file there
-			File playerFile = new File("plugins/MCNSAChat/Players/", username+".yml");
+			File playerFile = new File("plugins/MCNSAChat/Players/", this.name+".yml");
 			playersFile = new Players(this.name);
 			if (!playerFile.exists()) {
 				//Player is new to the server. Set the defaults
@@ -186,7 +187,7 @@ public class ChatPlayer implements Serializable{
 		}
 		this.formatted = Colours.PlayerPrefix(name)+this.name;
 	}
-	public ChatPlayer(String name2, String server2, String channel2, String lastPm2, HashMap<String, Boolean> modes2, ArrayList<String> listening2, ArrayList<String> serversVisited2) {
+	public ChatPlayer(String name2, String server2, String channel2, String lastPm2, HashMap<String, Boolean> modes2, ArrayList<String> listening2, ArrayList<String> serversVisited2, UUID uuid) {
 		this.name = name2;
 		this.server = server2;
 		this.channel = channel2;
@@ -194,6 +195,7 @@ public class ChatPlayer implements Serializable{
 		this.modes = modes2;
 		this.listening = listening2;
 		this.serversVisited = serversVisited2;
+        this.playerId = uuid;
 	}
 
 	//private long timeStart;
@@ -214,7 +216,7 @@ public class ChatPlayer implements Serializable{
 
 					DatabaseManager.updateQuery("DELETE FROM chat_Players where player = ?", this.name);
 
-					DatabaseManager.updateQuery("INSERT INTO chat_players (player, channel, lastpm, timeouttill, lastLogin) VALUES (?,?,?,?,?)", this.name, this.channel, this.lastPm, this.timeoutTill, this.loginTime);
+					DatabaseManager.updateQuery("INSERT INTO chat_players (player, channel, lastpm, timeouttill, lastLogin, player_id) VALUES (?,?,?,?,?, ?)", this.name, this.channel, this.lastPm, this.timeoutTill, this.loginTime, this.playerId.toString());
 
 					//Clear all chat_Playerchannels for that player
 					DatabaseManager.updateQuery("DELETE FROM chat_Playerchannels where playerName = ?", this.name);
@@ -343,6 +345,7 @@ public class ChatPlayer implements Serializable{
 		for (String visited: this.serversVisited){
 			out.writeUTF(visited);
 		}
+        out.writeUTF(this.playerId.toString());
 	}
 	
 	public static ChatPlayer read(DataInputStream in) throws IOException{
@@ -373,7 +376,9 @@ public class ChatPlayer implements Serializable{
 		}
 		if (lastPm.equals("null"))
 			lastPm = null;
-		ChatPlayer cp = new ChatPlayer(name, server, channel, lastPm, modes, listening, serversVisited);
+
+        UUID id = UUID.fromString(in.readUTF());
+		ChatPlayer cp = new ChatPlayer(name, server, channel, lastPm, modes, listening, serversVisited, id);
 		cp.formatted = formatted;
 		return cp;
 	}

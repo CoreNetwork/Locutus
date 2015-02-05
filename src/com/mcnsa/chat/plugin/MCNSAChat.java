@@ -1,7 +1,9 @@
 package com.mcnsa.chat.plugin;
 
+import com.evilmidget38.UUIDFetcher;
 import com.mcnsa.chat.file.Channels;
 import com.mcnsa.chat.networking.ClientThread;
+import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.listeners.PlayerListener;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.CommandManager;
@@ -14,14 +16,10 @@ import com.mcnsa.chat.plugin.utils.FileLog;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -127,6 +125,7 @@ public class MCNSAChat extends JavaPlugin{
 
 		DatabaseManager dbManager = new DatabaseManager();
 		dbManager.enable();
+        updateUUIDs();
 		//Support for /reload
 		addOnlinePlayers();
 		//Start up the player listener
@@ -170,7 +169,7 @@ public class MCNSAChat extends JavaPlugin{
 		for (File player : playerFiles)
 		{
 			String playerName = player.getName().substring(0, player.getName().length() - 4);
-			ChatPlayer cPlayer = new ChatPlayer(playerName);
+			ChatPlayer cPlayer = new ChatPlayer(Bukkit.getOfflinePlayer(playerName));
 			cPlayer.loginTime = player.lastModified();
 			ConsoleLogging.info(String.format("Transferring: %s \t %.2f%%", playerName, (i / playerFiles.length * 100)));
 			cPlayer.savePlayer();
@@ -261,12 +260,35 @@ public class MCNSAChat extends JavaPlugin{
 		this.channels.get().set("channels", savedChannels);
 		this.channels.save();
 	}
+
+    public void updateUUIDs() {
+        try {
+            getLogger().info("Updating UUIDs");
+            ResultSet set = DatabaseManager.accessQuery("SELECT player FROM chat_Players WHERE player_id is NULL");
+            List<String> names = new LinkedList<>();
+            while (set.next()) {
+                names.add(set.getString("player"));
+            }
+            UUIDFetcher fetcher = new UUIDFetcher(names);
+            Map<String, UUID> result = fetcher.call();
+            for (Map.Entry<String, UUID> e : result.entrySet()) {
+                DatabaseManager.updateQuery("UPDATE chat_Players SET player_id = ? WHERE player = ?", e.getValue().toString(), e.getKey());
+            }
+            getLogger().info("Done updating UUIDs");
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 	
 	public void addOnlinePlayers() {
 		Collection<Player> players = (Collection<Player>) Bukkit.getOnlinePlayers();
 		for(Player player: players) {
 			if (PlayerManager.getPlayer(player.getName(), MCNSAChat.shortCode) == null)
-				PlayerManager.PlayerLogin(player.getName());
+				PlayerManager.PlayerLogin(player);
 		}
 	}
 }

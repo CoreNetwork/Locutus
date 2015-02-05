@@ -25,9 +25,9 @@ public class PlayerManager {
 		players = new ArrayList<ChatPlayer>();
 	}
 	
-	public static void PlayerLogin(String player){
+	public static void PlayerLogin(Player player){
 		
-		if (PlayerManager.getPlayer(player, MCNSAChat.shortCode) == null) {
+		if (PlayerManager.getPlayer(player.getName(), MCNSAChat.shortCode) == null) {
 			ChatPlayer newPlayer= new ChatPlayer(player);
 
 			if (MCNSAChat.isLockdown && newPlayer.firstTime)
@@ -55,7 +55,7 @@ public class PlayerManager {
 					message = message.replace("%seconds%", String.valueOf(TimeUnit.MILLISECONDS.toSeconds(timeLeft) % 60));
 					message = message.replace("%minutes%", String.valueOf(TimeUnit.MILLISECONDS.toMinutes(timeLeft) % 60));
 					message = message.replace("%reason%", MCNSAChat.lockdownReason);
-					MessageSender.send(message, player );
+					MessageSender.send(message, player.getName() );
 				}
 			}
 		}
@@ -86,7 +86,8 @@ public class PlayerManager {
 		}
 		return null;
 	}
-	public static ChatPlayer getPlayer(String name, String server) {
+
+    public static ChatPlayer getPlayer(String name, String server) {
 		for (ChatPlayer player: players) {
 			if (player.name.equalsIgnoreCase(name) && player.server.equals(server)){
 				return player;

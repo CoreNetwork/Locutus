@@ -3,6 +3,7 @@ package com.mcnsa.chat.plugin.listeners;
 import com.mcnsa.chat.networking.Network;
 import com.mcnsa.chat.plugin.MCNSAChat;
 import com.mcnsa.chat.plugin.components.PlayerCommands;
+import com.mcnsa.chat.plugin.exceptions.DatabaseException;
 import com.mcnsa.chat.plugin.managers.ChannelManager;
 import com.mcnsa.chat.plugin.managers.DatabaseManager;
 import com.mcnsa.chat.plugin.managers.Permissions;
@@ -12,6 +13,7 @@ import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -71,8 +73,17 @@ public class PlayerListener implements Listener {
 		String playerName = player.getName();
 
 		// Add to playerManager
-		PlayerManager.PlayerLogin(playerName);
-		if (PlayerManager.getPlayer(playerName).firstTime) {
+        boolean firstTime = false;
+        try {
+            ResultSet set = DatabaseManager.accessQuery("SELECT player FROM chat_Players WHERE player_id = ?", player.getUniqueId().toString());
+            firstTime = !set.isBeforeFirst();
+        } catch (DatabaseException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        PlayerManager.PlayerLogin(player);
+        if (firstTime) {
 			// Record that the player has been on the server
 			PlayerManager.getPlayer(playerName).serversVisited
 					.add(MCNSAChat.serverName);
