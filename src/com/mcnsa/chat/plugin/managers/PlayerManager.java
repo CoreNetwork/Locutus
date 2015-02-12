@@ -246,7 +246,8 @@ public class PlayerManager {
                 continue;
 
             String playerName = otherPlayer.getName();
-            String playerlistName = Colours.color(Colours.PlayerPrefix(playerName)
+            String nameWithPrefix = Colours.PlayerPrefix(playerName).replaceAll("[^a-zA-Z0-9&]", "");
+            String playerlistName = Colours.color(nameWithPrefix
                     + playerName);
             if (playerlistName.length() > 16)
                 playerlistName = playerlistName.substring(0, 16);
