@@ -16,15 +16,23 @@ import com.mcnsa.chat.plugin.utils.FileLog;
 import com.mcnsa.chat.type.ChatChannel;
 import com.mcnsa.chat.type.ChatPlayer;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.logging.Level;
 
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class MCNSAChat extends JavaPlugin{
 	public static String serverName;
@@ -273,6 +281,30 @@ public class MCNSAChat extends JavaPlugin{
             Map<String, UUID> result = fetcher.call();
             for (Map.Entry<String, UUID> e : result.entrySet()) {
                 DatabaseManager.updateQuery("UPDATE chat_Players SET player_id = ? WHERE player = ?", e.getValue().toString(), e.getKey());
+            }
+            set = DatabaseManager.accessQuery("SELECT player FROM chat_Players WHERE player_id is NULL");
+            names.clear();
+            while (set.next()) {
+                names.add(set.getString("player"));
+            }
+            getLogger().info(names.size() + " names remaining. Be patient!");
+            for (String name : names) {
+                try {
+                    URL url = new URL("https://api.mojang.com/users/profiles/minecraft/" + name + "?at=1420070400");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    if (connection.getResponseCode() == 200) {
+                        JSONParser json = new JSONParser();
+                        HashMap<String, String> response = (HashMap<String, String>) json.parse(new InputStreamReader(connection.getInputStream()));
+                        UUID id = UUID.fromString(response.get("id").replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
+                        String newName = response.get("name");
+                        DatabaseManager.updateQuery("UPDATE chat_Players SET player_id = ?, player = ? WHERE player = ?", id.toString(), newName, name);
+                    } else {
+                        getLogger().info("Name not found for user " + name);
+                    }
+                } catch (IOException | ParseException | DatabaseException e) {
+                    getLogger().log(Level.WARNING, "Crash for name " + name, e);
+                }
+
             }
             getLogger().info("Done updating UUIDs");
         } catch (DatabaseException e) {
