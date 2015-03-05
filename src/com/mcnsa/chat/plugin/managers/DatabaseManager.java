@@ -37,7 +37,7 @@ public class DatabaseManager {
 			connect();
 			
 			//chatPlayers, chatServers, and the foreign key table
-			String[] fields = { "player VARCHAR(100) NOT NULL PRIMARY KEY UNIQUE", "channel VARCHAR(100)", "lastPM VARCHAR(255)", "timeoutTill BIGINT", "lastLogin BIGINT"};
+			String[] fields = { "player VARCHAR(100) NOT NULL PRIMARY KEY UNIQUE", "channel VARCHAR(100)", "lastPM VARCHAR(255)", "timeoutTill BIGINT", "lastLogin BIGINT", "player_id STRING"};
 			addTableConstruct("chat_Players", fields);
 			fields = new String[]{"id INTEGER NOT NULL PRIMARY KEY UNIQUE", "name VARCHAR(100)"};
 			addTableConstruct("chat_Servers", fields);
