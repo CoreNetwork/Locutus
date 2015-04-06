@@ -569,10 +569,10 @@ public class AdminCommands {
 		String playersInChannel = ChannelManager.playersInChannel(channel);
 		// We can say this player has the permissions. Lets welcome them
 		targetPlayer.changeChannel(channel);
-		MessageSender.send(
-				Colours.color("&6You have been moved to " + channel
-						+ ". Players here: " + playersInChannel),
-				targetPlayer.name);
+		// MessageSender.send(
+		//		Colours.color("&6You have been moved to " + channel
+		//				+ ". Players here: " + playersInChannel),
+		//		targetPlayer.name);
 
 		// Update player on other servers
 		Network.updatePlayer(targetPlayer);
