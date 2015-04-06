@@ -2,12 +2,11 @@ package com.mcnsa.chat.plugin.managers;
 
 import net.milkbowl.vault.permission.Permission;
 
-import org.bukkit.plugin.RegisteredServiceProvider;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 
-import com.mcnsa.chat.plugin.MCNSAChat;
+import org.bukkit.plugin.RegisteredServiceProvider;
 
 public class Permissions {
 	public static String corePermission = "mcnsachat.";

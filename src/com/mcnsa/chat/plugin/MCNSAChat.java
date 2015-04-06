@@ -20,13 +20,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 
 import net.milkbowl.vault.chat.Chat;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;

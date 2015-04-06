@@ -9,13 +9,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import net.minecraft.server.v1_8_R1.ChatSerializer;
-import net.minecraft.server.v1_8_R1.EntityPlayer;
-import net.minecraft.server.v1_8_R1.EnumPlayerInfoAction;
-import net.minecraft.server.v1_8_R1.IChatBaseComponent;
-import net.minecraft.server.v1_8_R1.PacketPlayOutPlayerInfo;
+
+import net.minecraft.server.v1_8_R2.EntityPlayer;
+import net.minecraft.server.v1_8_R2.IChatBaseComponent;
+import net.minecraft.server.v1_8_R2.PacketPlayOutPlayerInfo;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 public class PlayerManager {
@@ -254,8 +253,8 @@ public class PlayerManager {
 
             EntityPlayer nmsOtherPlayer = ((CraftPlayer) otherPlayer).getHandle();
 
-            nmsOtherPlayer.listName = ChatSerializer.a(playerlistName);
-            final PacketPlayOutPlayerInfo realNamePacket = new PacketPlayOutPlayerInfo(EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, nmsOtherPlayer);
+            nmsOtherPlayer.listName = IChatBaseComponent.ChatSerializer.a(playerlistName);
+            final PacketPlayOutPlayerInfo realNamePacket = new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, nmsOtherPlayer);
 
             if (player.canSee(otherPlayer)) {
 
