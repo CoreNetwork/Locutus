@@ -542,8 +542,19 @@ public class MessageSender {
 		}
 	}
 	public static void timeoutPlayer(String player, String time, String reason) {
+
+		boolean isSilent = false;
+		if(reason.startsWith("silent"))
+		{
+			reason = reason.replaceFirst("silent", "");
+			reason = reason.trim();
+			isSilent = true;
+		}
+
 		if (reason.length() < 1)
 			reason = "Breaking chat rules";
+
+
 		//Get base string
 		String notifyMessage = MCNSAChat.plugin.getConfig().getString("strings.timeout-player");
 		notifyMessage = notifyMessage.replace("%time%", time);
@@ -567,9 +578,12 @@ public class MessageSender {
 					continue;
 				//Check if the sending player is the player in timeout
 				if (!sendPlayer.name.equalsIgnoreCase(player)) {
-					
-					MessageSender.send(playernotify, sendPlayer.name);
-					MessageSender.send(reasonMessage, sendPlayer.name);
+					Player sendPlayerBukkit = Bukkit.getPlayer(sendPlayer.playerId);
+					if(!isSilent || Permissions.perms.playerInGroup(sendPlayerBukkit, "Guardian") || Permissions.perms.playerInGroup(sendPlayerBukkit, "Overseer"))
+					{
+						MessageSender.send(playernotify, sendPlayer.name);
+						MessageSender.send(reasonMessage, sendPlayer.name);
+					}
 				}
 			}
 		}

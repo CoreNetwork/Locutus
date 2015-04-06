@@ -528,8 +528,7 @@ public class PlayerCommands {
         Permissions.perms.getGroups();
 		for (ChatPlayer player : PlayerManager.players)
 		{
-            String playerlistName = Colours.color(Colours.PlayerPrefix(player.name)
-					+ player.name);
+            String playerlistName = Colours.color(Colours.PlayerPrefix(player.name) + player.name);
 
             if (playerlistName.length() > 16)
 				playerlistName = playerlistName.substring(0, 16);
