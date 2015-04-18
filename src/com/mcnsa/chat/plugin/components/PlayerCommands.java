@@ -567,8 +567,10 @@ public class PlayerCommands {
 					String minutes = String.valueOf(TimeUnit.MILLISECONDS.toMinutes(time) % 60);
 					String hours = String.valueOf(TimeUnit.MILLISECONDS.toHours(time) % 24);
 					String days = String.valueOf(TimeUnit.MILLISECONDS.toDays(time) % 30);
-					String months = String.valueOf((int)(TimeUnit.MILLISECONDS.toDays(time) / 30));
-					String years = String.valueOf((int)TimeUnit.MILLISECONDS.toDays(time) / 365);
+					int yearsInt = (int)(TimeUnit.MILLISECONDS.toDays(time) / 365);
+					String months = String.valueOf((int)(TimeUnit.MILLISECONDS.toDays(time) / 30) - yearsInt * 12);
+					String years = String.valueOf(yearsInt);
+
 
 					message += (!years.equals("0") ? years+" years " : "");
 					message += (!months.equals("0") ? months+" months " : "");
