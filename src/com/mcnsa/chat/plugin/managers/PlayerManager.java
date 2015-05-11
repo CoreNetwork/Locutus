@@ -6,6 +6,8 @@ import com.mcnsa.chat.plugin.utils.Colours;
 import com.mcnsa.chat.plugin.utils.MessageSender;
 import com.mcnsa.chat.type.ChatPlayer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -113,6 +115,15 @@ public class PlayerManager {
 				results.add(players.get(i));
 			}
 		}
+
+		Collections.sort(results, new Comparator<ChatPlayer>() {
+			@Override
+			public int compare(ChatPlayer o1, ChatPlayer o2)
+			{
+				return o1.name.compareToIgnoreCase(o2.name);
+			}
+		});
+
 		return results;
 	}
 	public static void unmutePlayer(String Player) {
