@@ -31,6 +31,20 @@ import com.mcnsa.chat.type.ChatPlayer;
 @ComponentInfo(friendlyName = "Admin", description = "Admin commands", permsSettingsPrefix = "admin")
 public class AdminCommands {
 
+	@Command(command = "countplayers", description = "Counts players since last week", permissions = {"playercount"})
+	public static boolean countPlayers(CommandSender sender) {
+		try {
+			ResultSet set = DatabaseManager.accessQuery("SELECT COUNT(*) FROM chat_Players WHERE lastLogin >= ?", System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000);
+			set.next();
+			int amount = set.getInt(0);
+			sender.sendMessage(amount + " players online since last week.");
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@Command(command = "cto", description = "Player chat timeout", permissions = { "timeout" })
 	public static boolean ctoList(CommandSender sender) {
 		// Function lists players in timeout

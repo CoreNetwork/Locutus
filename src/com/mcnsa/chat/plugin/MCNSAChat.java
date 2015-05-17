@@ -301,15 +301,16 @@ public class MCNSAChat extends JavaPlugin{
                     } else {
                         getLogger().info("Name not found for user " + name);
                     }
-                } catch (IOException | ParseException | DatabaseException e) {
+                } catch (IOException | ParseException e) {
                     getLogger().log(Level.WARNING, "Crash for name " + name, e);
+                } catch (DatabaseException e) {
+                    getLogger().log(Level.WARNING, "Crash for name " + name + ". Deleting entry");
+                    DatabaseManager.updateQuery("DELETE FROM chat_Players WHERE player = ?", name);
                 }
 
             }
             getLogger().info("Done updating UUIDs");
-        } catch (DatabaseException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
+        } catch (DatabaseException | SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
