@@ -36,13 +36,14 @@ public class AdminCommands {
 		try {
 			ResultSet set = DatabaseManager.accessQuery("SELECT COUNT(*) FROM chat_Players WHERE lastLogin >= ?", System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000);
 			set.next();
-			int amount = set.getInt(0);
+			int amount = set.getInt(1);
 			sender.sendMessage(amount + " players online since last week.");
 		} catch (DatabaseException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return true;
 	}
 
 	@Command(command = "cto", description = "Player chat timeout", permissions = { "timeout" })
